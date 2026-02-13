@@ -1,0 +1,173 @@
+{% extends 'base.html' %} {% load static %} {% block extra_css %}
+<style>
+  html,
+  body {
+    background-color: transparent !important;
+    background-image: none !important;
+  }
+  /* Ensure content is readable */
+  .hero-section {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+</style>
+{% endblock %} {% block title %}Home - Carbon Footprint Calculator{% endblock %}
+{% block content %}
+<div class="container">
+  <!-- Hero Section -->
+  <div class="text-center mb-3 fade-in scroll-fade-in">
+    <h1>Calculate the True Cost of Your Products</h1>
+    <p
+      style="
+        font-size: 1.25rem;
+        color: var(--text-secondary);
+        max-width: 700px;
+        margin: 1rem auto;
+      "
+    >
+      Discover the environmental impact of any product using our custom-trained
+      machine learning model. Get instant carbon footprint estimates and
+      actionable compensation strategies.
+    </p>
+  </div>
+
+  <!-- Input Form -->
+  <div
+    class="glass-card slide-up scroll-scale"
+    style="max-width: 700px; margin: 3rem auto; animation-delay: 0.2s"
+  >
+    <h2 style="margin-bottom: 1.5rem">Product Details</h2>
+
+    <form id="carbonForm">
+      <!-- Product Name -->
+      <div class="form-group">
+        <label class="form-label" for="productName">Product Name</label>
+        <input
+          type="text"
+          id="productName"
+          class="form-input"
+          placeholder="e.g., Cotton T-Shirt"
+          required
+        />
+      </div>
+
+      <!-- Material -->
+      <div class="form-group">
+        <label class="form-label" for="material">Material Type</label>
+        <select id="material" class="form-select" required>
+          <option value="">Select material...</option>
+          {% for mat in materials %}
+          <option value="{{ mat }}">{{ mat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Weight -->
+      <div class="form-group">
+        <label class="form-label" for="weight">
+          Product Weight:
+          <span class="range-value" id="weightValue">1.0 kg</span>
+        </label>
+        <input
+          type="range"
+          id="weight"
+          class="form-range"
+          min="0.1"
+          max="50"
+          step="0.1"
+          value="1.0"
+        />
+      </div>
+
+      <!-- Transport Mode -->
+      <div class="form-group">
+        <label class="form-label" for="transportMode">Transport Mode</label>
+        <select id="transportMode" class="form-select" required>
+          <option value="">Select transport...</option>
+          <option value="ROAD">🚚 Road (Truck)</option>
+          <option value="RAIL">🚂 Rail (Train)</option>
+          <option value="SEA">🚢 Sea (Cargo Ship)</option>
+          <option value="AIR">✈️ Air (Plane)</option>
+        </select>
+      </div>
+
+      <!-- Transport Distance -->
+      <div class="form-group">
+        <label class="form-label" for="distance">
+          Transport Distance:
+          <span class="range-value" id="distanceValue">1000 km</span>
+        </label>
+        <input
+          type="range"
+          id="distance"
+          class="form-range"
+          min="50"
+          max="20000"
+          step="50"
+          value="1000"
+        />
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        style="width: 100%; margin-top: 1.5rem; font-size: 1.1rem"
+      >
+        🌱 Calculate Carbon Footprint
+      </button>
+    </form>
+
+    <!-- Loading State -->
+    <div
+      id="loadingState"
+      class="hidden"
+      style="text-align: center; margin-top: 2rem"
+    >
+      <div class="loading"></div>
+      <p style="margin-top: 1rem; color: var(--text-secondary)">
+        Analyzing environmental impact...
+      </p>
+    </div>
+  </div>
+
+  <!-- Quick Stats -->
+  <div class="grid-3 mt-3 fade-in scroll-fade-in" style="animation-delay: 0.4s">
+    <div class="glass-card text-center scroll-slide-left stagger-1">
+      <h3 style="color: var(--primary-green-light)">5,000+</h3>
+      <p class="text-muted">Training Samples</p>
+    </div>
+    <div class="glass-card text-center scroll-slide-right stagger-2">
+      <h3 style="color: var(--primary-green-light)">R² > 0.9</h3>
+      <p class="text-muted">Model Accuracy</p>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  // Real-time slider updates
+  const weightSlider = document.getElementById("weight");
+  const weightValue = document.getElementById("weightValue");
+  const distanceSlider = document.getElementById("distance");
+  const distanceValue = document.getElementById("distanceValue");
+
+  weightSlider.addEventListener("input", function () {
+    weightValue.textContent = this.value + " kg";
+    updateSliderGradient(this);
+  });
+
+  distanceSlider.addEventListener("input", function () {
+    distanceValue.textContent = this.value + " km";
+    updateSliderGradient(this);
+  });
+
+  function updateSliderGradient(slider) {
+    const percent =
+      ((slider.value - slider.min) / (slider.max - slider.min)) * 100;
+    slider.style.background = `linear-gradient(to right, var(--primary-green) 0%, var(--primary-green) ${percent}%, rgba(255,255,255,0.1) ${percent}%)`;
+  }
+
+  // Initialize gradients
+  updateSliderGradient(weightSlider);
+  updateSliderGradient(distanceSlider);
+</script>
+{% endblock %}

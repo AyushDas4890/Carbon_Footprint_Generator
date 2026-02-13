@@ -1,0 +1,187 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Results - Carbon
+Footprint Calculator{% endblock %} {% block background_video %}
+<video autoplay muted loop playsinline id="bgVideo">
+  <source src="{% static 'videos/results_bg.mp4' %}" type="video/mp4" />
+</video>
+{% endblock %} {% block content %}
+<div class="container">
+  <!-- Results Container (populated via JS) -->
+  <div id="resultsContainer" class="hidden">
+    <!-- Hero Section with Animated CO2 Display -->
+    <div class="result-hero fade-in scroll-fade-in">
+      <h2 style="margin-bottom: 1rem">Your Product's Carbon Footprint</h2>
+      <div class="co2-display-wrapper">
+        <div class="co2-display glow-effect" id="co2Value">--</div>
+        <div class="co2-unit">kg CO₂e</div>
+      </div>
+      <p class="equivalency-text" id="equivalencyText">Calculating...</p>
+    </div>
+
+    <!-- Animated Stats Cards -->
+    <div class="stats-grid mt-3 slide-up">
+      <div class="stat-card stat-card-1">
+        <div class="stat-icon">🌳</div>
+        <div class="stat-value" id="treesNeeded">--</div>
+        <div class="stat-label">Trees to Plant</div>
+      </div>
+      <div class="stat-card stat-card-2">
+        <div class="stat-icon">🥗</div>
+        <div class="stat-value" id="veganDays">--</div>
+        <div class="stat-label">Vegan Days Equivalent</div>
+      </div>
+      <div class="stat-card stat-card-3">
+        <div class="stat-icon">🚗</div>
+        <div class="stat-value" id="carKm">--</div>
+        <div class="stat-label">km Car Driving</div>
+      </div>
+    </div>
+
+    <!-- Interactive Charts Section -->
+    <div class="grid-2 mt-3 scroll-fade-in">
+      <!-- Donut Chart with Enhanced Styling -->
+      <div class="glass-card chart-card slide-up">
+        <h3 style="margin-bottom: 1.5rem">
+          <span class="section-icon">📊</span>
+          Emissions Breakdown
+        </h3>
+        <div class="chart-wrapper">
+          <canvas id="breakdownChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Detailed Breakdown with Animated Bars -->
+      <div class="glass-card slide-up" style="animation-delay: 0.2s">
+        <h3 style="margin-bottom: 1.5rem">
+          <span class="section-icon">🔍</span>
+          Detailed Analysis
+        </h3>
+
+        <div class="breakdown-item">
+          <div class="breakdown-header">
+            <span class="breakdown-label">
+              <span class="breakdown-icon">🏭</span>
+              Materials
+            </span>
+            <span class="breakdown-percent" id="materialPercent">--</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill materials-fill"
+              id="materialBar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="breakdown-item">
+          <div class="breakdown-header">
+            <span class="breakdown-label">
+              <span class="breakdown-icon">⚙️</span>
+              Manufacturing
+            </span>
+            <span class="breakdown-percent" id="mfgPercent">--</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill manufacturing-fill"
+              id="mfgBar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <div class="breakdown-item">
+          <div class="breakdown-header">
+            <span class="breakdown-label">
+              <span class="breakdown-icon">🚚</span>
+              Transport
+            </span>
+            <span class="breakdown-percent" id="transportPercent">--</span>
+          </div>
+          <div class="progress-bar">
+            <div
+              class="progress-fill transport-fill"
+              id="transportBar"
+              style="width: 0%"
+            ></div>
+          </div>
+        </div>
+
+        <!-- Total Emissions Card -->
+        <div class="total-emissions-card mt-2">
+          <div class="total-label">Total Emissions</div>
+          <div class="total-value" id="totalEmissions">--</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Compensation Strategy Card -->
+    <div
+      class="glass-card compensation-card mt-3 slide-up scroll-fade-in"
+      style="animation-delay: 0.4s"
+    >
+      <h3 style="margin-bottom: 1.5rem">
+        <span class="section-icon">🌍</span>
+        Offset This Footprint
+      </h3>
+
+      <div class="compensation-grid">
+        <div class="compensation-item">
+          <div class="compensation-icon-wrapper">
+            <span class="compensation-icon-large">🌲</span>
+          </div>
+          <div class="compensation-details">
+            <div class="compensation-value" id="treesCompensation">--</div>
+            <div class="compensation-description">trees planted for 1 year</div>
+          </div>
+        </div>
+
+        <div class="compensation-item">
+          <div class="compensation-icon-wrapper">
+            <span class="compensation-icon-large">🌱</span>
+          </div>
+          <div class="compensation-details">
+            <div class="compensation-value" id="veganCompensation">--</div>
+            <div class="compensation-description">days of vegan meals</div>
+          </div>
+        </div>
+
+        <div class="compensation-item">
+          <div class="compensation-icon-wrapper">
+            <span class="compensation-icon-large">♻️</span>
+          </div>
+          <div class="compensation-details">
+            <div class="compensation-value" id="recycleCompensation">--</div>
+            <div class="compensation-description">kg of recycled materials</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="action-buttons mt-2">
+        <button class="btn btn-primary" onclick="window.location.href = '/'">
+          Calculate Another Product
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div id="emptyState" class="glass-card text-center">
+    <h2>No Results Yet</h2>
+    <p class="text-muted">
+      Calculate a product's carbon footprint to see the results here.
+    </p>
+    <a href="/" class="btn btn-primary mt-2">Go to Calculator</a>
+  </div>
+</div>
+
+{% block extra_js %}
+<script>
+  window.addEventListener("DOMContentLoaded", function () {
+    const results = sessionStorage.getItem("carbonResults");
+    if (results) {
+      displayResults(JSON.parse(results));
+    }
+  });
+</script>
+{% endblock %} {% endblock %}
