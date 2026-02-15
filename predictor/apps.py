@@ -12,4 +12,6 @@ class PredictorConfig(AppConfig):
             # Initialize service (loads model via singleton)
             CarbonFootprintService()
         except Exception as e:
-            print(f"⚠️  Warning: Could not load carbon model: {e}")
+            import traceback
+            print(f"Could not load carbon model: {e}")
+            traceback.print_exc()

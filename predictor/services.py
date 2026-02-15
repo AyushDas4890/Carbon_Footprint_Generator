@@ -25,7 +25,7 @@ class CarbonFootprintService:
         model_path = os.path.join('predictor', 'ml_models', 'carbon_model.joblib')
         if os.path.exists(model_path):
             self._model_artifacts = joblib.load(model_path)
-            print(f"✅ Carbon model loaded successfully")
+            print(f"Carbon model loaded successfully")
             print(f"   Model R²: {self._model_artifacts['metrics']['r2_score']:.4f}")
         else:
             raise FileNotFoundError(f"Model not found at {model_path}. Please run training first.")
