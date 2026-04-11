@@ -1,0 +1,45 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Edit Profile - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom: 1.5rem;">👤 Edit Profile</h1>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.monthly_goal.id_for_label }}">Monthly Carbon Goal (kg CO₂)</label>
+            {{ form.monthly_goal }}
+            {% if form.monthly_goal.errors %}
+                <div class="alert alert-error">{{ form.monthly_goal.errors }}</div>
+            {% endif %}
+            <small style="color: #718096;">Set your monthly carbon footprint goal. The average person emits about 1,000-2,000 kg CO₂ per month.</small>
+        </div>
+        
+        <div style="margin-top: 2rem;">
+            <button type="submit" class="btn btn-success">Save Changes</button>
+            <a href="{% url 'tracker:dashboard' %}" class="btn" style="background: #718096;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="background: #f7fafc;">
+    <h3 style="margin-bottom: 1rem;">📊 Current Status</h3>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.get_total_carbon_this_month|floatformat:2 }}</div>
+            <div class="stat-label">This Month</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.monthly_goal|floatformat:2 }}</div>
+            <div class="stat-label">Goal</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.get_goal_progress|floatformat:1 }}%</div>
+            <div class="stat-label">Progress</div>
+        </div>
+    </div>
+</div>
+{% endblock %}

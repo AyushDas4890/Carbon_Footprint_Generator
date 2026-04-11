@@ -1,0 +1,72 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Add Activity - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom: 1.5rem;">➕ Log New Activity</h1>
+    
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="{{ form.category.id_for_label }}">Category *</label>
+            {{ form.category }}
+            {% if form.category.errors %}
+                <div class="alert alert-error">{{ form.category.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.description.id_for_label }}">Description *</label>
+            {{ form.description }}
+            {% if form.description.errors %}
+                <div class="alert alert-error">{{ form.description.errors }}</div>
+            {% endif %}
+            <small style="color: #718096;">e.g., "Drove 20 miles to work" or "Ate beef burger"</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.cost.id_for_label }}">Cost ($)</label>
+            {{ form.cost }}
+            {% if form.cost.errors %}
+                <div class="alert alert-error">{{ form.cost.errors }}</div>
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.carbon_amount.id_for_label }}">Carbon Amount (kg CO₂) *</label>
+            {{ form.carbon_amount }}
+            {% if form.carbon_amount.errors %}
+                <div class="alert alert-error">{{ form.carbon_amount.errors }}</div>
+            {% endif %}
+            <small style="color: #718096;">Enter the carbon footprint in kg CO₂ equivalent</small>
+        </div>
+        
+        <div class="form-group">
+            <label for="{{ form.image.id_for_label }}">Receipt/Image (Optional)</label>
+            {{ form.image }}
+            {% if form.image.errors %}
+                <div class="alert alert-error">{{ form.image.errors }}</div>
+            {% endif %}
+            <small style="color: #718096;">Upload a receipt or photo related to this activity</small>
+        </div>
+        
+        <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+            <button type="submit" class="btn btn-success">Save Activity</button>
+            <a href="{% url 'tracker:dashboard' %}" class="btn" style="background: #718096;">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<div class="card" style="background: #f7fafc;">
+    <h3 style="margin-bottom: 1rem;">💡 Carbon Footprint Reference</h3>
+    <ul style="list-style: none; padding: 0;">
+        <li style="margin-bottom: 0.5rem;">🚗 <strong>Car (gasoline):</strong> ~0.4 kg CO₂ per mile</li>
+        <li style="margin-bottom: 0.5rem;">✈️ <strong>Flight:</strong> ~0.25 kg CO₂ per mile</li>
+        <li style="margin-bottom: 0.5rem;">🍔 <strong>Beef burger:</strong> ~3.5 kg CO₂</li>
+        <li style="margin-bottom: 0.5rem;">⚡ <strong>Electricity (US average):</strong> ~0.5 kg CO₂ per kWh</li>
+        <li style="margin-bottom: 0.5rem;">🏠 <strong>Natural gas:</strong> ~0.2 kg CO₂ per kWh</li>
+    </ul>
+</div>
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Eco-Chat - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1 style="margin-bottom: 1rem;">Eco-Chat</h1>
+  <p style="color:#718096; margin-bottom: 1.5rem;">
+    Ask for eco-friendly tips. The assistant will use your last 5 activities for more specific advice.
+  </p>
+
+  <div style="border: 2px solid #e2e8f0; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; max-height: 420px; overflow: auto; background: #f7fafc;">
+    {% if messages %}
+      {% for m in messages %}
+        <div style="margin-bottom: 0.75rem;">
+          <div style="font-weight: 700; color: #4a5568;">
+            {% if m.role == 'user' %}You{% else %}Eco-Chat{% endif %}
+          </div>
+          <div style="white-space: pre-wrap;">{{ m.content }}</div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:#718096;">No messages yet. Ask something like: “How can I reduce my footprint this week?”</div>
+    {% endif %}
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="{{ form.message.id_for_label }}">Message</label>
+      {{ form.message }}
+      {% if form.message.errors %}
+        <div class="alert alert-error">{{ form.message.errors }}</div>
+      {% endif %}
+    </div>
+    <button class="btn btn-success" type="submit">Send</button>
+  </form>
+</div>
+{% endblock %}
+

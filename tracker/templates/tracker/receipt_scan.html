@@ -1,0 +1,57 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Receipt Scanner - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+  <h1 style="margin-bottom: 1rem;">Receipt Scanner</h1>
+  <p style="color:#718096; margin-bottom: 1.5rem;">
+    Upload a receipt/photo and we'll try to auto-fill an activity for you.
+    (If no AI key is configured, this may return empty results.)
+  </p>
+
+  <form method="post" enctype="multipart/form-data" style="margin-bottom: 2rem;">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="{{ scan_form.image.id_for_label }}">Receipt/Image</label>
+      {{ scan_form.image }}
+      {% if scan_form.image.errors %}
+        <div class="alert alert-error">{{ scan_form.image.errors }}</div>
+      {% endif %}
+    </div>
+    <button class="btn btn-success" type="submit">Scan</button>
+  </form>
+</div>
+
+{% if form %}
+<div class="card">
+  <h2 style="margin-bottom: 1rem;">Review & Save</h2>
+  <form method="post" enctype="multipart/form-data" action="{% url 'tracker:add_activity' %}">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="{{ form.category.id_for_label }}">Category</label>
+      {{ form.category }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.description.id_for_label }}">Description</label>
+      {{ form.description }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.cost.id_for_label }}">Cost</label>
+      {{ form.cost }}
+    </div>
+    <div class="form-group">
+      <label for="{{ form.carbon_amount.id_for_label }}">Carbon Amount (optional)</label>
+      {{ form.carbon_amount }}
+      <small style="color:#718096;">Leave blank to auto-calculate.</small>
+    </div>
+    <div class="form-group">
+      <label for="{{ form.image.id_for_label }}">Receipt/Image (optional)</label>
+      {{ form.image }}
+    </div>
+    <button class="btn btn-success" type="submit">Save Activity</button>
+  </form>
+</div>
+{% endif %}
+{% endblock %}
+

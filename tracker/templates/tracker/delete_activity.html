@@ -1,0 +1,24 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Delete Activity - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom: 1rem;">🗑️ Delete Activity</h1>
+    
+    <p style="margin-bottom: 1rem;">Are you sure you want to delete this activity?</p>
+    
+    <div style="background: #f7fafc; padding: 1rem; border-radius: 5px; margin-bottom: 2rem;">
+        <p><strong>Description:</strong> {{ activity.description }}</p>
+        <p><strong>Category:</strong> {{ activity.category.name|default:"—" }}</p>
+        <p><strong>Carbon Amount:</strong> {{ activity.carbon_amount|floatformat:2 }} kg CO₂</p>
+        <p><strong>Date:</strong> {{ activity.date|date:"M d, Y H:i" }}</p>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'tracker:history' %}" class="btn" style="background: #718096;">Cancel</a>
+    </form>
+</div>
+{% endblock %}

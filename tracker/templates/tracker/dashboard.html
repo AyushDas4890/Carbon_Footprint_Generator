@@ -1,0 +1,88 @@
+{% extends 'tracker/base.html' %}
+
+{% block title %}Dashboard - Carbon Footprint Tracker{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h1 style="margin-bottom: 1rem;">🌍 Your Carbon Footprint Dashboard</h1>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value">{{ total_carbon|floatformat:2 }}</div>
+            <div class="stat-label">kg CO₂ This Month</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ profile.monthly_goal|floatformat:2 }}</div>
+            <div class="stat-label">Monthly Goal (kg CO₂)</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-value">{{ goal_progress|floatformat:1 }}%</div>
+            <div class="stat-label">Goal Progress</div>
+            <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ goal_progress }}%"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 2rem 0;">
+        <a href="{% url 'tracker:add_activity' %}" class="btn btn-success">➕ Log New Activity</a>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">📊 Carbon by Category</h2>
+    {% if carbon_by_category %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Carbon Footprint (kg CO₂)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in carbon_by_category %}
+                <tr>
+                    <td>{{ item.category__name|default:"Uncategorized" }}</td>
+                    <td>{{ item.total|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="color: #718096;">No activities logged this month yet. Start tracking your carbon footprint!</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2 style="margin-bottom: 1rem;">📝 Recent Activities</h2>
+    {% if recent_activities %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Carbon (kg CO₂)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for activity in recent_activities %}
+                <tr>
+                    <td>{{ activity.date|date:"M d, Y" }}</td>
+                    <td>{{ activity.category.name|default:"—" }}</td>
+                    <td>{{ activity.description }}</td>
+                    <td>{{ activity.carbon_amount|floatformat:2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div style="margin-top: 1rem;">
+            <a href="{% url 'tracker:history' %}" class="btn">View All History →</a>
+        </div>
+    {% else %}
+        <p style="color: #718096;">No activities logged yet. <a href="{% url 'tracker:add_activity' %}">Add your first activity!</a></p>
+    {% endif %}
+</div>
+{% endblock %}
