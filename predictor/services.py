@@ -42,20 +42,33 @@ class CarbonFootprintService:
         return cls._instance
 
     def _load_model(self):
+        # Initialise to "no model" state so attribute access never crashes
+        self.kind = None
+        self._artifacts = None
+        self._explainer = None
+
         if XGB_PATH.exists():
-            self.kind = 'xgb'
-            self._artifacts = joblib.load(XGB_PATH)
-            self._setup_explainer()
-            print(f"[predictor] XGBoost loaded. R²={self._artifacts['metrics']['r2']:.4f}")
-        elif RF_PATH.exists():
-            self.kind = 'rf'
-            self._artifacts = joblib.load(RF_PATH)
-            self._explainer = None
-            print(f"[predictor] RandomForest fallback. R²={self._artifacts['metrics']['r2_score']:.4f}")
-        else:
-            raise FileNotFoundError(
-                "No model found. Run `python predictor/training/train_xgboost.py` first."
-            )
+            try:
+                self._artifacts = joblib.load(XGB_PATH)
+                self._setup_explainer()
+                self.kind = 'xgb'
+                print(f"[predictor] XGBoost loaded. R²={self._artifacts['metrics']['r2']:.4f}")
+                return
+            except Exception as e:
+                print(f"[predictor] WARNING: failed to load XGBoost artifact: {e}")
+
+        if RF_PATH.exists():
+            try:
+                self._artifacts = joblib.load(RF_PATH)
+                self.kind = 'rf'
+                print(f"[predictor] RandomForest fallback. R²={self._artifacts['metrics']['r2_score']:.4f}")
+                return
+            except Exception as e:
+                print(f"[predictor] WARNING: failed to load RF artifact: {e}")
+
+        # No model. Don't crash app startup — let endpoints return 503.
+        print("[predictor] WARNING: no model file present. Predictor will return 503.")
+        print("[predictor] Run `python predictor/training/train_xgboost.py` and restart.")
 
     def _setup_explainer(self):
         from predictor.explanations import Explainer
@@ -67,6 +80,12 @@ class CarbonFootprintService:
 
     def predict(self, material, weight_kg, transport_mode, transport_distance_km,
                 manufacturing_intensity='MEDIUM', country='USA', eol='LANDFILL'):
+        if self.kind is None:
+            return {
+                'success': False,
+                'error': 'Model not loaded. The container is still training — refresh in 60 s. '
+                         'If this persists, check release logs.',
+            }
         try:
             if self.kind == 'xgb':
                 return self._predict_xgb(material, weight_kg, transport_mode,
@@ -190,11 +209,26 @@ class CarbonFootprintService:
         return {'grade': grade, 'label': label, 'intensity_kg_co2_per_kg': round(intensity, 2)}
 
     def get_available_materials(self):
+        if self.kind is None:
+            # Hard-coded fallback so the home page form still renders
+            return [
+                'Cotton', 'Polyester', 'Wool', 'Leather', 'Steel', 'Aluminum',
+                'Plastic', 'Glass', 'Paper', 'Wood',
+                'Beef', 'Lamb', 'Pork', 'Chicken', 'Turkey',
+                'Fish_Farmed', 'Fish_Wild', 'Shrimp',
+                'Milk', 'Cheese', 'Eggs', 'Butter',
+                'Tofu', 'Lentils', 'Beans', 'Nuts',
+                'Rice', 'Wheat', 'Oats', 'Corn',
+                'Tomatoes', 'Potatoes', 'Lettuce', 'Apples', 'Bananas',
+            ]
         if self.kind == 'xgb':
             return list(self._artifacts['encoders']['material'].classes_)
         return list(self._artifacts['material_encoder'].classes_)
 
     def get_model_info(self):
+        if self.kind is None:
+            return {'model_family': 'Loading — model file missing.',
+                    'r2_score': 0, 'rmse': 0, 'mae': 0, 'feature_names': []}
         m = self._artifacts['metrics']
         if self.kind == 'xgb':
             return {

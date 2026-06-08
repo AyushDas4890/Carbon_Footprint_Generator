@@ -6,12 +6,13 @@ class PredictorConfig(AppConfig):
     name = 'predictor'
     
     def ready(self):
-        """Load ML model on Django startup"""
+        """Pre-warm the predictor singleton at Django startup.
+
+        Failures here are non-fatal — the service handles missing models
+        internally and endpoints will return graceful 503s if needed.
+        """
         from .services import CarbonFootprintService
         try:
-            # Initialize service (loads model via singleton)
             CarbonFootprintService()
         except Exception as e:
-            import traceback
-            print(f"Could not load carbon model: {e}")
-            traceback.print_exc()
+            print(f"[predictor.apps] Predictor pre-warm failed: {e}")
