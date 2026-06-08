@@ -12,120 +12,257 @@ short_description: AI Carbon Footprint Predictor + RAG Sustainability Advisor
 
 <div align="center">
 
-# 🌍 C4Future — AI Carbon Footprint Platform
+<br>
 
-### Predict, explain, and reduce the carbon footprint of any product — powered by a SHAP-explainable XGBoost model and a RAG-grounded sustainability advisor.
+<img src="https://img.shields.io/badge/-🌍_C4FUTURE-0a0e27?style=for-the-badge&labelColor=0a0e27&color=64ffb4" height="60" alt="C4Future"/>
+
+# Building a Sustainable Tomorrow — Powered by AI
+
+### Predict · Explain · Compare · Decompose · Advise
 
 <br>
 
-[![Live Demo](https://img.shields.io/badge/🚀_Live_Demo-c4future.hf.space-64ffb4?style=for-the-badge&logoColor=white)](https://ad074890-c4future.hf.space)
-[![HuggingFace Space](https://img.shields.io/badge/🤗_HuggingFace-AD074890/c4future-yellow?style=for-the-badge)](https://huggingface.co/spaces/AD074890/c4future)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Python](https://img.shields.io/badge/python-3.11-blue?style=for-the-badge&logo=python)](https://www.python.org/)
-[![Django](https://img.shields.io/badge/Django-5.0-092E20?style=for-the-badge&logo=django)](https://www.djangoproject.com/)
+> **A production-grade carbon-footprint platform that turns any product description into a calibrated CO₂ estimate, an explainable breakdown, and an actionable reduction plan — grounded in real LCA science.**
 
 <br>
 
-### 🔗 **[Try it live → https://ad074890-c4future.hf.space](https://ad074890-c4future.hf.space)**
+[![🚀 Live Demo](https://img.shields.io/badge/🚀_LIVE_DEMO-Try_it_now-64ffb4?style=for-the-badge&labelColor=0a0e27)](https://ad074890-c4future.hf.space)
+[![🤗 HuggingFace](https://img.shields.io/badge/🤗_HuggingFace-AD074890/c4future-FFD21F?style=for-the-badge&labelColor=0a0e27)](https://huggingface.co/spaces/AD074890/c4future)
+[![📊 Real-world R²](https://img.shields.io/badge/Real_world_R²-0.29-00d9ff?style=for-the-badge&labelColor=0a0e27)](https://ad074890-c4future.hf.space/insights/)
+[![📈 Spearman ρ](https://img.shields.io/badge/Spearman_ρ-0.82-8b5cf6?style=for-the-badge&labelColor=0a0e27)](https://ad074890-c4future.hf.space/insights/)
+
+<br>
+
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=flat-square&logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.0-092E20?style=flat-square&logo=django&logoColor=white)
+![XGBoost](https://img.shields.io/badge/XGBoost-2.1-006400?style=flat-square&logo=xgboost)
+![LangChain](https://img.shields.io/badge/LangChain-0.2-1C3C3C?style=flat-square&logo=langchain&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-0.5-ff6b35?style=flat-square)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--mini-412991?style=flat-square&logo=openai&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=flat-square&logo=docker&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-22c55e?style=flat-square)
+
+<br>
+
+### 👉 **[https://ad074890-c4future.hf.space](https://ad074890-c4future.hf.space)** 👈
+
+<sub><i>Free hosting on HuggingFace Spaces · No sign-up needed · Click and explore</i></sub>
 
 </div>
 
----
-
-## 🎯 What it does
-
-C4Future combines **three production AI systems** into one Django web app:
-
-| Feature | Tech | What it does |
-|---|---|---|
-| 🤖 **Carbon Predictor** | XGBoost + SHAP + Conformal Prediction | Predicts product CO₂ footprint with calibrated 90 % confidence intervals and per-feature explanations |
-| 💬 **RAG Advisor** | LangChain + ChromaDB + Cross-Encoder + OpenAI | Answers sustainability questions grounded in indexed LCA / IPCC sources, with inline citations |
-| 🔧 **Agentic BoM Decomposer** | LLM → JSON → ML loop | Turns natural-language product descriptions (e.g. *"iPhone 15 Pro shipped from China by air"*) into a per-component CO₂ breakdown |
+<br>
 
 ---
 
-## 📊 Measured Performance
+## ⚡ What this is in 30 seconds
 
-Trained on **real Agribalyse 3.1 + Poore & Nemecek 2018 + DEFRA 2024** data with a stratified product-level holdout.
+```
+   User says:                                    Model returns:
+   ─────────                                     ─────────
+   "Cotton t-shirt          ┌──────────────┐     ┃ 7.63 kg CO₂e
+    0.5 kg, made in    ────▶│   C4Future   │────▶┃ ± 1.2 kg (90% interval)
+    China, sea freight"     │  AI Platform │     ┃ Grade: B (Good)
+                            └──────────────┘     ┃ Materials drove 72% of impact
+                                                 ┃ Try: Recycled cotton (-31%)
+```
 
-| Metric | Value | What it means |
-|---|---|---|
-| **Real-world R²** | **0.29** | Honest fit on 524 unseen products across 25 materials |
-| **Pearson correlation** | **0.83** | Strong linear relationship |
-| **Spearman rank ρ** | **0.82** | Model gets product ranking right 82 % of the time |
-| **Pairwise accuracy** | **82.6 %** | Correctly picks the lower-CO₂ option in pairwise comparisons |
-| **Conformal coverage** | **89.7 %** | 90 % nominal interval achieves true 89.7 % empirical coverage |
-| **MAE** | 13.3 kg CO₂e | Mean absolute error on held-out products |
+Three production AI systems wired into one Django app, live on HuggingFace Spaces, all open-source.
 
-> Synthetic R² would be ≈ 0.99 (training and testing on the same formula). The 0.29 R² is an **honest measure of real-world generalization**, not a vanity metric.
+<br>
+
+## 🎯 The Three Engines
+
+<table>
+<tr>
+<td width="33%" align="center" valign="top">
+
+### 🤖 ML Predictor
+**XGBoost + SHAP + Conformal**
+
+Predicts CO₂ with provable 90% intervals.  
+Trained on real Agribalyse + Poore + DEFRA data.
+
+`Real-world R² = 0.29`  
+`Spearman ρ = 0.82`  
+`Coverage = 89.7%`
+
+</td>
+<td width="33%" align="center" valign="top">
+
+### 💬 RAG Advisor
+**LangChain + ChromaDB + OpenAI**
+
+Answers grounded in LCA / IPCC sources.  
+Streams responses with citations.
+
+`Cross-encoder reranking`  
+`Out-of-scope refusal eval`  
+`gpt-4o-mini @ $0.0002/chat`
+
+</td>
+<td width="33%" align="center" valign="top">
+
+### 🔧 Agentic Decomposer
+**LLM → JSON → ML loop**
+
+"iPhone 15 Pro" → component breakdown → per-component CO₂.
+
+`JSON-mode structured output`  
+`Schema-validated`  
+`Multi-material products`
+
+</td>
+</tr>
+</table>
+
+<br>
 
 ---
 
-## ✨ Key Features
+## 📊 Live Performance Dashboard
 
-- ✅ **A→E Sustainability Grade** for every product
-- ✅ **SHAP explanations** — see exactly which features pushed the prediction up or down
-- ✅ **Conformalised quantile regression** (Romano et al. 2019) — provable 90 % interval coverage
-- ✅ **Cross-encoder reranking** on RAG retrieval for higher citation quality
-- ✅ **Streaming chat responses** with SSE
-- ✅ **Out-of-scope refusal test** in the RAG eval set — model honestly says "I don't have that"
-- ✅ **Compare 2-10 products** side-by-side with verdict
-- ✅ **Real-world equivalencies** — kg CO₂e converted to car-km, smartphone charges, washing loads
-- ✅ **Tree / REC offset recommendations**
-- ✅ **Health check endpoint** at `/health/`
-- ✅ **Self-healing container** — trains its own ML model on first start if missing
+<div align="center">
+
+| 📈 Metric | 🎯 Value | 💡 What it means |
+|:---:|:---:|:---|
+| **Real-world R²** | `0.29` | Honest fit on **524 unseen products** across 25 materials |
+| **Pearson correlation** | `0.83` | Strong linear agreement between predicted and true CO₂ |
+| **Spearman rank ρ** | `0.82` | Model gets product **ranking** right 82% of the time |
+| **Pairwise accuracy** | `82.6%` | Picks the lower-CO₂ option in head-to-head pairs |
+| **Conformal coverage** | `89.7%` | Nominal 90% interval achieves **89.7% empirical coverage** |
+| **MAE** | `13.3 kg CO₂e` | Mean absolute error on held-out products |
+| **Pipeline latency** | `~80 ms` | Predict → SHAP → conformal interval, end-to-end |
+
+</div>
+
+> 🔬 **Why R² = 0.29 is the honest number.** Synthetic R² (train and test on same formula) would be 0.99 — a vanity metric. The 0.29 reflects real-world generalization on a stratified product-level holdout with **verified zero leakage**.
+
+<br>
+
+---
+
+## ✨ Features
+
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🧠 ML Engineering
+- ✅ XGBoost trio: median + 2 quantile models
+- ✅ **Conformalized quantile regression** (Romano 2019)
+- ✅ **SHAP TreeExplainer** for per-prediction attributions
+- ✅ Product-level stratified holdout, zero leakage verified
+- ✅ Real data: Agribalyse 3.1, Poore & Nemecek 2018, DEFRA 2024
+- ✅ Calibrated 90% intervals with empirical coverage check
+
+</td>
+<td width="50%" valign="top">
+
+### 🤖 RAG + Agentic AI
+- ✅ Dense retrieval (sentence-transformers MiniLM-L6)
+- ✅ Cross-encoder reranking (ms-marco)
+- ✅ ChromaDB persistent vector store
+- ✅ Streaming responses via SSE
+- ✅ Citation-grounded answers with snippets
+- ✅ Out-of-scope refusal test in eval set
+- ✅ Agentic BoM decomposer (LLM → JSON → ML)
+
+</td>
+</tr>
+<tr>
+<td valign="top">
+
+### 🎨 UX Polish
+- ✅ Glassmorphism design with Three.js particle bg
+- ✅ GSAP scroll-linked animations
+- ✅ Lenis smooth scroll
+- ✅ Custom cursor + tilt cards
+- ✅ A→E sustainability grade per product
+- ✅ Compare 2–10 products side-by-side
+- ✅ Real-world equivalencies (car-km, charges)
+
+</td>
+<td valign="top">
+
+### 🚢 Production Hardening
+- ✅ Multi-stage Dockerfile, port-7860 ready
+- ✅ HTTPS + HSTS + Secure cookies + CSRF
+- ✅ `/health/` endpoint for load balancers
+- ✅ WhiteNoise static serving + Gunicorn
+- ✅ Pydantic schemas at API boundary
+- ✅ Sentry + Postgres ready (env-var driven)
+- ✅ Self-healing: trains model on first start
+
+</td>
+</tr>
+</table>
+
+<br>
 
 ---
 
 ## 🛠 Tech Stack
 
-**Backend:** Django 5 · Django REST Framework · Pydantic · WhiteNoise · Gunicorn  
-**ML:** XGBoost · SHAP · scikit-learn · pandas · NumPy · joblib  
-**RAG:** LangChain · ChromaDB · sentence-transformers · cross-encoder (ms-marco-MiniLM) · OpenAI GPT-4o-mini  
-**Frontend:** Vanilla JS · HTML5 · CSS3 (Glassmorphism) · Chart.js · GSAP  
-**Storage:** SQLite (relational) + ChromaDB (vector)  
-**Production:** Docker · GitHub Actions CI · HuggingFace Spaces · Sentry-ready
+<div align="center">
+
+**Backend** &nbsp; ![Django](https://img.shields.io/badge/-Django_5-092E20?logo=django) ![DRF](https://img.shields.io/badge/-DRF-A30000) ![Pydantic](https://img.shields.io/badge/-Pydantic-E92063) ![Gunicorn](https://img.shields.io/badge/-Gunicorn-499848)
+
+**ML** &nbsp; ![XGBoost](https://img.shields.io/badge/-XGBoost-006400) ![SHAP](https://img.shields.io/badge/-SHAP-FF6F00) ![scikit_learn](https://img.shields.io/badge/-scikit--learn-F7931E?logo=scikit-learn) ![pandas](https://img.shields.io/badge/-pandas-150458?logo=pandas) ![numpy](https://img.shields.io/badge/-numpy-013243?logo=numpy)
+
+**RAG / LLM** &nbsp; ![LangChain](https://img.shields.io/badge/-LangChain-1C3C3C?logo=langchain) ![ChromaDB](https://img.shields.io/badge/-ChromaDB-ff6b35) ![SentenceTransformers](https://img.shields.io/badge/-sentence--transformers-EE4C2C) ![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=openai)
+
+**Frontend** &nbsp; ![JavaScript](https://img.shields.io/badge/-Vanilla_JS-F7DF1E?logo=javascript&logoColor=black) ![ChartJS](https://img.shields.io/badge/-Chart.js-FF6384?logo=chartdotjs) ![ThreeJS](https://img.shields.io/badge/-Three.js-000000?logo=threedotjs) ![GSAP](https://img.shields.io/badge/-GSAP-88CE02)
+
+**Infra** &nbsp; ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker) ![HuggingFace](https://img.shields.io/badge/-🤗_Spaces-FFD21F) ![GitHub_Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?logo=github-actions) ![Sentry](https://img.shields.io/badge/-Sentry-362D59?logo=sentry)
+
+</div>
+
+<br>
 
 ---
 
 ## 🏗 Architecture
 
 ```
-                                  ┌─────────────────────────────────────┐
-                                  │      Django (DRF) — Web Layer       │
-                                  │   views / templates / CSRF / auth   │
-                                  └──┬──────────┬──────────────┬────────┘
-                                     │          │              │
-                       POST /api/predict   POST /api/compare   POST /api/advisor/chat/stream
-                                     │          │              │
-                                     ▼          ▼              ▼
-                            ┌──────────────────────┐  ┌──────────────────────┐
-                            │ Predictor Service    │  │  RAG Chain           │
-                            │  XGB + Quantile +    │  │   Retriever → LLM    │
-                            │  Conformal + SHAP    │  │   ChromaDB cosine    │
-                            └──────────┬───────────┘  └─────────┬────────────┘
-                                       │                        │
-                                       ▼                        ▼
-                              ┌───────────────────┐    ┌────────────────────┐
-                              │ carbon_xgb.joblib │    │ ChromaDB (persist) │
-                              │ 3 models +        │    │ + SentTfm embedder │
-                              │ conformal offset  │    │ + cross-encoder    │
-                              └───────────────────┘    │   reranker         │
-                                                       └─────────┬──────────┘
-                                                                 │
-                                                       ┌─────────▼──────────┐
-                                                       │ Ingestion Pipeline │
-                                                       │ LangChain splitter │
-                                                       └─────────┬──────────┘
-                                                                 │
-                                                       PDFs / .md / .txt
+                    ┌─────────────────────────────────────────┐
+                    │       Django (DRF) — Web Layer          │
+                    │   Pydantic validation · CSRF · sessions │
+                    └─┬───────────┬──────────────┬────────────┘
+                      │           │              │
+              POST /api/predict   POST /api/compare   POST /api/advisor/chat/stream
+                      │           │              │
+                      ▼           ▼              ▼
+            ┌──────────────────┐         ┌──────────────────────┐
+            │ Predictor        │         │  RAG Chain           │
+            │ XGB + Quantile + │         │  Retriever → LLM     │
+            │ Conformal + SHAP │         │  Cosine top-K + RR   │
+            └────────┬─────────┘         └──────────┬───────────┘
+                     │                              │
+                     ▼                              ▼
+           ┌──────────────────┐            ┌────────────────────┐
+           │ carbon_xgb.joblib│            │ ChromaDB (persist) │
+           │ 3 models +       │            │ + MiniLM embedder  │
+           │ conformal q̂      │            │ + cross-encoder RR │
+           └──────────────────┘            └─────────┬──────────┘
+                                                     │
+                                          ┌──────────▼──────────┐
+                                          │ Ingestion Pipeline  │
+                                          │ Recursive splitter  │
+                                          └──────────┬──────────┘
+                                                     │
+                                            PDFs / .md / .txt
 ```
 
-See **[ARCHITECTURE.md](ARCHITECTURE.md)** for the full diagram + data-flow details.
+📖 Full architecture details in **[ARCHITECTURE.md](ARCHITECTURE.md)** · Transparency in **[MODEL_CARD.md](MODEL_CARD.md)**
+
+<br>
 
 ---
 
-## 🚀 Quick Start (Local Development)
+## 🚀 Quick Start
+
+<details>
+<summary><b>💻 Local development (3 minutes)</b></summary>
 
 ```bash
 # 1. Clone
@@ -135,14 +272,15 @@ cd Carbon_Footprint_Generator
 # 2. Install
 pip install -r requirements.txt
 
-# 3. Configure (paste your OPENAI_API_KEY)
+# 3. Configure secrets
 cp .env.example .env
+# Edit .env and paste your OPENAI_API_KEY
 
-# 4. Build training data + train model
+# 4. Build training data + model
 python predictor/training/data_adapter.py
 python predictor/training/train_xgboost.py
 
-# 5. Seed RAG knowledge base
+# 5. Set up DB + seed RAG knowledge base
 python manage.py migrate
 python manage.py ingest_seed
 
@@ -152,9 +290,10 @@ python manage.py runserver
 
 Then open `http://localhost:8000/`.
 
----
+</details>
 
-## 🐳 Docker (one command)
+<details>
+<summary><b>🐳 Docker (one command)</b></summary>
 
 ```bash
 docker compose up -d
@@ -162,117 +301,186 @@ docker compose up -d
 
 The Dockerfile auto-trains the model and seeds ChromaDB during build, so the container starts ready.
 
----
+</details>
 
-## 🚢 Deployment
+<details>
+<summary><b>🤗 Deploy your own copy free on HuggingFace Spaces</b></summary>
 
-This app is deployed live on **HuggingFace Spaces** at <https://ad074890-c4future.hf.space>. See **[FREE_DEPLOY.md](FREE_DEPLOY.md)** for the full free-deploy guide covering HF Spaces, Fly.io, and Render.
+See **[FREE_DEPLOY.md](FREE_DEPLOY.md)** for a complete walkthrough.
 
-Production hardening already shipped:
-- HTTPS + HSTS + `SECURE_PROXY_SSL_HEADER`
-- CSRF trusted origins
-- Secure cookies (`SECURE`, `HttpOnly`, `SameSite`)
-- Health check at `/health/`
-- Sentry-ready (just set `SENTRY_DSN`)
-- Postgres-ready (just set `DATABASE_URL`)
-- Auto-generated `DJANGO_SECRET_KEY` if not provided
-
----
-
-## 📁 Project Structure
-
+Short version:
+```bash
+# 1. Create a Space at huggingface.co/new-space (Docker SDK, CPU-Basic free)
+# 2. Set secrets: OPENAI_API_KEY, DJANGO_SECRET_KEY, DJANGO_ALLOWED_HOSTS
+# 3. Push:
+git remote add hf https://huggingface.co/spaces/<your-user>/c4future
+git push hf main
 ```
-.
-├── carbon_project/           Django config (settings, urls, wsgi)
-├── core/                     Web pages + PredictionLog model
-├── predictor/                XGBoost service + SHAP + calibration
-│   ├── services.py
-│   ├── calibration.py        Conformal prediction
-│   ├── explanations.py       SHAP wrapper
-│   ├── schemas.py            Pydantic
-│   └── training/             train_xgboost.py · data_adapter.py
-├── advisor/                  RAG + BoM decomposer
-│   ├── services/
-│   │   ├── ingestion.py
-│   │   ├── retrieval.py
-│   │   ├── reranker.py
-│   │   ├── llm.py
-│   │   ├── rag_chain.py
-│   │   └── bom_decomposer.py
-│   ├── management/commands/  ingest_seed · ingest_docs · eval_advisor
-│   ├── evals/                gold eval set + RAGAS runner
-│   └── knowledge_base/       seed_facts.md
-├── data/                     Real LCA sources (Agribalyse, Poore CSVs)
-├── scripts/smoke_test.py     End-to-end pipeline test
-├── static/                   CSS / JS / videos
-├── Dockerfile                Multi-stage build, trains model at build time
-├── docker-compose.yml
-├── render.yaml · fly.toml · Procfile · runtime.txt
-├── .github/workflows/        CI + retrain
-├── ARCHITECTURE.md
-├── MODEL_CARD.md             Transparency doc (intended use, limitations)
-├── DEPLOYMENT.md             Render / Railway / Fly walkthrough
-├── FREE_DEPLOY.md            HF Spaces + Fly free-tier walkthrough
-└── CV_HIGHLIGHTS.md          Portfolio talking points
-```
+
+</details>
+
+<br>
 
 ---
 
 ## 🧪 API Reference
 
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/predict/` | Single-product prediction → CO₂ + SHAP + conformal interval |
-| `POST` | `/api/compare/` | Rank 2-10 products → ranked + verdict |
+| Method | Endpoint | What it does |
+|:---:|:---|:---|
+| `POST` | `/api/predict/` | Single-product prediction → **CO₂ + SHAP + conformal interval** |
+| `POST` | `/api/compare/` | Rank 2–10 products → ranked list + verdict |
 | `GET` | `/api/materials/` | List supported materials |
-| `GET` | `/api/model-info/` | Model metrics + family |
-| `POST` | `/api/advisor/chat/` | RAG chat (non-streaming, JSON) |
-| `POST` | `/api/advisor/chat/stream/` | RAG chat with SSE streaming |
+| `GET` | `/api/model-info/` | Live model metrics + family |
+| `POST` | `/api/advisor/chat/` | RAG chat — non-streaming JSON |
+| `POST` | `/api/advisor/chat/stream/` | RAG chat — **SSE streaming** with citations |
 | `POST` | `/api/advisor/decompose/` | Natural language → BoM → per-component CO₂ |
-| `GET` | `/health/` | Liveness check |
+| `GET` | `/health/` | Liveness check (load balancer probe) |
+
+<br>
 
 ---
 
 ## 🎓 What I Learned Building This
 
-- **Distribution shift is the real problem in ML.** Synthetic R² of 0.99 ≠ real-world R² of 0.29. Honest evaluation requires a stratified product-level holdout with zero leakage.
-- **Conformal prediction beats vanilla quantile regression** for calibrated intervals. My raw quantile coverage was 80 %; conformal calibration pushed it to 90 % exactly.
-- **Ranking metrics matter more than R² for recommenders.** My Spearman ρ of 0.82 means the model picks the right answer 82 % of the time even when absolute kg estimates are off.
-- **Strict grounding prompts beat clever prompting.** My RAG advisor refuses out-of-scope questions because the system prompt is explicit, not creative.
-- **Pre-bake everything you can into the Docker image.** ChromaDB seeding at build time eliminated 30-second cold starts on HF Spaces.
-- **Test the unhappy paths.** My RAG eval set includes a deliberate out-of-scope question; the system passes when it refuses.
+<table>
+<tr>
+<td width="50%" valign="top">
+
+### 🧪 ML Lessons
+- **Distribution shift is the real problem.** Synthetic R²=0.99 ≠ real R²=0.29. Stratified product-level holdout with zero leakage is the only honest test.
+- **Conformal prediction > vanilla quantile regression** for calibrated intervals. Pushed coverage from 80% → 90% exactly.
+- **Rank metrics matter for recommenders.** Spearman ρ=0.82 means the model picks the right answer 82% of the time even when absolute kg estimates are off.
+
+</td>
+<td width="50%" valign="top">
+
+### 🤖 RAG Lessons
+- **Strict grounding prompts beat clever prompting.** My advisor refuses out-of-scope questions because the system prompt is explicit.
+- **Cross-encoder reranking is worth the latency.** Top-K=4 from a top-20 dense pool, reranked, is the production pattern.
+- **Test the refusal path.** My eval set has a deliberate out-of-scope question; system passes when it says "I don't have that."
+
+</td>
+</tr>
+</table>
+
+<br>
+
+---
+
+## 📁 Project Structure
+
+<details>
+<summary><b>Click to expand</b></summary>
+
+```
+.
+├── 🧠 predictor/                    XGBoost service + SHAP + calibration
+│   ├── services.py
+│   ├── calibration.py               Conformal prediction
+│   ├── explanations.py              SHAP wrapper
+│   ├── schemas.py                   Pydantic
+│   └── training/
+│       ├── train_xgboost.py
+│       └── data_adapter.py
+│
+├── 🤖 advisor/                      RAG + BoM decomposer
+│   ├── services/
+│   │   ├── ingestion.py
+│   │   ├── retrieval.py
+│   │   ├── reranker.py              Cross-encoder ms-marco
+│   │   ├── llm.py
+│   │   ├── rag_chain.py
+│   │   └── bom_decomposer.py
+│   ├── management/commands/         ingest_seed · ingest_docs · eval_advisor
+│   ├── evals/                       Gold eval set + RAGAS runner
+│   └── knowledge_base/seed_facts.md
+│
+├── 🌐 core/                         Web pages + PredictionLog model
+├── ⚙️  carbon_project/              Django config
+├── 📊 data/                         Real LCA sources (Agribalyse, Poore)
+├── 🧪 scripts/smoke_test.py         End-to-end pipeline test
+├── 🎨 static/                       CSS / JS / videos
+│
+├── 🐳 Dockerfile                    Multi-stage, trains model at build
+├── 🐳 docker-compose.yml
+├── 🚢 render.yaml · fly.toml · Procfile · runtime.txt
+├── 🔄 .github/workflows/            CI + retrain
+│
+├── 📖 ARCHITECTURE.md               System diagram + data flow
+├── 📖 MODEL_CARD.md                 Transparency doc
+├── 📖 DEPLOYMENT.md                 Render / Railway / Fly walkthrough
+├── 📖 FREE_DEPLOY.md                HuggingFace Spaces guide
+└── 📖 CV_HIGHLIGHTS.md              Portfolio talking points
+```
+
+</details>
+
+<br>
 
 ---
 
 ## 📖 Documentation
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** — system diagram + data flow
-- **[MODEL_CARD.md](MODEL_CARD.md)** — transparency doc following Mitchell et al. 2019
-- **[RAG_ADVISOR.md](RAG_ADVISOR.md)** — RAG pipeline deep-dive
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** — production deploy on Render / Railway / Fly
-- **[FREE_DEPLOY.md](FREE_DEPLOY.md)** — free deploy on HuggingFace Spaces
-- **[CV_HIGHLIGHTS.md](CV_HIGHLIGHTS.md)** — portfolio talking points
+| Doc | What's inside |
+|:---|:---|
+| 🏗 [ARCHITECTURE.md](ARCHITECTURE.md) | System diagram, data flow, design decisions |
+| 📋 [MODEL_CARD.md](MODEL_CARD.md) | Transparency doc · intended use · limitations · ethics |
+| 🤖 [RAG_ADVISOR.md](RAG_ADVISOR.md) | RAG pipeline deep dive |
+| 🚢 [DEPLOYMENT.md](DEPLOYMENT.md) | Render / Railway / Fly walkthrough |
+| 🤗 [FREE_DEPLOY.md](FREE_DEPLOY.md) | Free deploy on HuggingFace Spaces |
+| 🎯 [CV_HIGHLIGHTS.md](CV_HIGHLIGHTS.md) | Portfolio talking points |
+
+<br>
 
 ---
 
 ## 👨‍💻 Author
 
-**Ayush Das** — Machine Learning & RAG Engineer  
-📍 Thāne, Maharashtra, India  
-🔗 [LinkedIn](https://linkedin.com) · [GitHub](https://github.com/AyushDas4890)
+<table>
+<tr>
+<td width="120" align="center">
+<img src="https://avatars.githubusercontent.com/AyushDas4890" width="100" style="border-radius:50%" alt="Ayush Das" />
+</td>
+<td>
+
+### Ayush Das
+
+**Machine Learning & RAG Engineer** · 📍 Thāne, Maharashtra, India
+
+Building practical AI systems at the intersection of **classical ML, retrieval-augmented generation, and production engineering.**
+
+[![GitHub](https://img.shields.io/badge/GitHub-AyushDas4890-181717?style=flat-square&logo=github)](https://github.com/AyushDas4890)
+[![HuggingFace](https://img.shields.io/badge/🤗-AD074890-FFD21F?style=flat-square)](https://huggingface.co/AD074890)
+[![Live Demo](https://img.shields.io/badge/🚀_Try_C4Future-ad074890--c4future.hf.space-64ffb4?style=flat-square)](https://ad074890-c4future.hf.space)
+
+</td>
+</tr>
+</table>
+
+<br>
 
 ---
 
 ## 📜 License
 
-MIT — see [LICENSE](LICENSE).
+Released under the **MIT License** — see [LICENSE](LICENSE).
 
----
+<br>
 
 <div align="center">
 
+---
+
 ### 🌱 Built for a sustainable tomorrow
 
-**[Try it live →](https://ad074890-c4future.hf.space)**
+<br>
+
+[![🚀 Try it Live](https://img.shields.io/badge/🚀_Try_it_Live-ad074890--c4future.hf.space-64ffb4?style=for-the-badge&labelColor=0a0e27)](https://ad074890-c4future.hf.space)
+
+<sub>If this project helped you, give it a ⭐ on GitHub and a ❤️ on HuggingFace</sub>
+
+<br>
+
+`Made with 🌿 by Ayush Das · 2026`
 
 </div>
