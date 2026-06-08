@@ -1,0 +1,229 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}AI Advisor — C4Future{% endblock %}
+
+{% block extra_css %}
+<style>
+.page-wrapper { overflow:hidden; }
+.advisor-layout { display:grid; grid-template-columns:280px 1fr; gap:0; height:calc(100vh - 64px); overflow:hidden; margin-top:64px; }
+.advisor-sidebar { background:rgba(5,8,16,0.95); border-right:1px solid var(--border); padding:1.5rem; display:flex; flex-direction:column; gap:1rem; overflow-y:auto; }
+.sidebar-title { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.12em; color:var(--text-muted); margin-bottom:0.25rem; }
+.sidebar-btn { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.7rem 1rem; font-size:0.82rem; color:var(--text-secondary); cursor:pointer; transition:all 0.2s; text-align:left; width:100%; }
+.sidebar-btn:hover { background:rgba(100,255,180,0.06); border-color:rgba(100,255,180,0.3); color:var(--green); }
+.chat-main { display:flex; flex-direction:column; overflow:hidden; }
+.chat-header { padding:1.25rem 2rem; border-bottom:1px solid var(--border); background:rgba(5,8,16,0.8); backdrop-filter:blur(12px); display:flex; align-items:center; gap:1rem; flex-shrink:0; }
+.advisor-avatar { width:40px; height:40px; border-radius:50%; background:linear-gradient(135deg,var(--green),var(--cyan)); display:flex; align-items:center; justify-content:center; font-size:1.1rem; flex-shrink:0; }
+.advisor-status { display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-muted); }
+.advisor-status-dot { width:7px; height:7px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+.chat-messages { flex:1; overflow-y:auto; padding:2rem; display:flex; flex-direction:column; gap:1.25rem; scroll-behavior:smooth; }
+.chat-messages::-webkit-scrollbar { width:4px; }
+.chat-messages::-webkit-scrollbar-track { background:transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+.msg { display:flex; gap:0.75rem; max-width:75%; animation:slideIn 0.3s ease; }
+@keyframes slideIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
+.msg.user { align-self:flex-end; flex-direction:row-reverse; }
+.msg-avatar { width:32px; height:32px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:0.85rem; }
+.msg.assistant .msg-avatar { background:linear-gradient(135deg,var(--green),var(--cyan)); }
+.msg.user .msg-avatar { background:linear-gradient(135deg,var(--violet),var(--cyan)); }
+.msg-body { display:flex; flex-direction:column; gap:0.4rem; }
+.msg-bubble { padding:0.9rem 1.1rem; border-radius:16px; font-size:0.9rem; line-height:1.6; }
+.msg.assistant .msg-bubble { background:rgba(255,255,255,0.06); border:1px solid var(--border); border-top-left-radius:4px; color:var(--text-primary); }
+.msg.user .msg-bubble { background:linear-gradient(135deg,rgba(100,255,180,0.15),rgba(0,217,255,0.1)); border:1px solid rgba(100,255,180,0.25); border-top-right-radius:4px; color:var(--text-primary); }
+.msg-time { font-size:0.7rem; color:var(--text-muted); padding:0 0.25rem; }
+.msg.user .msg-time { text-align:right; }
+.sources-row { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.25rem; }
+.source-chip { display:inline-flex; align-items:center; gap:0.3rem; padding:0.25rem 0.6rem; background:rgba(100,255,180,0.06); border:1px solid rgba(100,255,180,0.2); border-radius:20px; font-size:0.7rem; color:var(--green); cursor:pointer; transition:all 0.15s; }
+.source-chip:hover { background:rgba(100,255,180,0.12); }
+.typing-indicator { display:flex; gap:4px; align-items:center; padding:0.75rem 1rem; }
+.typing-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:typingBounce 1.2s infinite; }
+.typing-dot:nth-child(2){ animation-delay:0.2s; }
+.typing-dot:nth-child(3){ animation-delay:0.4s; }
+@keyframes typingBounce { 0%,60%,100%{transform:translateY(0);opacity:0.4} 30%{transform:translateY(-6px);opacity:1} }
+.chat-input-area { padding:1.25rem 2rem 1.5rem; background:rgba(5,8,16,0.9); border-top:1px solid var(--border); backdrop-filter:blur(12px); flex-shrink:0; }
+.chat-input-row { display:flex; gap:0.75rem; align-items:flex-end; background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:16px; padding:0.75rem 1rem; transition:border-color 0.2s; }
+.chat-input-row:focus-within { border-color:rgba(100,255,180,0.4); }
+#chatInput { flex:1; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:0.9rem; line-height:1.5; resize:none; max-height:120px; font-family:inherit; }
+#chatInput::placeholder { color:var(--text-muted); }
+.send-btn { width:38px; height:38px; border-radius:50%; background:linear-gradient(135deg,var(--green),var(--cyan)); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.15s,opacity 0.15s; }
+.send-btn:hover { transform:scale(1.08); }
+.send-btn:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.starter-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; }
+.starter-card { background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.85rem; cursor:pointer; transition:all 0.2s; font-size:0.8rem; color:var(--text-secondary); line-height:1.4; }
+.starter-card:hover { border-color:rgba(100,255,180,0.3); color:var(--green); background:rgba(100,255,180,0.04); }
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; gap:1rem; text-align:center; padding:2rem; }
+.empty-icon { font-size:3.5rem; }
+@media(max-width:768px){ .advisor-layout{grid-template-columns:1fr;} .advisor-sidebar{display:none;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="advisor-layout">
+  <!-- Sidebar -->
+  <aside class="advisor-sidebar">
+    <div>
+      <div class="sidebar-title">Quick Topics</div>
+      <div style="display:flex;flex-direction:column;gap:0.4rem;margin-top:0.5rem;">
+        <button class="sidebar-btn" onclick="askQuick('What are the main drivers of carbon emissions in manufacturing?')">🏭 Manufacturing emissions</button>
+        <button class="sidebar-btn" onclick="askQuick('How does transport mode affect carbon footprint?')">🚢 Transport impact</button>
+        <button class="sidebar-btn" onclick="askQuick('What are the best carbon offset strategies for a product company?')">🌿 Carbon offsetting</button>
+        <button class="sidebar-btn" onclick="askQuick('Explain Scope 1, 2, and 3 emissions with examples.')">📊 Scope 1/2/3 guide</button>
+        <button class="sidebar-btn" onclick="askQuick('What certifications prove low carbon footprint for products?')">🏅 Certifications</button>
+        <button class="sidebar-btn" onclick="askQuick('How can I reduce end-of-life emissions for textile products?')">♻️ End-of-life strategies</button>
+      </div>
+    </div>
+    <div style="margin-top:auto;padding-top:1rem;border-top:1px solid var(--border);">
+      <div class="sidebar-title" style="margin-bottom:0.75rem;">Session</div>
+      <button class="sidebar-btn" onclick="clearChat()" style="color:rgba(255,77,109,0.7);border-color:rgba(255,77,109,0.15);">🗑 Clear conversation</button>
+    </div>
+  </aside>
+
+  <!-- Main chat -->
+  <div class="chat-main">
+    <div class="chat-header">
+      <div class="advisor-avatar">🌿</div>
+      <div>
+        <div style="font-weight:600;font-size:0.95rem;">C4Future Advisor</div>
+        <div class="advisor-status">
+          <div class="advisor-status-dot"></div>
+          RAG-powered · Climate & Carbon Expert
+        </div>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:0.5rem;">
+        <span class="badge badge-green" style="font-size:0.7rem;">Multi-turn Memory</span>
+        <span class="badge" style="background:rgba(0,217,255,0.08);color:var(--cyan);border:1px solid rgba(0,217,255,0.2);font-size:0.7rem;">Streaming</span>
+      </div>
+    </div>
+
+    <div class="chat-messages" id="chatMessages">
+      <div class="empty-state" id="emptyState">
+        <div class="empty-icon">🌍</div>
+        <h3 style="font-size:1.1rem;font-weight:600;">Ask me anything about carbon</h3>
+        <p style="color:var(--text-secondary);font-size:0.85rem;max-width:380px;margin-bottom:1.5rem;">I'm trained on LCA databases, IPCC reports, and sustainability frameworks. Ask about materials, manufacturing, transport, offsetting, and more.</p>
+        <div class="starter-grid">
+          <div class="starter-card" onclick="askQuick('What product has the highest carbon footprint per kg?')">What product has the highest carbon footprint per kg?</div>
+          <div class="starter-card" onclick="askQuick('Compare cotton vs polyester lifecycle emissions.')">Compare cotton vs polyester lifecycle emissions</div>
+          <div class="starter-card" onclick="askQuick('How do I achieve carbon neutrality for my product line?')">How to achieve carbon neutrality?</div>
+          <div class="starter-card" onclick="askQuick('What is the carbon cost of shipping from China to Europe by sea?')">Carbon cost of sea shipping China → Europe?</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat-input-area">
+      <div class="chat-input-row">
+        <textarea id="chatInput" placeholder="Ask anything about carbon footprint, materials, LCA…" rows="1" maxlength="2000"></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z" fill="white"/></svg>
+        </button>
+      </div>
+      <p style="font-size:0.7rem;color:var(--text-muted);margin-top:0.5rem;text-align:center;">C4Future AI may make mistakes. Verify critical decisions with a certified LCA practitioner.</p>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const msgs=document.getElementById('chatMessages');
+const input=document.getElementById('chatInput');
+const sendBtn=document.getElementById('sendBtn');
+let streaming=false;
+
+input.addEventListener('input',()=>{ input.style.height='auto'; input.style.height=Math.min(input.scrollHeight,120)+'px'; });
+input.addEventListener('keydown',e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); sendMessage(); } });
+
+function getCookie(n){ const m=document.cookie.match('(?:^|;) ?'+n+'=([^;]*)'); return m?decodeURIComponent(m[1]):''; }
+function hideEmpty(){ const el=document.getElementById('emptyState'); if(el) el.style.display='none'; }
+function scrollBottom(){ msgs.scrollTop=msgs.scrollHeight; }
+function escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function renderMarkdown(text){
+  return text
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`([^`]+)`/g,'<code style="background:rgba(255,255,255,0.08);padding:0.1em 0.3em;border-radius:3px;font-size:0.85em;">$1</code>')
+    .replace(/\n/g,'<br>');
+}
+
+function addUserBubble(text){
+  hideEmpty();
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el=document.createElement('div');
+  el.className='msg user';
+  el.innerHTML=`<div class="msg-avatar">U</div><div class="msg-body"><div class="msg-bubble">${escHtml(text)}</div><div class="msg-time">${now}</div></div>`;
+  msgs.appendChild(el); scrollBottom(); return el;
+}
+
+function addAssistantBubble(){
+  const now=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const el=document.createElement('div');
+  el.className='msg assistant';
+  el.innerHTML=`<div class="msg-avatar">🌿</div><div class="msg-body"><div class="msg-bubble" id="streamBubble"><div class="typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div><div class="msg-time" id="streamTime">${now}</div></div>`;
+  msgs.appendChild(el); scrollBottom(); return el;
+}
+
+async function sendMessage(){
+  if(streaming) return;
+  const text=input.value.trim();
+  if(!text) return;
+  input.value=''; input.style.height='auto';
+  addUserBubble(text);
+  await streamReply(text);
+}
+
+function askQuick(text){ input.value=text; sendMessage(); }
+
+async function streamReply(question){
+  streaming=true; sendBtn.disabled=true;
+  addAssistantBubble();
+  const bubble=document.getElementById('streamBubble');
+  let fullText='';
+  try {
+    const res=await fetch('/api/advisor/chat/stream/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+      body:JSON.stringify({question})
+    });
+    if(!res.ok) throw new Error('HTTP '+res.status);
+    const reader=res.body.getReader();
+    const dec=new TextDecoder();
+    let buf='';
+    while(true){
+      const {done,value}=await reader.read();
+      if(done) break;
+      buf+=dec.decode(value,{stream:true});
+      const lines=buf.split('\n');
+      buf=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const raw=line.slice(6).trim();
+        if(raw==='[DONE]') break;
+        try{
+          const obj=JSON.parse(raw);
+          // Backend sends {type:"token", text:"..."} — also support legacy {token:"..."}
+          const tok = obj.text || obj.token;
+          if(tok && obj.type!=='sources' && obj.type!=='done' && obj.type!=='error'){
+            fullText+=tok; bubble.innerHTML=renderMarkdown(fullText); scrollBottom();
+          }
+          if(obj.type==='error'){ bubble.innerHTML='<span style="color:rgba(255,77,109,0.9);">⚠ '+escHtml(obj.message||'Error')+'</span>'; }
+          if(obj.sources&&obj.sources.length){
+            const row=document.createElement('div'); row.className='sources-row';
+            obj.sources.forEach(s=>{ const c=document.createElement('span'); c.className='source-chip'; c.innerHTML='📄 '+escHtml(s.title||s.source||'Source'); row.appendChild(c); });
+            bubble.parentElement.appendChild(row);
+          }
+        }catch(e){}
+      }
+    }
+    if(!fullText) bubble.innerHTML='<em style="color:var(--text-muted);">No response received.</em>';
+  } catch(e){
+    bubble.innerHTML='<span style="color:rgba(255,77,109,0.9);">⚠ Error: '+escHtml(e.message)+'</span>';
+  } finally {
+    streaming=false; sendBtn.disabled=false; scrollBottom();
+  }
+}
+
+function clearChat(){
+  if(!confirm('Clear this conversation?')) return;
+  msgs.innerHTML='<div class="empty-state" id="emptyState"><div class="empty-icon">🌍</div><h3 style="font-size:1.1rem;font-weight:600;">Conversation cleared</h3><p style="color:var(--text-secondary);font-size:0.85rem;">Start a new conversation below.</p></div>';
+}
+</script>
+{% endblock %}

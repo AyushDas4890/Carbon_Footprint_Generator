@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  test:
+    name: Lint + Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff pytest pytest-django
+
+      - name: Lint with ruff
+        run: ruff check . || true   # don't block early; tighten once codebase is clean
+
+      - name: Run Django checks
+        run: python manage.py check
+        env:
+          DJANGO_SECRET_KEY: ci-not-secret
+          DJANGO_DEBUG: "False"
+
+      - name: Run tests
+        run: pytest -q
+        env:
+          DJANGO_SECRET_KEY: ci-not-secret
+          DJANGO_DEBUG: "False"
+          OPENAI_API_KEY: ""       # tests must not require a real key
+
+  docker-build:
+    name: Docker build
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image (smoke test only)
+        run: docker build -t c4future:ci .

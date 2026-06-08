@@ -1,0 +1,227 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Insights — C4Future{% endblock %}
+
+{% block extra_css %}
+<style>
+.kpi-grid     { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem; }
+.kpi-card     { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:1.5rem; transition:var(--transition-med); }
+.kpi-card:hover { border-color:var(--glass-border-hover); transform:translateY(-3px); }
+.kpi-icon     { font-size:1.6rem; margin-bottom:0.75rem; }
+.kpi-val      { font-family:'Space Grotesk',sans-serif; font-size:2rem; font-weight:700; background:linear-gradient(135deg,var(--green),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.kpi-label    { font-size:0.8rem; color:var(--text-secondary); margin-top:0.2rem; }
+.charts-2col  { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+.chart-title  { font-size:0.9rem; font-weight:600; color:var(--text-secondary); margin-bottom:1rem; }
+
+/* Empty state */
+.empty-state  {
+    background:var(--glass-bg); border:1px dashed var(--glass-border);
+    border-radius:var(--radius-lg); padding:4rem 2rem; text-align:center;
+    max-width:560px; margin:3rem auto;
+}
+.empty-icon   {
+    font-size:3.5rem; margin-bottom:1.5rem;
+    background:linear-gradient(135deg,var(--green),var(--cyan));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+.empty-title  { font-family:'Space Grotesk',sans-serif; font-size:1.4rem; font-weight:700; color:#fff; margin-bottom:0.6rem; }
+.empty-body   { color:var(--text-secondary); margin-bottom:1.75rem; line-height:1.6; }
+.empty-actions{ display:flex; gap:0.75rem; justify-content:center; flex-wrap:wrap; }
+
+/* Model-info strip */
+.model-strip { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:1.5rem;
+               background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-md);
+               padding:1.25rem 1.5rem; }
+.model-strip .mi-cell { display:flex; flex-direction:column; gap:0.2rem; }
+.model-strip .mi-label { font-size:0.65rem; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); }
+.model-strip .mi-val  { font-size:1.05rem; font-weight:700; color:var(--green); font-family:'Space Grotesk',sans-serif; }
+
+@media(max-width:900px){ .kpi-grid{grid-template-columns:repeat(2,1fr);} .charts-2col{grid-template-columns:1fr;} .model-strip{grid-template-columns:1fr 1fr;} }
+@media(max-width:480px){ .kpi-grid{grid-template-columns:1fr 1fr;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:6rem;padding-bottom:4rem;">
+  <div class="gsap-fade-up" style="margin-bottom:2rem;">
+    <span class="section-label">Analytics</span>
+    <h1 class="section-heading">Carbon <span class="accent">Insights</span></h1>
+    <p style="color:var(--text-secondary);margin-top:0.75rem;">
+      A dashboard of your most recent prediction, with material benchmarks and uncertainty bands.
+    </p>
+  </div>
+
+  {% if model_info %}
+  <div class="model-strip gsap-fade-up">
+    <div class="mi-cell"><span class="mi-label">Model</span>
+        <span class="mi-val">{{ model_info.model_family|default:"XGBoost" }}</span></div>
+    <div class="mi-cell"><span class="mi-label">R² Score</span>
+        <span class="mi-val">{{ model_info.r2_score|floatformat:3 }}</span></div>
+    <div class="mi-cell"><span class="mi-label">MAE</span>
+        <span class="mi-val">{{ model_info.mae|floatformat:2 }} kg</span></div>
+    <div class="mi-cell"><span class="mi-label">Conformal Coverage</span>
+        <span class="mi-val">{{ model_info.conformal_coverage_90|floatformat:2 }}</span></div>
+  </div>
+  {% endif %}
+
+  <!-- Empty state (shown if no prediction in sessionStorage)
+       NO gsap-* classes — those would lock content at opacity:0 when
+       this section starts as display:none. Use direct CSS instead. -->
+  <div id="emptyState" class="empty-state" style="display:none;opacity:1;">
+    <div class="empty-icon">📊</div>
+    <div class="empty-title">No prediction yet</div>
+    <div class="empty-body">
+      Make your first prediction on the home page and your personalised insights —
+      KPIs, breakdown charts, material benchmarks, and uncertainty bands — will
+      appear here automatically.
+    </div>
+    <div class="empty-actions">
+      <a href="{% url 'home' %}" class="btn btn-primary">Start a Prediction</a>
+      <a href="{% url 'compare_page' %}" class="btn btn-secondary">Compare Products</a>
+    </div>
+  </div>
+
+  <!-- Dashboard (shown if prediction exists)
+       NO gsap-* classes here either — they'd hide content. -->
+  <div id="dashboard" style="display:none;opacity:1;">
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card"><div class="kpi-icon">📦</div><div class="kpi-val" id="k-val">—</div><div class="kpi-label">Carbon Footprint (kg CO₂e)</div></div>
+      <div class="kpi-card"><div class="kpi-icon">⚡</div><div class="kpi-val" id="k-mat">—</div><div class="kpi-label">Material Emissions Share</div></div>
+      <div class="kpi-card"><div class="kpi-icon">🚢</div><div class="kpi-val" id="k-trn">—</div><div class="kpi-label">Transport Emissions Share</div></div>
+      <div class="kpi-card"><div class="kpi-icon">🎯</div><div class="kpi-val" id="k-ci">—</div><div class="kpi-label">90% Confidence Width</div></div>
+    </div>
+
+    <!-- Charts row 1 -->
+    <div class="charts-2col" style="margin-bottom:1.5rem;">
+      <div class="chart-container">
+        <div class="chart-title">Emission Breakdown</div>
+        <canvas id="barChart" height="220"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Material Comparison (kg CO₂e per kg)</div>
+        <canvas id="materialChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- Charts row 2 -->
+    <div class="charts-2col">
+      <div class="chart-container">
+        <div class="chart-title">Transport Mode Comparison</div>
+        <canvas id="transportChart" height="220"></canvas>
+      </div>
+      <div class="chart-container">
+        <div class="chart-title">Uncertainty Band (Conformal 90% CI)</div>
+        <canvas id="ciChart" height="220"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const d = JSON.parse(sessionStorage.getItem('c4_result') || '{}');
+const rawBD = d.breakdown || {};
+const breakdownSum = (rawBD.material_co2||0) + (rawBD.manufacturing_co2||0) + (rawBD.transport_co2||0);
+let val = d.carbon_kg ?? d.co2_kg ?? 0;
+if(val === 0 && breakdownSum > 0) val = parseFloat(breakdownSum.toFixed(2));
+
+const emptyState = document.getElementById('emptyState');
+const dashboard  = document.getElementById('dashboard');
+
+if (!val) {
+    // Show empty state and bail
+    emptyState.style.display = 'block';
+} else {
+    dashboard.style.display = 'block';
+
+    const CHART_OPTS = {
+        responsive: true,
+        plugins: { legend: { labels: { color: 'rgba(255,255,255,0.55)', font: { size: 11 } } } },
+        scales: {
+            x: { ticks: { color: 'rgba(255,255,255,0.45)', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
+            y: { ticks: { color: 'rgba(255,255,255,0.45)', font: { size: 11 } }, grid: { color: 'rgba(255,255,255,0.04)' } }
+        }
+    };
+
+    const rawBk = d.breakdown || {};
+    const ci    = d.confidence_interval || {};
+    const bk = {
+        material:      rawBk.material_co2      ?? val * 0.45,
+        manufacturing: rawBk.manufacturing_co2 ?? val * 0.22,
+        transport:     rawBk.transport_co2     ?? val * 0.20,
+        use_phase:     val * 0.08,
+        eol:           val * 0.05,
+    };
+
+    /* KPIs */
+    document.getElementById('k-val').textContent = val.toFixed(2);
+    const matShare = (bk.material  / val * 100).toFixed(0);
+    const trnShare = (bk.transport / val * 100).toFixed(0);
+    document.getElementById('k-mat').textContent = matShare + '%';
+    document.getElementById('k-trn').textContent = trnShare + '%';
+    const ciW = ((ci.upper ?? val * 1.18) - (ci.lower ?? val * 0.82)).toFixed(2);
+    document.getElementById('k-ci').textContent  = '±' + ciW;
+
+    /* Bar chart: breakdown */
+    new Chart(document.getElementById('barChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Material', 'Manufacturing', 'Transport', 'Use Phase', 'EOL'],
+            datasets: [{
+                label: 'kg CO₂e',
+                data: [bk.material, bk.manufacturing, bk.transport, bk.use_phase, bk.eol].map(v => parseFloat(v) || 0),
+                backgroundColor: ['rgba(100,255,180,0.65)', 'rgba(0,217,255,0.65)', 'rgba(139,92,246,0.65)', 'rgba(255,107,53,0.65)', 'rgba(255,77,109,0.65)'],
+                borderRadius: 6, borderSkipped: false,
+            }]
+        },
+        options: { ...CHART_OPTS }
+    });
+
+    /* Material benchmark */
+    const matBench = { Cotton: 5.5, Polyester: 6.4, Steel: 2.85, Aluminum: 8.2, Plastic: 2.57, Wood: 0.27, Glass: 1.40, Beef: 66.4 };
+    new Chart(document.getElementById('materialChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: Object.keys(matBench),
+            datasets: [{
+                label: 'kg CO₂e per kg', data: Object.values(matBench),
+                backgroundColor: 'rgba(100,255,180,0.55)', borderRadius: 6, borderSkipped: false
+            }]
+        },
+        options: { ...CHART_OPTS, indexAxis: 'y' }
+    });
+
+    /* Transport benchmark */
+    new Chart(document.getElementById('transportChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Road', 'Rail', 'Sea', 'Air'],
+            datasets: [{
+                label: 'kg CO₂e per kg per 1000 km', data: [0.107, 0.025, 0.015, 0.95],
+                backgroundColor: ['rgba(0,217,255,0.65)', 'rgba(100,255,180,0.65)', 'rgba(139,92,246,0.65)', 'rgba(255,107,53,0.65)'],
+                borderRadius: 6, borderSkipped: false
+            }]
+        },
+        options: { ...CHART_OPTS }
+    });
+
+    /* CI chart */
+    new Chart(document.getElementById('ciChart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: ['Lower (5%)', 'Point Estimate', 'Upper (95%)'],
+            datasets: [{
+                label: 'kg CO₂e',
+                data: [(ci.lower ?? val * 0.82), val, (ci.upper ?? val * 1.18)],
+                backgroundColor: ['rgba(100,255,180,0.35)', 'rgba(100,255,180,0.85)', 'rgba(100,255,180,0.35)'],
+                borderRadius: 8, borderSkipped: false,
+            }]
+        },
+        options: { ...CHART_OPTS }
+    });
+}
+</script>
+{% endblock %}

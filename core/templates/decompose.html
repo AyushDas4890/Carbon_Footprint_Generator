@@ -1,0 +1,197 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Decompose — C4Future{% endblock %}
+
+{% block extra_css %}
+<style>
+.decompose-layout { display:grid; grid-template-columns:1fr 1.8fr; gap:2rem; align-items:start; }
+.bom-tree { display:flex; flex-direction:column; gap:1rem; }
+.bom-root { background:var(--green-dim); border:1px solid rgba(100,255,180,0.3); border-radius:var(--radius-md); padding:1.5rem; text-align:center; margin-bottom:1.5rem; }
+.bom-root-val { font-family:'Space Grotesk',sans-serif; font-size:2.5rem; font-weight:700; color:var(--green); }
+.bom-root-label { font-size:0.85rem; color:var(--text-secondary); margin-top:0.25rem; }
+.bom-connector { display:flex; justify-content:center; margin:-0.5rem 0; }
+.bom-connector::before { content:''; width:1px; height:24px; background:linear-gradient(180deg,rgba(100,255,180,0.3),transparent); }
+.progress-ring { font-size:0.75rem; color:var(--text-muted); margin-top:0.5rem; }
+@media(max-width:900px){ .decompose-layout{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:6rem;padding-bottom:4rem;">
+  <div class="gsap-fade-up" style="margin-bottom:2.5rem;">
+    <span class="section-label">BoM Intelligence</span>
+    <h1 class="section-heading">Product <span class="accent">Decomposer</span></h1>
+    <p style="color:var(--text-secondary);margin-top:0.75rem;">Describe any product — the AI breaks it into a Bill of Materials and estimates each component's carbon footprint.</p>
+  </div>
+
+  <div class="decompose-layout">
+    <!-- Input panel — no gsap-fade-left: sticky element is already in viewport at load -->
+    <div class="glass-card tilt-card" id="decompInput" style="position:sticky;top:7rem;">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-secondary);">Product Description</h3>
+      <div class="form-group">
+        <label class="form-label">Describe the Product</label>
+        <textarea id="productDesc" class="form-input" rows="4" style="resize:vertical;" placeholder="e.g. A stainless steel water bottle with a bamboo lid, manufactured in China, shipped by sea to Europe."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Manufacturing Country</label>
+        <select id="decompCountry" class="form-select">
+          <option value="CHINA">China</option><option value="USA">United States</option>
+          <option value="GERMANY">Germany</option><option value="INDIA">India</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">End-of-Life</label>
+        <select id="decompEol" class="form-select">
+          <option value="LANDFILL">Landfill</option><option value="RECYCLE">Recycle</option>
+          <option value="COMPOST">Compost</option>
+        </select>
+      </div>
+      <button id="decompBtn" class="btn btn-primary" style="width:100%;justify-content:center;">
+        📦 Decompose Product
+      </button>
+      <div id="decompLoading" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p>Decomposing into components…</p>
+      </div>
+    </div>
+
+    <!-- Results panel -->
+    <div>
+      <div id="decompError" class="hidden" style="background:rgba(255,77,109,0.06);border:1px solid rgba(255,77,109,0.2);border-radius:var(--radius-md);padding:1.25rem;color:var(--red-alert);font-size:0.9rem;margin-bottom:1.5rem;"></div>
+      <div id="bomResult" style="display:none;">
+        <!-- Root total -->
+        <div class="bom-root gsap-scale-in">
+          <div class="bom-root-val" id="bomTotal">—</div>
+          <div class="bom-root-label">Total Product Carbon Footprint (kg CO₂e)</div>
+        </div>
+        <div class="bom-connector"></div>
+        <!-- Components -->
+        <div class="bom-tree gsap-stagger" id="bomNodes"></div>
+        <!-- Chart -->
+        <div class="chart-container" style="margin-top:2rem;">
+          <div style="font-size:0.9rem;font-weight:600;color:var(--text-secondary);margin-bottom:1rem;">Component Breakdown</div>
+          <canvas id="bomChart" height="200"></canvas>
+        </div>
+      </div>
+      <div id="bomEmpty" class="glass-card" style="text-align:center;padding:3rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">📦</div>
+        <p style="color:var(--text-secondary);">Enter a product description and click Decompose to see the Bill of Materials analysis.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Chart.js — required for the doughnut breakdown -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Animate input panel in immediately (not via ScrollTrigger — it's already in viewport)
+window.addEventListener('DOMContentLoaded',()=>{
+  if(typeof gsap!=='undefined'){
+    gsap.fromTo('#decompInput',{opacity:0,x:-24},{opacity:1,x:0,duration:0.7,ease:'power3.out',delay:0.2});
+  } else {
+    document.getElementById('decompInput').style.opacity='1';
+  }
+});
+
+let bomChartInst=null;
+
+document.getElementById('decompBtn').addEventListener('click', async ()=>{
+  const desc=document.getElementById('productDesc').value.trim();
+  const country=document.getElementById('decompCountry').value;
+  const eol=document.getElementById('decompEol').value;
+  if(!desc){ alert('Please enter a product description.'); return; }
+
+  const btn=document.getElementById('decompBtn');
+  const loading=document.getElementById('decompLoading');
+  const errDiv=document.getElementById('decompError');
+  btn.classList.add('hidden'); loading.classList.remove('hidden');
+  errDiv.classList.add('hidden');
+
+  try {
+    const res=await fetch('/api/advisor/decompose/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')},
+      body:JSON.stringify({description:desc,country,eol})
+    });
+    const data=await res.json();
+    if(!res.ok||data.success===false) throw new Error(data.error||'Request failed');
+    renderBom(data);
+  } catch(e){
+    errDiv.textContent='Error: '+e.message; errDiv.classList.remove('hidden');
+  } finally {
+    btn.classList.remove('hidden'); loading.classList.add('hidden');
+  }
+});
+
+// Read a component's CO2 — supports both legacy (carbon_kg) and current (co2_kg) field names
+function compCo2(c){ return c.co2_kg ?? c.carbon_kg ?? 0; }
+// Read a component's display name — role from the LLM BoM, fallback to material, then generic
+function compName(c){ return c.role || c.component || c.name || c.material || 'Component'; }
+
+function renderBom(data){
+  const components = data.components || [];
+  // Backend returns total_co2_kg (current API). Fall back to legacy field, then sum.
+  let total = data.total_co2_kg ?? data.total_carbon_kg;
+  if(total == null) total = components.reduce((s,c) => s + compCo2(c), 0);
+  document.getElementById('bomTotal').textContent = (total || 0).toFixed(2);
+  document.getElementById('bomNodes').innerHTML = '';
+  document.getElementById('bomEmpty').style.display = 'none';
+  document.getElementById('bomResult').style.display = 'block';
+
+  components.forEach(comp => {
+    const co2 = compCo2(comp);
+    // Backend ships percent_of_total; recompute as fallback
+    const share = comp.percent_of_total != null
+      ? Number(comp.percent_of_total).toFixed(1)
+      : (total > 0 ? ((co2 / total) * 100).toFixed(1) : '0');
+    const node = document.createElement('div');
+    node.className = 'bom-node';
+    node.innerHTML = `
+      <div class="bom-node-header">
+        <div class="bom-dot" style="background:${share>30?'var(--ember)':share>15?'var(--cyan)':'var(--green)'}"></div>
+        <span class="bom-name">${compName(comp)}</span>
+        <span class="badge badge-green" style="margin-left:auto;">${comp.material||''}</span>
+      </div>
+      <div style="display:flex;align-items:baseline;gap:0.4rem;">
+        <span class="bom-emissions">${co2.toFixed(2)}</span>
+        <span class="bom-unit">kg CO₂e</span>
+        <span style="margin-left:auto;font-size:0.75rem;color:var(--text-muted);">${share}% of total · ${comp.weight_kg||'?'} kg</span>
+      </div>
+      <div class="bom-share-bar" style="width:${share}%;"></div>
+    `;
+    document.getElementById('bomNodes').appendChild(node);
+  });
+
+  if(typeof Chart === 'undefined'){
+    console.warn('Chart.js not loaded — skipping doughnut.');
+    return;
+  }
+
+  if(bomChartInst) bomChartInst.destroy();
+  const ctx = document.getElementById('bomChart').getContext('2d');
+  bomChartInst = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: components.map(c => compName(c)),
+      datasets: [{
+        data: components.map(c => compCo2(c)),
+        backgroundColor: ['rgba(100,255,180,0.7)','rgba(0,217,255,0.7)','rgba(139,92,246,0.7)','rgba(255,107,53,0.7)','rgba(255,77,109,0.7)','rgba(250,199,117,0.7)'],
+        borderColor: 'rgba(8,10,18,0.9)', borderWidth: 3,
+      }]
+    },
+    options: {
+      responsive: true, cutout: '60%',
+      plugins: { legend: { labels: { color: 'rgba(255,255,255,0.55)', font: { size: 11 } } } }
+    }
+  });
+
+  if(typeof gsap !== 'undefined'){
+    gsap.from('.bom-node', { opacity: 0, x: -20, duration: 0.4, stagger: 0.1, ease: 'power3.out' });
+  }
+}
+
+function getCookie(n){ const m=document.cookie.match('(?:^|;) ?'+n+'=([^;]*)'); return m?decodeURIComponent(m[1]):''; }
+</script>
+{% endblock %}

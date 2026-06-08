@@ -1,0 +1,305 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Advisor — C4Future{% endblock %}
+
+{% block extra_css %}
+<style>
+.advisor-layout      { display:grid; grid-template-columns:1fr 1.7fr; gap:2rem; align-items:start; }
+.adv-side            { display:flex; flex-direction:column; gap:1rem; position:sticky; top:7rem; }
+.adv-stat-pill       { display:inline-flex; align-items:center; gap:0.5rem; padding:0.35rem 0.85rem; border-radius:999px;
+                       background:var(--green-dim); border:1px solid rgba(100,255,180,0.25); color:var(--green); font-size:0.78rem;
+                       font-weight:600; letter-spacing:0.03em; }
+.adv-stat-pill::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); }
+.suggestion-chip     { background:var(--glass-bg); border:1px solid var(--glass-border); color:var(--text-secondary);
+                       padding:0.45rem 0.85rem; border-radius:999px; font-size:0.78rem; cursor:pointer;
+                       transition:var(--transition-med); display:inline-block; margin:0 0.3rem 0.3rem 0; }
+.suggestion-chip:hover { color:var(--green); border-color:rgba(100,255,180,0.35); background:var(--green-dim); transform:translateY(-1px); }
+
+.chat-panel          { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg);
+                       padding:1.5rem; display:flex; flex-direction:column; min-height:600px; max-height:80vh; }
+.chat-log            { flex:1; overflow-y:auto; padding:0.25rem; margin-bottom:1rem; display:flex; flex-direction:column; gap:0.85rem; }
+.chat-log::-webkit-scrollbar { width:6px; }
+.chat-log::-webkit-scrollbar-thumb { background:rgba(100,255,180,0.2); border-radius:3px; }
+
+.bubble              { padding:0.85rem 1.1rem; border-radius:var(--radius-md); max-width:88%; line-height:1.55;
+                       white-space:pre-wrap; word-wrap:break-word; font-size:0.92rem; }
+.bubble.user         { background:linear-gradient(135deg,rgba(100,255,180,0.12),rgba(0,217,255,0.1));
+                       border:1px solid rgba(100,255,180,0.25); align-self:flex-end; color:#e8fff5; }
+.bubble.assistant    { background:var(--glass-bg); border:1px solid var(--glass-border); color:rgba(255,255,255,0.92); }
+.bubble.error        { background:rgba(255,77,109,0.06); border:1px solid rgba(255,77,109,0.25); color:#ffb3b3; }
+
+.sources             { margin-top:0.85rem; padding-top:0.85rem; border-top:1px dashed var(--glass-border); font-size:0.82rem; }
+.sources-title       { font-size:0.7rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--green); margin-bottom:0.6rem; }
+.sources .src        { padding:0.6rem 0.8rem; margin:0.3rem 0; background:rgba(0,0,0,0.18); border-left:3px solid var(--green);
+                       border-radius:var(--radius-sm); color:var(--text-secondary); }
+.sources .src b      { color:var(--green); font-family:'Space Grotesk',sans-serif; }
+.meta-row            { font-size:0.7rem; color:var(--text-muted); margin-top:0.5rem; letter-spacing:0.04em; }
+
+.chat-input-row      { display:flex; gap:0.6rem; align-items:center; }
+.chat-input-row textarea {
+    flex:1; background:rgba(0,0,0,0.25); color:#fff; border:1px solid var(--glass-border);
+    border-radius:var(--radius-md); padding:0.85rem 1rem; font:inherit; resize:none; min-height:50px; max-height:140px;
+    transition:var(--transition-fast);
+}
+.chat-input-row textarea:focus { outline:none; border-color:var(--green); box-shadow:0 0 0 3px rgba(100,255,180,0.08); }
+.send-btn {
+    background:linear-gradient(135deg,var(--green),var(--cyan)); color:#06140e; font-weight:700;
+    border:none; border-radius:var(--radius-md); padding:0.85rem 1.6rem; cursor:pointer;
+    transition:var(--transition-fast); font-size:0.95rem;
+}
+.send-btn:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 20px rgba(100,255,180,0.3); }
+.send-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
+.typing-cursor { display:inline-block; width:8px; height:1em; background:var(--green); margin-left:2px; animation:blink 1s steps(2) infinite; vertical-align:middle; }
+@keyframes blink { 50% { opacity:0; } }
+
+.kb-info-card { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-md); padding:1.25rem; }
+.kb-info-card h4 { font-size:0.7rem; font-weight:700; letter-spacing:0.08em; text-transform:uppercase;
+                   color:var(--text-secondary); margin-bottom:0.75rem; }
+.kb-doc-list { font-size:0.82rem; color:var(--text-secondary); }
+.kb-doc-list li { padding:0.35rem 0; border-bottom:1px solid var(--glass-border); list-style:none; }
+.kb-doc-list li:last-child { border-bottom:none; }
+.kb-doc-list li::before { content:'📄'; margin-right:0.45rem; opacity:0.7; }
+
+@media(max-width:900px){ .advisor-layout{grid-template-columns:1fr;} .adv-side{position:static;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:6rem;padding-bottom:4rem;">
+  <div class="gsap-fade-up" style="margin-bottom:2.5rem;">
+    <span class="section-label">RAG Intelligence</span>
+    <h1 class="section-heading">Sustainability <span class="accent">Advisor</span></h1>
+    <p style="color:var(--text-secondary);margin-top:0.75rem;max-width:680px;">
+      Ask anything about carbon footprints, materials, transport, or offsets.
+      Every answer is grounded in indexed LCA &amp; IPCC sources, with citations.
+    </p>
+  </div>
+
+  <div class="advisor-layout">
+    <!-- Sidebar: stats + suggestions + KB info
+         NO gsap-* classes — GSAP `from` locks them at opacity:0 and the
+         ScrollTrigger with Lenis smooth scroll sometimes never fires. -->
+    <aside class="adv-side" style="opacity:1;">
+      <div class="kb-info-card">
+        <h4>Knowledge Base</h4>
+        <div class="adv-stat-pill">{{ doc_count }} document{{ doc_count|pluralize }} indexed</div>
+        {% if ingested_docs %}
+        <ul class="kb-doc-list" style="margin-top:1rem;padding:0;">
+          {% for d in ingested_docs|slice:":5" %}
+          <li>{{ d.source_name|truncatechars:38 }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </div>
+
+      <div class="kb-info-card">
+        <h4>Try Asking</h4>
+        <div style="margin-top:0.4rem;">
+          <span class="suggestion-chip">Why is beef so high-emission?</span>
+          <span class="suggestion-chip">Best transport mode for low CO₂?</span>
+          <span class="suggestion-chip">Does recycled aluminum really cut emissions?</span>
+          <span class="suggestion-chip">Should I plant trees to offset?</span>
+        </div>
+      </div>
+
+      <div class="kb-info-card">
+        <h4>How It Works</h4>
+        <div style="font-size:0.82rem;color:var(--text-secondary);line-height:1.55;">
+          Your question is embedded with <b style="color:var(--green);">MiniLM-L6</b>, retrieved against
+          ChromaDB, reranked with a cross-encoder, then grounded against the top chunks via a strict
+          system prompt. Streaming responses, source citations, conversation memory.
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main chat panel -->
+    <div class="chat-panel" style="opacity:1;">
+      <div class="chat-log" id="chatLog">
+        <div class="bubble assistant">
+          Hi — I'm grounded in a library of LCA &amp; IPCC sources. Ask me anything about carbon
+          footprints, materials, food, transport, or offsets. I cite my sources, and I'll tell you
+          honestly if I don't have an answer in my knowledge base.
+        </div>
+      </div>
+
+      <div class="chat-input-row">
+        <textarea id="chatInput" placeholder="Ask about a material, food, transport mode, or offset…" rows="1"></textarea>
+        <button class="send-btn" id="sendBtn">Ask →</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+(function () {
+    const log = document.getElementById('chatLog');
+    const input = document.getElementById('chatInput');
+    const btn = document.getElementById('sendBtn');
+
+    function getCookie(name) {
+        const m = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+        return m ? decodeURIComponent(m.pop()) : '';
+    }
+
+    function escapeHtml(s) {
+        return String(s).replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[c]));
+    }
+
+    function makeBubble(role, extraClass) {
+        const div = document.createElement('div');
+        div.className = 'bubble ' + role + (extraClass ? ' ' + extraClass : '');
+        log.appendChild(div);
+        log.scrollTop = log.scrollHeight;
+        return div;
+    }
+
+    function renderSources(sources) {
+        if (!sources || sources.length === 0) return '';
+        const items = sources.map(s => `
+            <div class="src">
+                <b>[${s.n}]</b> ${escapeHtml(s.citation || s.source_name || '')}
+                <span style="opacity:0.7">· score ${s.score}</span>
+                <div style="margin-top:0.3rem;opacity:0.85;">${escapeHtml(s.snippet || '')}</div>
+            </div>`).join('');
+        return `<div class="sources"><div class="sources-title">Sources</div>${items}</div>`;
+    }
+
+    async function streamChat(question) {
+        const userBubble = makeBubble('user');
+        userBubble.textContent = question;
+
+        const aDiv = makeBubble('assistant');
+        const cursor = document.createElement('span');
+        cursor.className = 'typing-cursor';
+        aDiv.appendChild(cursor);
+
+        btn.disabled = true;
+        let textSoFar = '';
+        let finalSources = null;
+        let finalMeta = '';
+
+        try {
+            const res = await fetch('/api/advisor/chat/stream/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ question }),
+            });
+
+            if (!res.ok) {
+                cursor.remove();
+                aDiv.classList.add('error');
+                aDiv.textContent = 'Server error ' + res.status + '. Try the non-streaming endpoint.';
+                return fallbackNonStream(question, aDiv);
+            }
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let buffer = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                buffer += decoder.decode(value, { stream: true });
+                const parts = buffer.split('\n\n');
+                buffer = parts.pop();
+
+                for (const part of parts) {
+                    const line = part.trim();
+                    if (!line.startsWith('data: ')) continue;
+                    let evt;
+                    try { evt = JSON.parse(line.slice(6)); } catch { continue; }
+
+                    if (evt.type === 'token') {
+                        textSoFar += evt.text;
+                        // Update text content (preserving cursor at end)
+                        aDiv.innerHTML = escapeHtml(textSoFar);
+                        aDiv.appendChild(cursor);
+                        log.scrollTop = log.scrollHeight;
+                    } else if (evt.type === 'sources') {
+                        finalSources = evt.sources || [];
+                        finalMeta = `<div class="meta-row">Retrieved ${evt.retrieved_count} chunks · ${evt.latency_ms} ms</div>`;
+                    } else if (evt.type === 'error') {
+                        cursor.remove();
+                        aDiv.classList.add('error');
+                        aDiv.textContent = evt.message || 'Unknown error';
+                        return;
+                    }
+                }
+            }
+
+            // Finalise display
+            cursor.remove();
+            if (!textSoFar) {
+                aDiv.classList.add('error');
+                aDiv.textContent = 'Empty response from server.';
+                return;
+            }
+            aDiv.innerHTML = escapeHtml(textSoFar) + (finalSources ? renderSources(finalSources) : '') + finalMeta;
+        } catch (e) {
+            cursor.remove();
+            // Fallback to non-streaming if streaming failed (e.g. proxy buffering)
+            console.warn('Streaming failed, falling back:', e);
+            await fallbackNonStream(question, aDiv);
+        } finally {
+            btn.disabled = false;
+            input.focus();
+        }
+    }
+
+    // Fallback: hit the non-streaming endpoint if SSE fails
+    async function fallbackNonStream(question, aDiv) {
+        try {
+            aDiv.textContent = 'Thinking…';
+            const r = await fetch('/api/advisor/chat/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ question }),
+            });
+            const data = await r.json();
+            if (!data.success) {
+                aDiv.classList.add('error');
+                aDiv.textContent = data.error || 'Unknown error';
+                return;
+            }
+            const meta = `<div class="meta-row">Retrieved ${data.retrieved_count} chunks · ${data.latency_ms} ms</div>`;
+            aDiv.innerHTML = escapeHtml(data.answer) + renderSources(data.sources) + meta;
+        } catch (err) {
+            aDiv.classList.add('error');
+            aDiv.textContent = 'Network error: ' + err.message;
+        }
+    }
+
+    function send() {
+        const q = input.value.trim();
+        if (!q) return;
+        input.value = '';
+        streamChat(q);
+    }
+
+    btn.addEventListener('click', send);
+    input.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            send();
+        }
+    });
+    document.querySelectorAll('.suggestion-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            input.value = chip.textContent.trim();
+            send();
+        });
+    });
+})();
+</script>
+{% endblock %}

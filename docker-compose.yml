@@ -1,0 +1,44 @@
+# ===== C4Future docker-compose =====
+# Single-command local stack: web + persistent volumes for DB + vector store.
+#
+# Add a postgres + redis service later when scaling.
+
+version: "3.9"
+
+services:
+  web:
+    build: .
+    image: c4future:local
+    container_name: c4future-web
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - sqlite_data:/app/db_volume        # persist sqlite outside container
+      - chroma_data:/app/advisor/chroma_store
+      - ./advisor/knowledge_base:/app/advisor/knowledge_base:ro
+    environment:
+      - DJANGO_DEBUG=False
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-change-me-in-prod}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/').status"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # Uncomment when you swap SQLite for Postgres:
+  # postgres:
+  #   image: postgres:16-alpine
+  #   environment:
+  #     POSTGRES_DB: c4future
+  #     POSTGRES_USER: c4future
+  #     POSTGRES_PASSWORD: ${DB_PASSWORD}
+  #   volumes:
+  #     - pg_data:/var/lib/postgresql/data
+
+volumes:
+  sqlite_data:
+  chroma_data:
+  # pg_data:

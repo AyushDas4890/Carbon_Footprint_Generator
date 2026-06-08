@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Results — C4Future{% endblock %}
+
+{% block extra_css %}
+<style>
+.results-layout { display:grid; grid-template-columns:1fr 1.6fr; gap:2rem; align-items:start; }
+.globe-wrap { position:relative; height:360px; border-radius:20px; overflow:hidden;
+  background:var(--glass-bg); border:1px solid var(--glass-border); }
+#globe-canvas-el { width:100%; height:100%; }
+.offset-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:1rem; }
+.offset-card {
+  background:var(--glass-bg); border:1px solid var(--glass-border);
+  border-radius:var(--radius-md); padding:1.2rem;
+  transition:var(--transition-med); cursor:pointer;
+}
+.offset-card:hover { border-color:var(--glass-border-hover); transform:translateY(-3px); }
+.offset-icon { font-size:1.6rem; margin-bottom:0.5rem; }
+.offset-title { font-size:0.9rem; font-weight:600; margin-bottom:0.25rem; }
+.offset-desc  { font-size:0.78rem; color:var(--text-secondary); line-height:1.5; }
+@media(max-width:900px){ .results-layout{grid-template-columns:1fr;} .offset-grid{grid-template-columns:1fr;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:6rem; padding-bottom:4rem; animation: fadeInUp 0.6s ease both;">
+
+  <!-- header -->
+  <div style="margin-bottom:2.5rem;">
+    <span class="section-label">Analysis Complete</span>
+    <h1 class="section-heading">Carbon Footprint <span class="accent">Results</span></h1>
+  </div>
+
+  <!-- hero result card -->
+  <div class="result-hero-card tilt-card" style="margin-bottom:2rem;">
+    <div style="position:relative;">
+      <div class="emission-value" id="resultValue">—</div>
+      <div class="emission-unit">kg CO₂e — Total Lifecycle Emissions</div>
+      <div style="margin-top:0.75rem;">
+        <span class="confidence-band">
+          📊 95% Interval: <strong id="ciLow">—</strong> – <strong id="ciHigh">—</strong> kg CO₂e
+        </span>
+      </div>
+      <div id="productMeta" style="margin-top:1.2rem;font-size:0.88rem;color:var(--text-muted);"></div>
+    </div>
+  </div>
+
+  <div class="results-layout">
+    <!-- Left: emission breakdown + SHAP -->
+    <div>
+      <!-- Breakdown -->
+      <div class="glass-card" style="margin-bottom:1.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-secondary);">Emission Breakdown</h3>
+        <div id="breakdownBars"></div>
+      </div>
+      <!-- SHAP -->
+      <div class="glass-card">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-secondary);">SHAP Feature Importance</h3>
+        <div id="shapBars"></div>
+      </div>
+    </div>
+
+    <!-- Right: globe + chart + offsets -->
+    <div>
+      <!-- Rotating wireframe globe -->
+      <div class="globe-wrap" style="margin-bottom:1.5rem;">
+        <canvas id="globe-canvas-el"></canvas>
+        <div style="position:absolute;bottom:1rem;left:1rem;font-size:0.75rem;color:var(--text-muted);">
+          Visualising emission intensity
+        </div>
+      </div>
+      <!-- Chart.js donut -->
+      <div class="chart-container" style="margin-bottom:1.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1rem;color:var(--text-secondary);">Distribution</h3>
+        <canvas id="donutChart"></canvas>
+      </div>
+      <!-- Offset actions -->
+      <div class="glass-card">
+        <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.25rem;color:var(--text-secondary);">Offset Strategies</h3>
+        <div class="offset-grid" id="offsetGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:2.5rem;">
+    <a href="{% url 'home' %}"         class="btn btn-ghost">← New Calculation</a>
+    <a href="{% url 'compare_page' %}" class="btn btn-ghost">Compare Products</a>
+    <a href="{% url 'advisor' %}"      class="btn btn-primary">Ask AI Advisor →</a>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const data = JSON.parse(sessionStorage.getItem('c4_result')||'{}');
+
+document.addEventListener('DOMContentLoaded', function() {
+
+if(Object.keys(data).length === 0){ window.location.href = '/'; return; }
+
+// co2_kg from API; fall back to breakdown sum if model returned 0
+const rawBD = data.breakdown || {};
+const breakdownSum = (rawBD.material_co2||0) + (rawBD.manufacturing_co2||0) + (rawBD.transport_co2||0);
+let co2 = data.carbon_kg ?? data.co2_kg ?? 0;
+if(co2 === 0 && breakdownSum > 0) co2 = parseFloat(breakdownSum.toFixed(2));
+
+/* ── Main result value ── */
+document.getElementById('resultValue').textContent = co2.toFixed(2);
+const ci = data.confidence_interval || {};
+document.getElementById('ciLow').textContent  = (ci.lower ?? co2*0.85).toFixed(2);
+document.getElementById('ciHigh').textContent = (ci.upper ?? co2*1.15).toFixed(2);
+
+if(data.product_name){
+  document.getElementById('productMeta').innerHTML =
+    `<strong style="color:var(--text-primary)">${data.product_name}</strong> &nbsp;·&nbsp; ${data.material||''} &nbsp;·&nbsp; ${data.weight_kg||''}kg &nbsp;·&nbsp; ${data.transport_mode||''}`;
+}
+
+/* ── Breakdown bars ── */
+const bEntries = [
+  ['Material Production', rawBD.material_co2     ?? co2*0.45],
+  ['Manufacturing',       rawBD.manufacturing_co2 ?? co2*0.22],
+  ['Transport',           rawBD.transport_co2    ?? co2*0.20],
+  ['Use Phase',           co2*0.08],
+  ['End of Life',         co2*0.05],
+];
+const bContainer = document.getElementById('breakdownBars');
+const bTotal = bEntries.reduce((s,[,v])=>s+parseFloat(v),0);
+bEntries.forEach(([label,v])=>{
+  const pct = bTotal>0 ? (parseFloat(v)/bTotal*100) : 0;
+  bContainer.innerHTML += `<div class="emission-bar-wrap">
+    <div class="emission-bar-label"><span>${label}</span><span>${parseFloat(v).toFixed(2)} kg</span></div>
+    <div class="emission-bar-track"><div class="emission-bar-fill" data-scale="${(pct/100).toFixed(3)}"></div></div>
+  </div>`;
+});
+// Animate bars after render
+setTimeout(()=>{
+  document.querySelectorAll('.emission-bar-fill').forEach(b=>{
+    b.style.transform = `scaleX(${b.dataset.scale})`;
+  });
+}, 200);
+
+/* ── SHAP bars ── */
+const explanations = (data.explanations||[]).filter(e=>!e.feature.startsWith('BASE'));
+const sContainer = document.getElementById('shapBars');
+if(explanations.length){
+  const maxAbs = Math.max(...explanations.map(e=>Math.abs(e.contribution_kg_co2||0)), 0.001);
+  explanations.slice(0,6).forEach(e=>{
+    const v = e.contribution_kg_co2||0;
+    const pct=(Math.abs(v)/maxAbs*100).toFixed(1);
+    const cls=v>=0?'pos':'neg';
+    sContainer.innerHTML+=`<div class="shap-row">
+      <span class="shap-feature">${e.feature}</span>
+      <div class="shap-bar-wrap"><div class="shap-bar ${cls}" style="width:${pct}%"></div></div>
+      <span class="shap-val" style="color:${v>=0?'var(--ember)':'var(--cyan)'}">${v>=0?'+':''}${v.toFixed(3)}</span>
+    </div>`;
+  });
+} else {
+  sContainer.innerHTML='<p style="color:var(--text-muted);font-size:0.85rem;">SHAP explanations not available.</p>';
+}
+
+/* ── Donut chart ── */
+const ctx=document.getElementById('donutChart').getContext('2d');
+new Chart(ctx,{
+  type:'doughnut',
+  data:{
+    labels: bEntries.map(([l])=>l),
+    datasets:[{
+      data: bEntries.map(([,v])=>Math.max(parseFloat(v),0)),
+      backgroundColor:['rgba(100,255,180,0.75)','rgba(0,217,255,0.75)','rgba(139,92,246,0.75)','rgba(255,107,53,0.75)','rgba(255,77,109,0.75)'],
+      borderColor:'var(--bg-void)', borderWidth:3,
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{
+      legend:{labels:{color:'rgba(255,255,255,0.6)',font:{size:12}}},
+      tooltip:{callbacks:{label:c=>`${c.label}: ${c.parsed.toFixed(2)} kg CO₂e`}}
+    },
+    cutout:'68%',
+  }
+});
+
+/* ── Offset strategies ── */
+const offsets=[
+  {icon:'🌳',title:'Plant Trees',desc:`~${Math.max(1,Math.ceil(co2/20))} tree(s) needed to offset ${co2.toFixed(1)} kg CO₂e per year.`},
+  {icon:'☀️',title:'Renewable Energy',desc:'Fund solar/wind certificates displacing grid carbon.'},
+  {icon:'♻️',title:'Redesign Material',desc:'Switch to recycled/bio-based alternatives — cut 30–60%.'},
+  {icon:'🚢→🚂',title:'Switch Transport',desc:'Air→Sea shipping cuts transport emissions by up to 95%.'},
+];
+const og=document.getElementById('offsetGrid');
+offsets.forEach(o=>{
+  og.innerHTML+=`<div class="offset-card"><div class="offset-icon">${o.icon}</div><div class="offset-title">${o.title}</div><p class="offset-desc">${o.desc}</p></div>`;
+});  // end offsets.forEach
+
+}); // end DOMContentLoaded
+
+/* ── Three.js wireframe globe ── */
+(function(){
+  const canvas=document.getElementById('globe-canvas-el');
+  if(!canvas||typeof THREE==='undefined') return;
+  const renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(canvas.offsetWidth||400, canvas.offsetHeight||360);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(45,(canvas.offsetWidth||400)/(canvas.offsetHeight||360),0.1,100);
+  camera.position.z=4;
+  const geo=new THREE.IcosahedronGeometry(1.5,3);
+  const mat=new THREE.MeshBasicMaterial({color:0x64ffb4,wireframe:true,transparent:true,opacity:0.25});
+  const mesh=new THREE.Mesh(geo,mat);
+  scene.add(mesh);
+  const inner=new THREE.Mesh(new THREE.SphereGeometry(1.45,32,32),new THREE.MeshBasicMaterial({color:0x050810,transparent:true,opacity:0.85}));
+  scene.add(inner);
+  function anim(){ requestAnimationFrame(anim); mesh.rotation.y+=0.003; mesh.rotation.x+=0.001; renderer.render(scene,camera); }
+  anim();
+})();
+</script>
+{% endblock %}

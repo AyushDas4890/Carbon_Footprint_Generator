@@ -1,0 +1,36 @@
+name: Retrain Model (manual)
+
+on:
+  workflow_dispatch:
+    inputs:
+      external_csv_url:
+        description: "Optional URL to an external LCA CSV (downloaded before training)"
+        required: false
+
+jobs:
+  retrain:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11", cache: "pip" }
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      - name: Fetch external dataset (optional)
+        if: ${{ inputs.external_csv_url != '' }}
+        run: |
+          curl -L "${{ inputs.external_csv_url }}" -o /tmp/external.csv
+          echo "EXTERNAL_LCA_CSV=/tmp/external.csv" >> $GITHUB_ENV
+
+      - name: Train
+        run: python predictor/training/train_xgboost.py
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: carbon-xgb-${{ github.run_number }}
+          path: |
+            predictor/ml_models/carbon_xgb.joblib
+            predictor/ml_models/metrics_xgb.json

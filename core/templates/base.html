@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="C4Future — AI-powered carbon footprint calculator for sustainable product decisions.">
+  <title>{% block title %}C4Future — Carbon Intelligence{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/ScrollTrigger.min.js"></script>
+  <!-- Lenis smooth scroll -->
+  <script src="https://cdn.jsdelivr.net/npm/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-ring"></div>
+
+<!-- Three.js particle canvas (global background) -->
+<canvas id="c4-canvas"></canvas>
+
+<!-- Navbar -->
+<nav class="navbar" id="navbar">
+  <div class="nav-logo">
+    <div class="logo-icon-wrap">
+      <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="20" cy="20" r="17" stroke="url(#ng)" stroke-width="1.5"/>
+        <circle cx="20" cy="20" r="10" stroke="url(#ng)" stroke-width="1" opacity="0.6"/>
+        <circle cx="20" cy="20" r="4" fill="url(#ng)"/>
+        <circle cx="37" cy="20" r="2.5" fill="#64ffb4"/>
+        <circle cx="20" cy="3"  r="2"   fill="#00d9ff"/>
+        <circle cx="3"  cy="20" r="2.5" fill="#8b5cf6"/>
+        <defs>
+          <linearGradient id="ng" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+            <stop offset="0%"   stop-color="#64ffb4"/>
+            <stop offset="50%"  stop-color="#00d9ff"/>
+            <stop offset="100%" stop-color="#8b5cf6"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+    <span class="c4">C4</span><span class="future">Future</span>
+  </div>
+
+  <ul class="nav-links">
+    <li><a href="{% url 'home' %}"          class="{% if request.path == '/' %}active{% endif %}">Home</a></li>
+    <li><a href="{% url 'results' %}"       class="{% if '/results' in request.path %}active{% endif %}">Results</a></li>
+    <li><a href="{% url 'insights' %}"      class="{% if '/insights' in request.path %}active{% endif %}">Insights</a></li>
+    <li><a href="{% url 'compare_page' %}"  class="{% if '/compare' in request.path %}active{% endif %}">Compare</a></li>
+    <li><a href="{% url 'decompose_page' %}" class="{% if '/decompose' in request.path %}active{% endif %}">Decompose</a></li>
+    <li><a href="{% url 'advisor' %}"       class="nav-cta {% if '/advisor' in request.path %}active{% endif %}">✦ Advisor</a></li>
+  </ul>
+</nav>
+
+<!-- Page content -->
+<main class="page-wrapper">
+  {% block content %}{% endblock %}
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="nav-logo" style="margin-bottom:0.75rem;">
+          <span class="c4">C4</span><span class="future">Future</span>
+        </div>
+        <p>AI-powered carbon intelligence — helping you understand and reduce the environmental impact of every product.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Tools</h4>
+        <ul>
+          <li><a href="{% url 'home' %}">Calculator</a></li>
+          <li><a href="{% url 'results' %}">Results</a></li>
+          <li><a href="{% url 'compare_page' %}">Compare</a></li>
+          <li><a href="{% url 'decompose_page' %}">Decompose</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Insights</h4>
+        <ul>
+          <li><a href="{% url 'insights' %}">Dashboard</a></li>
+          <li><a href="{% url 'advisor' %}">AI Advisor</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Model</h4>
+        <ul>
+          <li><a href="#">XGBoost ML</a></li>
+          <li><a href="#">SHAP Analysis</a></li>
+          <li><a href="#">RAG Pipeline</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 <span class="green">C4Future</span> — Carbon Intelligence</p>
+      <p>Built with <span class="green">♦</span> for a sustainable future</p>
+    </div>
+  </div>
+</footer>
+
+<!-- ============================================================
+     GLOBAL SCRIPTS
+     ============================================================ -->
+<script>
+/* ── Lenis smooth scroll ── */
+const lenis = new Lenis({ duration:1.2, easing:t=>Math.min(1,1.001-Math.pow(2,-10*t)), smooth:true });
+function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+requestAnimationFrame(raf);
+
+/* ── GSAP + ScrollTrigger ── */
+gsap.registerPlugin(ScrollTrigger);
+
+/* scroll-linked animation helper */
+function revealOnScroll(selector, props={}, staggerAmt=0){
+  const els = document.querySelectorAll(selector);
+  if(!els.length) return;
+  els.forEach(el => {
+    gsap.from(el, {
+      scrollTrigger:{ trigger:el, start:'top 88%', toggleActions:'play none none none' },
+      duration: 0.7,
+      ease: 'power3.out',
+      ...props,
+      ...(staggerAmt ? {} : {})
+    });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  revealOnScroll('.gsap-fade-up',    { opacity:0, y:35 });
+  revealOnScroll('.gsap-fade-left',  { opacity:0, x:-35 });
+  revealOnScroll('.gsap-fade-right', { opacity:0, x:35 });
+  revealOnScroll('.gsap-scale-in',   { opacity:0, scale:0.88 });
+
+  /* stagger children */
+  document.querySelectorAll('.gsap-stagger').forEach(parent => {
+    const kids = parent.children;
+    gsap.from(kids, {
+      scrollTrigger:{ trigger:parent, start:'top 88%' },
+      opacity:0, y:30, duration:0.6,
+      stagger:0.12, ease:'power3.out'
+    });
+  });
+
+  /* Safety net: if anything is still at opacity:0 after 1.2s
+     (ScrollTrigger + Lenis smooth-scroll race condition can cause this),
+     force it visible so the page never appears blank. */
+  setTimeout(() => {
+    document.querySelectorAll('.gsap-fade-up,.gsap-fade-left,.gsap-fade-right,.gsap-scale-in,.gsap-stagger').forEach(el => {
+      if (parseFloat(getComputedStyle(el).opacity) < 0.05) el.style.opacity = '1';
+      Array.from(el.children || []).forEach(k => {
+        if (parseFloat(getComputedStyle(k).opacity) < 0.05) k.style.opacity = '1';
+      });
+    });
+  }, 1200);
+});
+
+/* ── Navbar scroll state ── */
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', ()=>{
+  navbar.classList.toggle('scrolled', window.scrollY > 40);
+}, { passive:true });
+
+/* ── Custom cursor ── */
+const dot  = document.getElementById('cursor-dot');
+const ring = document.getElementById('cursor-ring');
+let mx=0, my=0, rx=0, ry=0;
+document.addEventListener('mousemove', e=>{
+  mx=e.clientX; my=e.clientY;
+  dot.style.left=mx+'px'; dot.style.top=my+'px';
+});
+(function animCursor(){
+  rx += (mx-rx)*0.15; ry += (my-ry)*0.15;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(animCursor);
+})();
+document.querySelectorAll('a,button,input,select,textarea,.tilt-card,[data-cursor-hover]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave',()=>document.body.classList.remove('cursor-hover'));
+});
+
+/* ── Three.js global particle background ── */
+(function initParticles(){
+  const canvas = document.getElementById('c4-canvas');
+  if(!canvas || typeof THREE==='undefined') return;
+  const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 0.1, 200);
+  camera.position.z = 60;
+
+  /* Particle geometry */
+  const COUNT = 350;
+  const positions = new Float32Array(COUNT * 3);
+  const speeds    = new Float32Array(COUNT);
+  for(let i=0; i<COUNT; i++){
+    positions[i*3]   = (Math.random()-0.5)*140;
+    positions[i*3+1] = (Math.random()-0.5)*140;
+    positions[i*3+2] = (Math.random()-0.5)*80;
+    speeds[i] = 0.003 + Math.random()*0.006;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(positions,3));
+  const mat = new THREE.PointsMaterial({
+    color:0x64ffb4, size:0.35, transparent:true, opacity:0.55,
+    sizeAttenuation:true
+  });
+  const points = new THREE.Points(geo, mat);
+  scene.add(points);
+
+  /* Connection lines */
+  const lineMat = new THREE.LineBasicMaterial({ color:0x64ffb4, transparent:true, opacity:0.06 });
+  const lineGeo = new THREE.BufferGeometry();
+  const linePositions = new Float32Array(COUNT * COUNT * 6);
+  lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions,3));
+  const lines = new THREE.LineSegments(lineGeo, lineMat);
+  scene.add(lines);
+
+  /* Mouse parallax */
+  let mouseX=0, mouseY=0;
+  window.addEventListener('mousemove', e=>{
+    mouseX = (e.clientX/window.innerWidth  - 0.5) * 0.3;
+    mouseY = (e.clientY/window.innerHeight - 0.5) * 0.3;
+  }, { passive:true });
+
+  /* Resize */
+  window.addEventListener('resize', ()=>{
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  const CONNECT_DIST = 18;
+  let frame=0;
+  function animate(){
+    requestAnimationFrame(animate);
+    frame++;
+
+    /* drift particles */
+    const pos = geo.attributes.position.array;
+    for(let i=0; i<COUNT; i++){
+      pos[i*3+1] += speeds[i];
+      if(pos[i*3+1] > 70) pos[i*3+1] = -70;
+    }
+    geo.attributes.position.needsUpdate = true;
+
+    /* update connection lines every 2 frames */
+    if(frame%2===0){
+      let li=0;
+      const lp = lineGeo.attributes.position.array;
+      for(let a=0; a<COUNT; a++){
+        for(let b=a+1; b<COUNT; b++){
+          const dx=pos[a*3]-pos[b*3], dy=pos[a*3+1]-pos[b*3+1], dz=pos[a*3+2]-pos[b*3+2];
+          const dist=Math.sqrt(dx*dx+dy*dy+dz*dz);
+          if(dist<CONNECT_DIST && li<linePositions.length-6){
+            lp[li++]=pos[a*3]; lp[li++]=pos[a*3+1]; lp[li++]=pos[a*3+2];
+            lp[li++]=pos[b*3]; lp[li++]=pos[b*3+1]; lp[li++]=pos[b*3+2];
+          }
+        }
+      }
+      lineGeo.setDrawRange(0, li/3);
+      lineGeo.attributes.position.needsUpdate=true;
+    }
+
+    /* camera parallax */
+    camera.position.x += (mouseX*8 - camera.position.x)*0.02;
+    camera.position.y += (-mouseY*8 - camera.position.y)*0.02;
+    camera.lookAt(scene.position);
+
+    /* slow rotation */
+    points.rotation.y += 0.0005;
+
+    renderer.render(scene, camera);
+  }
+  animate();
+})();
+
+/* ── 3D card tilt ── */
+document.querySelectorAll('.tilt-card').forEach(card=>{
+  card.addEventListener('mousemove', e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width  - 0.5;
+    const y=(e.clientY-r.top )/r.height - 0.5;
+    card.style.setProperty('--rx', (-y*10)+'deg');
+    card.style.setProperty('--ry', ( x*10)+'deg');
+  });
+  card.addEventListener('mouseleave', ()=>{
+    card.style.setProperty('--rx','0deg');
+    card.style.setProperty('--ry','0deg');
+  });
+});
+</script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,57 @@
+# Fly.io configuration.
+# After installing flyctl, run:
+#   fly launch --no-deploy        (uses this fly.toml as template)
+#   fly secrets set OPENAI_API_KEY=sk-... DJANGO_SECRET_KEY=... DJANGO_ALLOWED_HOSTS=c4future.fly.dev
+#   fly volumes create c4future_data --size 1 --region bom    # 1GB volume in Mumbai
+#   fly deploy
+
+app = "c4future"
+primary_region = "bom"            # bom = Mumbai (closest to India). Use ord/iad/lhr/sin/etc.
+
+[build]
+  dockerfile = "Dockerfile"
+
+[env]
+  DJANGO_DEBUG = "False"
+  PORT = "8080"
+  ADVISOR_LLM_MODEL = "gpt-4o-mini"
+  ADVISOR_EMBED_MODEL = "sentence-transformers/all-MiniLM-L6-v2"
+
+[[services]]
+  internal_port = 8080
+  protocol = "tcp"
+  auto_stop_machines = true       # cheap: stop when idle
+  auto_start_machines = true
+  min_machines_running = 0
+
+  [[services.ports]]
+    port = 80
+    handlers = ["http"]
+    force_https = true
+
+  [[services.ports]]
+    port = 443
+    handlers = ["tls", "http"]
+
+  [services.concurrency]
+    type = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+  [[services.http_checks]]
+    interval = "30s"
+    timeout = "5s"
+    grace_period = "60s"
+    method = "get"
+    path = "/health/"
+
+[[mounts]]
+  source = "c4future_data"
+  destination = "/app/advisor/chroma_store"
+
+[deploy]
+  release_command = "bash release.sh"
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "1gb"                  # MiniLM + ChromaDB + Django needs ~800MB

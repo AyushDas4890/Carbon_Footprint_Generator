@@ -1,0 +1,355 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}C4Future — Carbon Footprint Calculator{% endblock %}
+
+{% block extra_css %}
+<style>
+.hero-form-panel {
+  background: rgba(13,21,37,0.85);
+  border: 1px solid rgba(100,255,180,0.15);
+  border-radius: 24px;
+  padding: 2.5rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(100,255,180,0.04);
+  max-width: 620px;
+  margin: 3rem auto 0;
+  position: relative;
+}
+.hero-form-panel::before {
+  content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+  width:60%; height:1px;
+  background: linear-gradient(90deg,transparent,rgba(100,255,180,0.4),transparent);
+}
+.form-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+.how-it-works  { display:grid; grid-template-columns:repeat(3,1fr); gap:2rem; }
+.step-num {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:3rem; font-weight:700; line-height:1;
+  color: rgba(100,255,180,0.12);
+  margin-bottom:0.75rem;
+}
+.step-title { font-size:1.05rem; font-weight:600; margin-bottom:0.4rem; }
+.step-desc  { font-size:0.88rem; color:var(--text-secondary); line-height:1.7; }
+.tech-pills { display:flex; flex-wrap:wrap; gap:0.5rem; justify-content:center; margin-top:1.5rem; }
+.tech-pill {
+  padding:0.35rem 0.9rem; border-radius:100px;
+  font-size:0.75rem; font-weight:600;
+  background:var(--glass-bg); border:1px solid var(--glass-border);
+  color:var(--text-secondary);
+}
+@media(max-width:768px){
+  .form-row-2  { grid-template-columns:1fr; }
+  .features-grid,
+  .how-it-works{ grid-template-columns:1fr; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<!-- ── HERO ─────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      AI-Powered Carbon Intelligence
+    </div>
+
+    <h1 class="hero-title">
+      Calculate the True<br>
+      <span class="highlight">Carbon Cost</span><br>
+      of Any Product
+    </h1>
+
+    <p class="hero-subtitle">
+      Our custom-trained XGBoost model with conformal prediction delivers instant, 
+      uncertainty-bounded carbon estimates — grounded in real emission data.
+    </p>
+
+    <div class="hero-ctas">
+      <a href="#calculator" class="btn btn-primary">
+        <span>🌱</span> Calculate Now
+      </a>
+      <a href="{% url 'advisor' %}" class="btn btn-ghost">
+        Ask the AI Advisor →
+      </a>
+    </div>
+
+    <!-- Floating form panel -->
+    <div id="calculator" class="hero-form-panel tilt-card">
+      <h2 style="font-size:1.2rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-secondary);">
+        Product Details
+      </h2>
+      <form id="carbonForm">
+        <!-- Product Name -->
+        <div class="form-group">
+          <label class="form-label" for="productName">Product Name</label>
+          <input type="text" id="productName" class="form-input" placeholder="e.g. Cotton T-Shirt" required>
+        </div>
+        <div class="form-row-2">
+          <!-- Material -->
+          <div class="form-group">
+            <label class="form-label" for="material">Material</label>
+            <select id="material" class="form-select" required>
+              <option value="">Select material…</option>
+              {% for mat in materials %}
+              <option value="{{ mat }}">{{ mat }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <!-- Country -->
+          <div class="form-group">
+            <label class="form-label" for="country">Manufacturing Country</label>
+            <select id="country" class="form-select">
+              <option value="CHINA">China</option>
+              <option value="USA">United States</option>
+              <option value="GERMANY">Germany</option>
+              <option value="INDIA">India</option>
+              <option value="FRANCE">France</option>
+              <option value="JAPAN">Japan</option>
+              <option value="BRAZIL">Brazil</option>
+            </select>
+          </div>
+        </div>
+        <!-- Weight slider -->
+        <div class="form-group">
+          <label class="form-label">
+            Product Weight: <span class="range-value" id="weightValue">1.0 kg</span>
+          </label>
+          <input type="range" id="weight" class="form-range" min="0.1" max="50" step="0.1" value="1.0">
+        </div>
+        <div class="form-row-2">
+          <!-- Transport -->
+          <div class="form-group">
+            <label class="form-label" for="transportMode">Transport</label>
+            <select id="transportMode" class="form-select" required>
+              <option value="">Select…</option>
+              <option value="ROAD">🚚 Road</option>
+              <option value="RAIL">🚂 Rail</option>
+              <option value="SEA">🚢 Sea</option>
+              <option value="AIR">✈️ Air</option>
+            </select>
+          </div>
+          <!-- EOL -->
+          <div class="form-group">
+            <label class="form-label" for="eol">End-of-Life</label>
+            <select id="eol" class="form-select">
+              <option value="LANDFILL">Landfill</option>
+              <option value="RECYCLED">Recycle</option>
+              <option value="INCINERATED">Incinerate</option>
+            </select>
+          </div>
+        </div>
+        <!-- Distance slider -->
+        <div class="form-group">
+          <label class="form-label">
+            Transport Distance: <span class="range-value" id="distanceValue">1000 km</span>
+          </label>
+          <input type="range" id="distance" class="form-range" min="50" max="20000" step="50" value="1000">
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;font-size:1rem;margin-top:0.5rem;">
+          🌱 Calculate Carbon Footprint
+        </button>
+      </form>
+
+      <!-- Loading -->
+      <div id="loadingState" class="loading-state hidden">
+        <div class="spinner"></div>
+        <p>Analysing environmental impact…</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── STATS ──────────────────────────────────────────────── -->
+<section class="section-sm">
+  <div class="container">
+    <div class="grid-4 gsap-stagger">
+      <div class="stat-card">
+        <div class="stat-value" data-count="5000">5,000+</div>
+        <div class="stat-label">Training Samples</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">R² &gt;0.9</div>
+        <div class="stat-label">Model Accuracy</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">95%</div>
+        <div class="stat-label">Interval Coverage</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Transport Modes</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider divider-glow container"></div>
+
+<!-- ── HOW IT WORKS ───────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="text-center mb-3 gsap-fade-up">
+      <span class="section-label">Process</span>
+      <h2 class="section-heading">How It <span class="accent">Works</span></h2>
+      <p class="section-sub">Three steps from product description to actionable carbon intelligence.</p>
+    </div>
+    <div class="how-it-works gsap-stagger" style="margin-top:3rem;">
+      <div class="feature-card">
+        <div class="step-num">01</div>
+        <div class="feature-icon">🧮</div>
+        <div class="feature-title">Input Product Details</div>
+        <p class="feature-desc">Provide material, weight, manufacturing country, transport mode and end-of-life disposition.</p>
+      </div>
+      <div class="feature-card">
+        <div class="step-num">02</div>
+        <div class="feature-icon">🤖</div>
+        <div class="feature-title">ML Prediction</div>
+        <p class="feature-desc">XGBoost with quantile regression produces a point estimate plus a conformal prediction interval at 95% coverage.</p>
+      </div>
+      <div class="feature-card">
+        <div class="step-num">03</div>
+        <div class="feature-icon">🌍</div>
+        <div class="feature-title">Actionable Insights</div>
+        <p class="feature-desc">SHAP explanations reveal which features drive your footprint. The AI Advisor suggests verified offset strategies.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider container"></div>
+
+<!-- ── FEATURES ───────────────────────────────────────────── -->
+<section class="section">
+  <div class="container">
+    <div class="text-center mb-3 gsap-fade-up">
+      <span class="section-label">Capabilities</span>
+      <h2 class="section-heading">Everything You Need to<br><span class="accent">Measure &amp; Reduce</span></h2>
+    </div>
+    <div class="features-grid gsap-stagger" style="margin-top:3rem;">
+      <div class="feature-card tilt-card">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-title">Instant Estimates</div>
+        <p class="feature-desc">Sub-100ms predictions powered by a locally served XGBoost model — no API latency.</p>
+      </div>
+      <div class="feature-card tilt-card">
+        <div class="feature-icon">📊</div>
+        <div class="feature-title">SHAP Explanations</div>
+        <p class="feature-desc">Per-prediction TreeSHAP values show exactly which factors drive your carbon number.</p>
+      </div>
+      <div class="feature-card tilt-card">
+        <div class="feature-icon">🔗</div>
+        <div class="feature-title">RAG Advisor</div>
+        <p class="feature-desc">LangChain + ChromaDB retrieval with GPT streaming. Ask sustainability questions grounded in real documents.</p>
+      </div>
+      <div class="feature-card tilt-card">
+        <div class="feature-icon">📦</div>
+        <div class="feature-title">BoM Decomposer</div>
+        <p class="feature-desc">Describe any product in plain language — the AI decomposes it into a Bill of Materials and estimates each component.</p>
+      </div>
+      <div class="feature-card tilt-card">
+        <div class="feature-icon">⚖️</div>
+        <div class="feature-title">Side-by-Side Compare</div>
+        <p class="feature-desc">Compare up to two products by carbon footprint across all emission categories.</p>
+      </div>
+      <div class="feature-card tilt-card">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-title">Uncertainty Bands</div>
+        <p class="feature-desc">Conformal prediction guarantees 95% marginal coverage on every interval — no overconfident point estimates.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── TECH STACK ─────────────────────────────────────────── -->
+<section class="section-sm">
+  <div class="container text-center gsap-fade-up">
+    <span class="section-label">Powered By</span>
+    <div class="tech-pills">
+      <span class="tech-pill">XGBoost</span>
+      <span class="tech-pill">Conformal Prediction</span>
+      <span class="tech-pill">SHAP TreeExplainer</span>
+      <span class="tech-pill">LangChain</span>
+      <span class="tech-pill">ChromaDB</span>
+      <span class="tech-pill">OpenAI GPT</span>
+      <span class="tech-pill">Django 5</span>
+      <span class="tech-pill">Three.js</span>
+      <span class="tech-pill">GSAP</span>
+    </div>
+  </div>
+</section>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+/* Sliders */
+const ws=document.getElementById('weight'), wv=document.getElementById('weightValue');
+const ds=document.getElementById('distance'),dv=document.getElementById('distanceValue');
+function updateSlider(s,v,unit){
+  const pct=((s.value-s.min)/(s.max-s.min))*100;
+  s.style.background=`linear-gradient(to right,var(--green) 0%,var(--green) ${pct}%,rgba(255,255,255,0.06) ${pct}%)`;
+  v.textContent = s.value + ' ' + unit;
+}
+ws.addEventListener('input',()=>updateSlider(ws,wv,'kg'));
+ds.addEventListener('input',()=>updateSlider(ds,dv,'km'));
+updateSlider(ws,wv,'kg'); updateSlider(ds,dv,'km');
+
+/* Tilt cards — also handled globally in base.html but re-apply for late-added nodes */
+document.querySelectorAll('.tilt-card').forEach(card=>{
+  card.addEventListener('mousemove',e=>{
+    const r=card.getBoundingClientRect();
+    const x=(e.clientX-r.left)/r.width-0.5, y=(e.clientY-r.top)/r.height-0.5;
+    card.style.setProperty('--rx',(-y*8)+'deg');
+    card.style.setProperty('--ry',(x*8)+'deg');
+  });
+  card.addEventListener('mouseleave',()=>{
+    card.style.setProperty('--rx','0deg');
+    card.style.setProperty('--ry','0deg');
+  });
+});
+
+/* Form submit */
+document.getElementById('carbonForm').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const form   = e.target;
+  const loading= document.getElementById('loadingState');
+  form.classList.add('hidden'); loading.classList.remove('hidden');
+  const payload={
+    product_name:   document.getElementById('productName').value,
+    material:       document.getElementById('material').value,
+    weight_kg:      parseFloat(document.getElementById('weight').value),
+    transport_mode: document.getElementById('transportMode').value,
+    transport_distance_km: parseFloat(document.getElementById('distance').value),
+    country:        document.getElementById('country').value,
+    eol:            document.getElementById('eol').value,
+  };
+  try {
+    const res  = await fetch('/api/predict/', { method:'POST', headers:{'Content-Type':'application/json','X-CSRFToken':getCookie('csrftoken')}, body:JSON.stringify(payload) });
+    const data = await res.json();
+    if(data.success !== false){
+      // Normalise key names so all templates read consistently
+      if(data.co2_kg !== undefined && data.carbon_kg === undefined) data.carbon_kg = data.co2_kg;
+      // Persist request fields (API response doesn't echo them back)
+      data.product_name   = payload.product_name;
+      data.material       = payload.material;
+      data.weight_kg      = payload.weight_kg;
+      data.transport_mode = payload.transport_mode;
+      sessionStorage.setItem('c4_result', JSON.stringify(data));
+      window.location.href = '/results/';
+    } else {
+      alert('Error: ' + (data.error||'Unknown error'));
+      form.classList.remove('hidden'); loading.classList.add('hidden');
+    }
+  } catch(err){
+    alert('Network error. Please try again.'); 
+    form.classList.remove('hidden'); loading.classList.add('hidden');
+  }
+});
+function getCookie(n){ const m=document.cookie.match('(?:^|;) ?'+n+'=([^;]*)'); return m?decodeURIComponent(m[1]):''; }
+</script>
+{% endblock %}

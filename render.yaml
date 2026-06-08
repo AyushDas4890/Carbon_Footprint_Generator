@@ -1,0 +1,40 @@
+# Render.com Infrastructure-as-Code.
+# Push this file to GitHub and click "New Blueprint" on dashboard.render.com
+# → Render auto-creates the web service + persistent disk.
+#
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: c4future
+    runtime: python
+    region: oregon              # singapore is closest to India; oregon = cheapest free
+    plan: starter               # $7/mo for 512MB. Free tier sleeps after 15min idle.
+    branch: main                # or your default branch
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+      python manage.py collectstatic --noinput
+    preDeployCommand: bash release.sh
+    startCommand: gunicorn carbon_project.wsgi:application --bind 0.0.0.0:$PORT --workers 2 --threads 4 --timeout 120
+    healthCheckPath: /health/
+    autoDeploy: true
+    disk:                        # persists ChromaDB + SQLite across deploys
+      name: c4future-data
+      mountPath: /opt/render/project/src/advisor/chroma_store
+      sizeGB: 1                  # $0.25/mo per GB
+    envVars:
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_SECRET_KEY
+        generateValue: true      # Render auto-generates a strong key once
+      - key: DJANGO_ALLOWED_HOSTS
+        sync: false              # set in the Render dashboard after first deploy
+      - key: OPENAI_API_KEY
+        sync: false              # set in the Render dashboard (don't commit!)
+      - key: ADVISOR_LLM_MODEL
+        value: gpt-4o-mini
+      - key: ADVISOR_EMBED_MODEL
+        value: sentence-transformers/all-MiniLM-L6-v2
+      - key: PYTHON_VERSION
+        value: "3.11.9"

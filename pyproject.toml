@@ -1,0 +1,17 @@
+[tool.ruff]
+line-length = 110
+target-version = "py311"
+extend-exclude = [
+    "advisor/chroma_store",
+    "predictor/ml_models",
+    "*/migrations/*",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+ignore = ["E501"]   # line length handled by formatter
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "carbon_project.settings"
+python_files = ["tests.py", "test_*.py", "*_test.py"]
+addopts = "-ra --tb=short"

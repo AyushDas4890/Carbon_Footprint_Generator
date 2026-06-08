@@ -1,0 +1,12 @@
+﻿{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Model Insights{% endblock %}
+
+{% block background_video %}
+<video autoplay muted loop playsinline id="bgVideo">
+    <source src="{% static 'videos/insight.mp4' %}" type="video/mp4">
+</video>
+{% endblock %}
+
+{% block extra_css %}

@@ -1,0 +1,24 @@
+venv/
+*.pyc
+__pycache__/
+db.sqlite3
+.env
+.vscode/
+*.log
+
+# RAG artifacts — vector store + downloaded docs are large/regenerable
+advisor/chroma_store/
+advisor/knowledge_base/raw_pdfs/
+advisor/knowledge_base/*.pkl
+
+# ML model binaries — built at Docker build time, not committed
+predictor/ml_models/*.joblib
+predictor/ml_models/metrics_xgb.json
+predictor/training/training_data_hybrid.csv
+predictor/training/real_eval.csv
+
+# Django collectstatic output
+staticfiles/
+
+# Git LFS leftovers (we're going Docker-only)
+.gitattributes

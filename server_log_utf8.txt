@@ -1,0 +1,33 @@
+﻿Carbon model loaded successfully
+   Model R▓: 0.7830
+Carbon model loaded successfully
+   Model R▓: 0.7830
+.\env\Scripts\python.exe : 
+Watching for file changes 
+with StatReloader
+At line:1 char:26
++ ... BUFFERED=1; 
+.\env\Scripts\python.exe 
+manage.py runserver > 
+server_log ...
++                 ~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~
+    + CategoryInfo           
+   : NotSpecified: (Watchin  
+  g for fi...th StatReload   
+ er:String) [], RemoteExc    
+eption
+    + FullyQualifiedErrorId  
+   : NativeCommandError
+ 
+Performing system checks...
+
+System check identified no issues (0 silenced).
+February 15, 2026 - 13:53:44
+Django version 6.0.2, using settings 'carbon_project.settings'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CTRL-BREAK.
+
+WARNING: This is a development server. Do not use it in a production setting. Use a production WSGI or ASGI server instead.
+For more information on production servers see: https://docs.djangoproject.com/en/6.0/howto/deployment/

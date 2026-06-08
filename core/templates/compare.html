@@ -1,0 +1,237 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Compare — C4Future{% endblock %}
+
+{% block extra_css %}
+<style>
+.compare-layout { display:flex; gap:1.5rem; align-items:stretch; }
+.compare-panel  { flex:1; min-width:0; }
+.compare-form   { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-lg); padding:2rem; }
+.compare-result { background:var(--glass-bg); border:1px solid rgba(100,255,180,0.18); border-radius:var(--radius-lg); padding:2rem; margin-top:1rem; display:none; }
+.compare-result.show { display:block; }
+.compare-big    { font-family:'Space Grotesk',sans-serif; font-size:3rem; font-weight:700; background:linear-gradient(135deg,var(--green),var(--cyan)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.compare-vs     { display:flex; flex-direction:column; justify-content:center; align-items:center; gap:0.5rem; flex-shrink:0; padding:0 0.5rem; }
+.vs-circle      { width:52px; height:52px; border-radius:50%; background:var(--glass-bg); border:1px solid var(--glass-border); display:flex; align-items:center; justify-content:center; font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--text-muted); font-size:0.9rem; }
+.diff-bar-wrap  { margin-top:1.5rem; }
+.diff-label     { display:flex; justify-content:space-between; font-size:0.8rem; color:var(--text-secondary); margin-bottom:0.4rem; }
+.diff-track     { height:8px; background:var(--glass-border); border-radius:4px; overflow:hidden; position:relative; }
+.diff-a         { height:100%; border-radius:4px 0 0 4px; background:linear-gradient(90deg,var(--green),var(--cyan)); position:absolute; left:0; }
+.diff-b         { height:100%; border-radius:0 4px 4px 0; background:linear-gradient(90deg,var(--violet),var(--ember)); position:absolute; right:0; }
+.winner-banner  { border-radius:var(--radius-md); padding:1rem 1.25rem; margin-top:1.5rem; font-size:0.9rem; display:none; }
+.winner-banner.show { display:block; }
+@media(max-width:800px){ .compare-layout{flex-direction:column;} .compare-vs{flex-direction:row; padding:0.5rem 0;} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:6rem;padding-bottom:4rem;">
+  <div class="gsap-fade-up" style="margin-bottom:2.5rem;">
+    <span class="section-label">Side-by-Side</span>
+    <h1 class="section-heading">Compare <span class="accent">Products</span></h1>
+    <p style="color:var(--text-secondary);margin-top:0.75rem;">Enter two products to see their carbon footprints side by side.</p>
+  </div>
+
+  <div class="compare-layout">
+    <!-- Product A -->
+    <div class="compare-panel">
+      <div class="compare-form tilt-card">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--green);flex-shrink:0;"></div>
+          <h2 style="font-size:1rem;font-weight:600;">Product A</h2>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Material</label>
+          <select id="matA" class="form-select">
+            <option value="Cotton">Cotton</option><option value="Polyester">Polyester</option>
+            <option value="Steel">Steel</option><option value="Aluminium">Aluminium</option>
+            <option value="Plastic">Plastic</option><option value="Wood">Wood</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weight (kg): <span class="range-value" id="wA-v">1.0</span></label>
+          <input type="range" class="form-range" id="wA" min="0.1" max="50" step="0.1" value="1.0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transport</label>
+          <select id="trA" class="form-select">
+            <option value="ROAD">Road</option><option value="RAIL">Rail</option>
+            <option value="SEA">Sea</option><option value="AIR">Air</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Distance (km): <span class="range-value" id="dA-v">1000</span></label>
+          <input type="range" class="form-range" id="dA" min="50" max="20000" step="50" value="1000">
+        </div>
+      </div>
+      <div class="compare-result" id="resA">
+        <div class="compare-big" id="valA">—</div>
+        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">kg CO₂e</div>
+        <div id="barsA" style="margin-top:1.25rem;"></div>
+      </div>
+    </div>
+
+    <!-- VS divider -->
+    <div class="compare-vs">
+      <div class="vs-circle">VS</div>
+    </div>
+
+    <!-- Product B -->
+    <div class="compare-panel">
+      <div class="compare-form tilt-card">
+        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.5rem;">
+          <div style="width:10px;height:10px;border-radius:50%;background:var(--violet);flex-shrink:0;"></div>
+          <h2 style="font-size:1rem;font-weight:600;">Product B</h2>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Material</label>
+          <select id="matB" class="form-select">
+            <option value="Cotton">Cotton</option><option value="Polyester" selected>Polyester</option>
+            <option value="Steel">Steel</option><option value="Aluminium">Aluminium</option>
+            <option value="Plastic">Plastic</option><option value="Wood">Wood</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Weight (kg): <span class="range-value" id="wB-v">1.0</span></label>
+          <input type="range" class="form-range" id="wB" min="0.1" max="50" step="0.1" value="1.0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Transport</label>
+          <select id="trB" class="form-select">
+            <option value="ROAD">Road</option><option value="RAIL">Rail</option>
+            <option value="SEA">Sea</option><option value="AIR" selected>Air</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Distance (km): <span class="range-value" id="dB-v">5000</span></label>
+          <input type="range" class="form-range" id="dB" min="50" max="20000" step="50" value="5000">
+        </div>
+      </div>
+      <div class="compare-result" id="resB">
+        <div class="compare-big" id="valB">—</div>
+        <div style="font-size:0.85rem;color:var(--text-secondary);margin-top:0.25rem;">kg CO₂e</div>
+        <div id="barsB" style="margin-top:1.25rem;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:2rem;">
+    <button id="compareBtn" class="btn btn-primary" style="padding:1rem 3rem;font-size:1rem;">
+      ⚖️ Compare Now
+    </button>
+  </div>
+
+  <!-- Winner banner -->
+  <div class="winner-banner" id="winnerBanner"></div>
+
+  <!-- Side-by-side diff bars -->
+  <div id="diffSection" style="display:none;margin-top:2rem;">
+    <div class="glass-card gsap-fade-up">
+      <h3 style="font-size:1rem;font-weight:600;margin-bottom:1.5rem;color:var(--text-secondary);">Emission Comparison</h3>
+      <canvas id="compareChart" height="180"></canvas>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+function sSlider(id, valId, unit){
+  const s=document.getElementById(id), v=document.getElementById(valId);
+  function upd(){
+    const pct=((s.value-s.min)/(s.max-s.min))*100;
+    s.style.background=`linear-gradient(to right,var(--green) 0%,var(--green) ${pct}%,rgba(255,255,255,0.06) ${pct}%)`;
+    v.textContent=s.value;
+  }
+  s.addEventListener('input',upd); upd();
+}
+sSlider('wA','wA-v','kg'); sSlider('wB','wB-v','kg');
+sSlider('dA','dA-v','km'); sSlider('dB','dB-v','km');
+
+const matEmissions = {Cotton:2.1,Polyester:6.4,Steel:2.0,Aluminium:8.2,Plastic:3.8,Wood:0.4,Glass:0.85,Rubber:3.2};
+const trEmissions  = {ROAD:0.062,RAIL:0.022,SEA:0.008,AIR:0.602}; // kg CO2e per tonne-km
+
+function calcCarbon(mat,wkg,tr,dkm){
+  const matE = (matEmissions[mat]||2.0)*wkg;
+  const trE  = trEmissions[tr]*wkg/1000*dkm;
+  const mfgE = matE*0.25;
+  const eolE = matE*0.05;
+  return {mat:matE, tr:trE, mfg:mfgE, eol:eolE, total:matE+trE+mfgE+eolE};
+}
+
+function renderBars(containerId, breakdown, color){
+  const c=document.getElementById(containerId);
+  c.innerHTML='';
+  const t=breakdown.total;
+  const items=[['Material',breakdown.mat],['Transport',breakdown.tr],['Mfg',breakdown.mfg],['EOL',breakdown.eol]];
+  items.forEach(([label,val])=>{
+    const pct=t>0?(val/t*100).toFixed(1):0;
+    c.innerHTML+=`<div class="emission-bar-wrap">
+      <div class="emission-bar-label"><span>${label}</span><span>${val.toFixed(2)} kg</span></div>
+      <div class="emission-bar-track"><div class="emission-bar-fill" style="width:${pct}%;background:${color};"></div></div>
+    </div>`;
+  });
+}
+
+let compareChartInst=null;
+
+document.getElementById('compareBtn').addEventListener('click',()=>{
+  const matA=document.getElementById('matA').value, wA=parseFloat(document.getElementById('wA').value),
+        trA=document.getElementById('trA').value,  dA=parseFloat(document.getElementById('dA').value);
+  const matB=document.getElementById('matB').value, wB=parseFloat(document.getElementById('wB').value),
+        trB=document.getElementById('trB').value,  dB=parseFloat(document.getElementById('dB').value);
+
+  const bA=calcCarbon(matA,wA,trA,dA), bB=calcCarbon(matB,wB,trB,dB);
+
+  document.getElementById('valA').textContent=bA.total.toFixed(2);
+  document.getElementById('valB').textContent=bB.total.toFixed(2);
+  renderBars('barsA',bA,'linear-gradient(90deg,var(--green),var(--cyan))');
+  renderBars('barsB',bB,'linear-gradient(90deg,var(--violet),var(--ember))');
+
+  document.getElementById('resA').classList.add('show');
+  document.getElementById('resB').classList.add('show');
+
+  /* winner */
+  const banner=document.getElementById('winnerBanner');
+  banner.classList.add('show');
+  if(bA.total<bB.total){
+    const diff=((bB.total-bA.total)/bB.total*100).toFixed(0);
+    banner.style.cssText='background:rgba(100,255,180,0.06);border:1px solid rgba(100,255,180,0.2);color:var(--green);display:block;';
+    banner.innerHTML=`✅ Product A is <strong>${diff}% lower</strong> in carbon emissions (${bA.total.toFixed(2)} vs ${bB.total.toFixed(2)} kg CO₂e).`;
+  } else if(bB.total<bA.total){
+    const diff=((bA.total-bB.total)/bA.total*100).toFixed(0);
+    banner.style.cssText='background:rgba(139,92,246,0.06);border:1px solid rgba(139,92,246,0.2);color:var(--violet);display:block;';
+    banner.innerHTML=`✅ Product B is <strong>${diff}% lower</strong> in carbon emissions (${bB.total.toFixed(2)} vs ${bA.total.toFixed(2)} kg CO₂e).`;
+  } else {
+    banner.style.cssText='background:var(--glass-bg);border:1px solid var(--glass-border);color:var(--text-secondary);display:block;';
+    banner.innerHTML='⚖️ Both products have equal carbon footprints.';
+  }
+
+  /* comparison chart */
+  document.getElementById('diffSection').style.display='block';
+  if(compareChartInst) compareChartInst.destroy();
+  const ctx=document.getElementById('compareChart').getContext('2d');
+  compareChartInst=new Chart(ctx,{
+    type:'bar',
+    data:{
+      labels:['Material','Transport','Manufacturing','EOL'],
+      datasets:[
+        { label:`A (${matA})`, data:[bA.mat,bA.tr,bA.mfg,bA.eol], backgroundColor:'rgba(100,255,180,0.65)', borderRadius:5, borderSkipped:false },
+        { label:`B (${matB})`, data:[bB.mat,bB.tr,bB.mfg,bB.eol], backgroundColor:'rgba(139,92,246,0.65)', borderRadius:5, borderSkipped:false },
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{ legend:{ labels:{color:'rgba(255,255,255,0.55)',font:{size:11}} } },
+      scales:{
+        x:{ ticks:{color:'rgba(255,255,255,0.45)',font:{size:11}}, grid:{color:'rgba(255,255,255,0.04)'} },
+        y:{ ticks:{color:'rgba(255,255,255,0.45)',font:{size:11}}, grid:{color:'rgba(255,255,255,0.04)'}, title:{display:true,text:'kg CO₂e',color:'rgba(255,255,255,0.35)',font:{size:10}} }
+      }
+    }
+  });
+
+  gsap.from('#resA,#resB', { opacity:0, y:20, duration:0.5, stagger:0.15, ease:'power3.out' });
+  gsap.from('#winnerBanner', { opacity:0, y:10, duration:0.4, ease:'power3.out', delay:0.3 });
+});
+</script>
+{% endblock %}

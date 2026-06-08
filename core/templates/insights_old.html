@@ -1,0 +1,532 @@
+{% extends 'base.html' %} {% load static %} {% block title %}Model Insights{%
+endblock %} {% block background_video %}
+<video autoplay muted loop playsinline id="bgVideo">
+  <source src="{% static 'videos/insight.mp4' %}" type="video/mp4" />
+</video>
+{% endblock %} {% block extra_css %}
+<style>
+  /* ====== REVERT TO DARK THEME ====== */
+  .video-overlay {
+    background: rgba(10, 25, 47, 0.8) !important;
+    backdrop-filter: none !important;
+  }
+
+  .page-wrapper {
+    --text-primary: #ffffff;
+    --text-secondary: rgba(255, 255, 255, 0.85);
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.1);
+  }
+
+  .page-wrapper h1,
+  .page-wrapper h2,
+  .page-wrapper h3,
+  .page-wrapper h4 {
+    color: var(--text-primary) !important;
+  }
+
+  .page-wrapper h1 {
+    background: linear-gradient(135deg, #64ffb4, #00d9ff) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+  }
+
+  .page-wrapper .glass-card {
+    background: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+    backdrop-filter: blur(12px) !important;
+  }
+
+  .page-wrapper .glass-card:hover {
+    border-color: rgba(100, 255, 180, 0.3) !important;
+    box-shadow: 0 12px 48px rgba(0, 0, 0, 0.5) !important;
+  }
+
+  .page-wrapper p,
+  .page-wrapper li,
+  .page-wrapper small,
+  .page-wrapper span:not(.metric-counter) {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Nav Revert */
+  .navbar {
+    background: rgba(10, 25, 47, 0.8) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  }
+  .nav-links a {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+  .nav-links a.active {
+    color: #64ffb4 !important;
+  }
+  .nav-links a:hover {
+    color: #64ffb4 !important;
+    background: rgba(100, 255, 180, 0.05);
+  }
+
+  /* ====== PARTICLES ====== */
+  #particles-js {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  /* ====== COMPONENTS ====== */
+  .metric-counter {
+    font-size: 3rem;
+    font-weight: 800;
+    font-family: var(--font-heading);
+    background: linear-gradient(135deg, #64ffb4, #00d9ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .pipeline-step {
+    background: rgba(255, 255, 255, 0.08) !important;
+  }
+
+  .formula-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+  }
+
+  .transport-card {
+    background: rgba(255, 255, 255, 0.04) !important;
+  }
+
+  /* Accuracy Ring styles */
+  .accuracy-ring-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .accuracy-ring {
+    position: relative;
+    width: 180px;
+    height: 180px;
+  }
+
+  .accuracy-ring svg {
+    transform: rotate(-90deg);
+  }
+
+  .accuracy-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 12;
+  }
+
+  .accuracy-ring-fill {
+    fill: none;
+    stroke: url(#ringGrad);
+    stroke-width: 12;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 2s ease-out;
+  }
+
+  .accuracy-ring-text {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+
+  .accuracy-ring-value {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .accuracy-ring-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-top: 4px;
+  }
+</style>
+{% endblock %} {% block content %}
+<div id="particles-js"></div>
+<div class="container page-wrapper" style="position: relative; z-index: 2">
+  <div class="text-center mb-5 scroll-fade-in">
+    <h1>Model Insights &amp; Methodology</h1>
+    <p
+      style="
+        font-size: 1.25rem;
+        max-width: 800px;
+        margin: 1rem auto;
+        opacity: 0.9;
+      "
+    >
+      Explore how our custom Random Forest model calculates carbon footprints
+      using scientifically-grounded emission factors.
+    </p>
+    <div class="pipeline scroll-fade-in">
+      <div class="pipeline-step">
+        <span class="pipeline-step-icon">📥</span
+        ><span class="pipeline-step-label">Data Input</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="pipeline-step-icon">🔬</span
+        ><span class="pipeline-step-label">Feature Eng.</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="pipeline-step-icon">🌲</span
+        ><span class="pipeline-step-label">Random Forest</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="pipeline-step-icon">📊</span
+        ><span class="pipeline-step-label">Prediction</span>
+      </div>
+      <span class="pipeline-arrow">→</span>
+      <div class="pipeline-step">
+        <span class="pipeline-step-icon">🌍</span
+        ><span class="pipeline-step-label">Offset Plan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card scroll-scale">
+    <h2 style="color: #64ffb4 !important">📊 Model Performance</h2>
+    {% if model_info %}
+    <div
+      style="
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        align-items: center;
+        margin-top: 1rem;
+      "
+    >
+      <div class="accuracy-ring-container">
+        <div class="accuracy-ring" id="accuracyRing">
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <defs>
+              <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color: #64ffb4" />
+                <stop offset="100%" style="stop-color: #00d9ff" />
+              </linearGradient>
+            </defs>
+            <circle cx="90" cy="90" r="80" class="accuracy-ring-bg" />
+            <circle
+              cx="90"
+              cy="90"
+              r="80"
+              class="accuracy-ring-fill"
+              id="ringFill"
+            />
+          </svg>
+          <div class="accuracy-ring-text">
+            <div
+              class="accuracy-ring-value"
+              id="ringValue"
+              style="color: #64ffb4 !important"
+            >
+              0
+            </div>
+            <div class="accuracy-ring-label">R² Score</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div style="margin-bottom: 1.5rem">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+            "
+          >
+            <span>RMSE</span>
+            <span
+              class="metric-counter"
+              style="font-size: 1.5rem"
+              data-target="{{ model_info.rmse|floatformat:2 }}"
+              >0</span
+            >
+          </div>
+          <small style="opacity: 0.7">Root Mean Squared Error (kg CO2e)</small>
+        </div>
+        <div style="margin-bottom: 1.5rem">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+            "
+          >
+            <span>MAE</span>
+            <span
+              class="metric-counter"
+              style="font-size: 1.5rem"
+              data-target="{{ model_info.mae|floatformat:2 }}"
+              >0</span
+            >
+          </div>
+          <small style="opacity: 0.7">Mean Absolute Error (kg CO2e)</small>
+        </div>
+        <div>
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 0.5rem;
+            "
+          >
+            <span>Training Samples</span>
+            <span
+              class="metric-counter"
+              style="font-size: 1.5rem"
+              data-target="5000"
+              >0</span
+            >
+          </div>
+          <small style="opacity: 0.7">Synthetic dataset size</small>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted">Model information not available.</p>
+    {% endif %}
+  </div>
+
+  <!-- Rest of the components remain structural but will follow the Dark Theme styles -->
+  <div class="glass-card mt-4 scroll-fade-in">
+    <h2 style="color: #64ffb4 !important">🧪 Calculation Methodology</h2>
+    <p style="margin-top: 0.5rem; opacity: 0.8">
+      Click each section to expand the formula details.
+    </p>
+    <div class="formula-card" onclick="toggleFormula(this)">
+      <div class="formula-header">
+        <div class="formula-title">
+          <span>🏭</span><span>1. Material Emissions</span>
+        </div>
+        <span class="formula-toggle" style="color: #64ffb4 !important">+</span>
+      </div>
+      <div class="formula-details">
+        <div class="formula-code" style="color: #64ffb4 !important">
+          CO₂ = Weight (kg) × Material Factor (kg CO₂e/kg)
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7">
+          Based on IPCC 2006 Guidelines.
+        </p>
+      </div>
+    </div>
+    <div class="formula-card" onclick="toggleFormula(this)">
+      <div class="formula-header">
+        <div class="formula-title">
+          <span>⚙️</span><span>2. Manufacturing Emissions</span>
+        </div>
+        <span class="formula-toggle" style="color: #64ffb4 !important">+</span>
+      </div>
+      <div class="formula-details">
+        <div class="formula-code" style="color: #64ffb4 !important">
+          CO₂ = Weight × Intensity Factor × 1.4
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7">
+          Intensity: Low (0.5), Medium (1.5), High (3.5).
+        </p>
+      </div>
+    </div>
+    <div class="formula-card" onclick="toggleFormula(this)">
+      <div class="formula-header">
+        <div class="formula-title">
+          <span>🚚</span><span>3. Transport Emissions</span>
+        </div>
+        <span class="formula-toggle" style="color: #64ffb4 !important">+</span>
+      </div>
+      <div class="formula-details">
+        <div class="formula-code" style="color: #64ffb4 !important">
+          CO₂ = Weight × (Distance / 1000) × Transport Factor
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7">
+          Standard logistical emission factors.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="glass-card mt-4 scroll-slide-left">
+    <h2 style="color: #64ffb4 !important">🧬 Material Emission Explorer</h2>
+    <div class="tab-container">
+      <div
+        class="tab-buttons"
+        style="border-bottom-color: rgba(255, 255, 255, 0.1) !important"
+      >
+        <button
+          class="tab-btn active"
+          onclick="switchTab(event, 'tabManufacturing')"
+        >
+          Manufacturing
+        </button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabFood')">
+          Food &amp; Agriculture
+        </button>
+        <button class="tab-btn" onclick="switchTab(event, 'tabTransport')">
+          Transport Modes
+        </button>
+      </div>
+      <div class="tab-panel active" id="tabManufacturing">
+        <div class="material-grid" id="materialGrid"></div>
+        <div class="emission-bar-container" id="emissionBars"></div>
+      </div>
+      <div class="tab-panel" id="tabFood">
+        <div class="material-grid" id="foodGrid"></div>
+        <div class="emission-bar-container" id="foodBars"></div>
+      </div>
+      <div class="tab-panel" id="tabTransport">
+        <div class="transport-grid">
+          <div class="transport-card">
+            🚢
+            <div class="transport-name" style="color: #fff !important">Sea</div>
+            <div class="transport-factor" style="color: #64ffb4 !important">
+              0.015
+            </div>
+            <span class="transport-rank rank-best">Most Efficient</span>
+          </div>
+          <div class="transport-card">
+            🚂
+            <div class="transport-name" style="color: #fff !important">
+              Rail
+            </div>
+            <div class="transport-factor" style="color: #64ffb4 !important">
+              0.025
+            </div>
+            <span class="transport-rank rank-good">Efficient</span>
+          </div>
+          <div class="transport-card">
+            🚚
+            <div class="transport-name" style="color: #fff !important">
+              Road
+            </div>
+            <div class="transport-factor" style="color: #64ffb4 !important">
+              0.120
+            </div>
+            <span class="transport-rank rank-mid">Moderate</span>
+          </div>
+          <div class="transport-card">
+            ✈️
+            <div class="transport-name" style="color: #fff !important">Air</div>
+            <div class="transport-factor" style="color: #ff5050 !important">
+              0.950
+            </div>
+            <span class="transport-rank rank-worst">Highest Impact</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  var MATERIALS = {'Leather': 17.0, 'Wool': 10.4, 'Aluminum': 8.2, 'Polyester': 6.2, 'Cotton': 5.5, 'Plastic': 3.5, 'Steel': 2.8, 'Paper': 1.3, 'Glass': 0.9, 'Wood': 0.5};
+  var FOODS = {'Beef': 27.0, 'Lamb': 24.0, 'Shrimp': 18.0, 'Cheese': 13.5, 'Pork': 12.1, 'Butter': 12.0, 'Turkey': 10.9, 'Chicken': 6.9, 'Fish': 5.1, 'Eggs': 4.8, 'Rice': 4.0, 'Tofu': 2.0};
+
+  function toggleFormula(card) { card.classList.toggle('expanded'); }
+  function switchTab(event, tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+  }
+
+  function buildGrid(data, gridId, barsId, colors) {
+      var grid = document.getElementById(gridId);
+      var bars = document.getElementById(barsId);
+      var maxVal = Math.max(...Object.values(data));
+      grid.innerHTML = '';
+      Object.keys(data).forEach(name => {
+          var val = data[name];
+          var chip = document.createElement('div');
+          chip.className = 'material-chip';
+          chip.style.background = 'rgba(255,255,255,0.05)';
+          chip.innerHTML = `<div style="color:#fff;font-weight:600">${name}</div><div style="color:${colors[0]};font-size:0.8rem">${val} kg</div>`;
+          chip.onclick = () => {
+              grid.querySelectorAll('.material-chip').forEach(c => c.style.borderColor = 'rgba(255,255,255,0.1)');
+              chip.style.borderColor = colors[0];
+          };
+          grid.appendChild(chip);
+      });
+      bars.innerHTML = '';
+      Object.entries(data).sort((a,b) => b[1]-a[1]).forEach(([name, val], i) => {
+          var pct = Math.round(val/maxVal*100);
+          var item = document.createElement('div');
+          item.className = 'emission-bar-item';
+          item.innerHTML = `<div style="min-width:90px;color:rgba(255,255,255,0.7)">${name}</div><div class="emission-bar-track" style="background:rgba(255,255,255,0.05)"><div class="emission-bar-fill" style="width:0;background:linear-gradient(90deg, ${colors[0]}, ${colors[1]})">${val}</div></div>`;
+          bars.appendChild(item);
+          setTimeout(() => item.querySelector('.emission-bar-fill').style.width = pct + '%', 100 + i*50);
+      });
+  }
+
+  function animateCounters() {
+      document.querySelectorAll('.metric-counter').forEach(el => {
+          var target = parseFloat(el.dataset.target);
+          var start = performance.now();
+          function tick(now) {
+              var p = Math.min((now - start)/2000, 1);
+              var e = 1 - Math.pow(1 - p, 3);
+              el.textContent = target >= 100 ? Math.round(e * target) : (e * target).toFixed(2);
+              if (p < 1) requestAnimationFrame(tick);
+          }
+          requestAnimationFrame(tick);
+      });
+  }
+
+  function animateRing() {
+      var fill = document.getElementById('ringFill');
+      var valEl = document.getElementById('ringValue');
+      if (!fill || !valEl) return;
+      var r2 = {{ model_info.r2_score|default:"0.95" }};
+      var circ = 502.65;
+      fill.style.strokeDasharray = circ;
+      fill.style.strokeDashoffset = circ;
+      setTimeout(() => fill.style.strokeDashoffset = circ - (r2 * circ), 300);
+      var start = performance.now();
+      function tick(now) {
+          var p = Math.min((now - start)/2000, 1);
+          valEl.textContent = (p * r2).toFixed(4);
+          if (p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
+  }
+
+  function initParticles() {
+      const container = document.getElementById('particles-js');
+      if (!container) return;
+      for (let i = 0; i < 40; i++) {
+          const p = document.createElement('div');
+          p.style.cssText = `position:absolute;width:${Math.random()*4+1}px;height:${Math.random()*4+1}px;background:rgba(100,255,180,${Math.random()*0.4+0.1});border-radius:50%;left:${Math.random()*100}%;top:${Math.random()*100}%;pointer-events:none;`;
+          container.appendChild(p);
+          let y = 0;
+          function move() {
+              y -= 0.5 + Math.random();
+              p.style.transform = `translateY(${y}px)`;
+              if (p.getBoundingClientRect().top < -10) { y = window.innerHeight + 10; p.style.left = Math.random()*100 + '%'; }
+              requestAnimationFrame(move);
+          }
+          move();
+      }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+      buildGrid(MATERIALS, 'materialGrid', 'emissionBars', ['#64ffb4', '#00d9ff']);
+      buildGrid(FOODS, 'foodGrid', 'foodBars', ['#ff8533', '#ff5050']);
+      animateCounters();
+      initParticles();
+      animateRing();
+  });
+</script>
+{% endblock %}
