@@ -13,6 +13,7 @@ numpy==1.26.3
 xgboost==2.1.1            # Gradient boosting — stronger than RF on tabular
 shap==0.46.0              # SHAP explanations for predictions
 mlflow==2.16.0            # Optional experiment tracking (used if MLFLOW_TRACKING_URI set)
+openpyxl==3.1.5           # Read DEFRA emission-factors .xlsx in data_adapter.py
 
 # ===== RAG stack (Phase 1: Sustainability Advisor) =====
 # LangChain — orchestration framework. Recruiters look for these imports.
