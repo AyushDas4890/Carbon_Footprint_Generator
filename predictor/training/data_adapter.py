@@ -307,14 +307,49 @@ def extract_defra_uk_grid(wb) -> float:
 # ===========================================================================
 
 def build_calibrated_factors() -> Dict:
-    """Combine all three sources into a single calibrated factors dict."""
-    print("[adapter] Loading DEFRA workbook (this takes a few seconds)...")
-    wb = openpyxl.load_workbook(DEFRA, read_only=True, data_only=True)
+    """Combine all three sources into a single calibrated factors dict.
 
-    material_factors = extract_defra_materials(wb)
-    transport = extract_defra_transport(wb)
-    eol = extract_defra_eol(wb)
-    grid_uk = extract_defra_uk_grid(wb)
+    The DEFRA xlsx is optional — in production (HF Spaces, Docker images
+    that lose LFS-tracked binaries, etc.) it can be missing or corrupt.
+    When that happens we fall back to baked-in factors extracted from
+    DEFRA 2024 in development. Agribalyse + Poore CSVs are tiny text
+    files and always work.
+    """
+    wb = None
+    if DEFRA.exists():
+        try:
+            print("[adapter] Loading DEFRA workbook...")
+            wb = openpyxl.load_workbook(DEFRA, read_only=True, data_only=True)
+        except Exception as exc:
+            print(f"[adapter] WARNING: DEFRA xlsx unreadable ({exc!r}). "
+                  f"Falling back to baked-in factors.")
+            wb = None
+    else:
+        print(f"[adapter] WARNING: DEFRA xlsx missing at {DEFRA}. "
+              f"Falling back to baked-in factors.")
+
+    if wb is not None:
+        try:
+            material_factors = extract_defra_materials(wb)
+            transport = extract_defra_transport(wb)
+            eol = extract_defra_eol(wb)
+            grid_uk = extract_defra_uk_grid(wb)
+        except Exception as exc:
+            print(f"[adapter] WARNING: DEFRA extraction failed ({exc!r}). "
+                  f"Falling back to baked-in factors.")
+            wb = None
+
+    if wb is None:
+        # Baked-in DEFRA 2024 values (extracted in dev, identical to what the
+        # xlsx-based path would produce). Lets the build succeed without the
+        # 1.8 MB binary file.
+        material_factors = {
+            "Steel": 2.855, "Plastic": 2.569, "Glass": 1.403,
+            "Paper": 1.194, "Wood": 0.270,
+        }
+        transport = {"AIR": 0.95, "SEA": 0.015, "ROAD": 0.107, "RAIL": 0.025}
+        eol = {"RECYCLED": 0.85, "INCINERATED": 1.006, "LANDFILL": 1.201}
+        grid_uk = 0.2071
 
     # Layer Poore medians on top for food categories (more reliable than
     # any single Agribalyse row).

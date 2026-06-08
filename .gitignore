@@ -17,6 +17,9 @@ predictor/ml_models/metrics_xgb.json
 predictor/training/training_data_hybrid.csv
 predictor/training/real_eval.csv
 
+# DEFRA xlsx — corrupts on LFS/Xet hosts. We use baked-in factors instead.
+data/ghg-conversion-factors-*.xlsx
+
 # Django collectstatic output
 staticfiles/
 
