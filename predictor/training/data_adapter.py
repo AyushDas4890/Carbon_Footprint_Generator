@@ -558,9 +558,17 @@ def build_hybrid_dataset(factors: Dict, n_synthetic: int = 12000) -> pd.DataFram
 def main():
     if not DATA_DIR.exists():
         sys.exit(f"[adapter] Missing data dir: {DATA_DIR}")
-    missing = [pp.name for pp in (AGRI, POORE, DEFRA) if not pp.exists()]
-    if missing:
-        sys.exit(f"[adapter] Missing files in {DATA_DIR}: {missing}")
+
+    # REQUIRED files (small CSVs, always in git):
+    required_missing = [pp.name for pp in (AGRI, POORE) if not pp.exists()]
+    if required_missing:
+        sys.exit(f"[adapter] Missing required files in {DATA_DIR}: {required_missing}")
+
+    # OPTIONAL: DEFRA xlsx. If missing or corrupt, build_calibrated_factors()
+    # falls back to baked-in DEFRA 2024 values. No need to abort here.
+    if not DEFRA.exists():
+        print(f"[adapter] NOTE: DEFRA xlsx not found at {DEFRA.name} — "
+              f"using baked-in factors.")
 
     print(f"[adapter] Reading from {DATA_DIR}")
     print(f"[adapter] Writing to   {OUT_DIR}")
