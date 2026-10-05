@@ -457,7 +457,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 
 ### Ayush Das
 
-**Machine Learning & RAG Engineer** · 📍 Thāne, Maharashtra, India
+**Machine Learning & RAG Engineer** · 📍 Jalandhar, Punjab, India
 
 Building practical AI systems at the intersection of **classical ML, retrieval-augmented generation, and production engineering.**
 
