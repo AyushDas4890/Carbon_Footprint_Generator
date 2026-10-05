@@ -1,0 +1,174 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-labelledby="t d">
+  <title id="t">C4Future architecture</title>
+  <desc id="d">Two animated pipelines. ML predictor: product input, feature encoding, three XGBoost models, conformal calibration, SHAP, result. RAG advisor: question, MiniLM embedding, ChromaDB retrieval, cross-encoder rerank, GPT-4o-mini streaming, cited answer.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070b16"/><stop offset="1" stop-color="#050810"/></linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#64ffb4"/><stop offset=".55" stop-color="#00d9ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+    <linearGradient id="resultFill" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#64ffb4"/><stop offset="1" stop-color="#00d9ff"/></linearGradient>
+    <filter id="soft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="50"/></filter>
+    <clipPath id="card"><rect width="1280" height="420" rx="22"/></clipPath>
+  </defs>
+  <style>
+    .flow { animation: flow .8s linear infinite; }
+    @keyframes flow { to { stroke-dashoffset: -8; } }
+        @keyframes hl-ml-0 { 0%,0%,9%,100% { stroke-opacity: .25; } 0% { stroke-opacity: 1; } }
+    .hl-ml-0 { animation: hl-ml-0 5.0s linear infinite; animation-delay: -0.00s; }
+    @keyframes hl-ml-1 { 0%,13%,29%,100% { stroke-opacity: .25; } 20% { stroke-opacity: 1; } }
+    .hl-ml-1 { animation: hl-ml-1 5.0s linear infinite; animation-delay: -0.00s; }
+    @keyframes hl-ml-2 { 0%,33%,49%,100% { stroke-opacity: .25; } 40% { stroke-opacity: 1; } }
+    .hl-ml-2 { animation: hl-ml-2 5.0s linear infinite; animation-delay: -0.00s; }
+    @keyframes hl-ml-3 { 0%,53%,69%,100% { stroke-opacity: .25; } 60% { stroke-opacity: 1; } }
+    .hl-ml-3 { animation: hl-ml-3 5.0s linear infinite; animation-delay: -0.00s; }
+    @keyframes hl-ml-4 { 0%,73%,89%,100% { stroke-opacity: .25; } 80% { stroke-opacity: 1; } }
+    .hl-ml-4 { animation: hl-ml-4 5.0s linear infinite; animation-delay: -0.00s; }
+    @keyframes hl-ml-5 { 0%,93%,100%,100% { stroke-opacity: .25; } 100% { stroke-opacity: 1; } }
+    .hl-ml-5 { animation: hl-ml-5 5.0s linear infinite; animation-delay: -0.00s; }
+    @keyframes hl-rag-0 { 0%,0%,9%,100% { stroke-opacity: .25; } 0% { stroke-opacity: 1; } }
+    .hl-rag-0 { animation: hl-rag-0 5.0s linear infinite; animation-delay: -2.50s; }
+    @keyframes hl-rag-1 { 0%,13%,29%,100% { stroke-opacity: .25; } 20% { stroke-opacity: 1; } }
+    .hl-rag-1 { animation: hl-rag-1 5.0s linear infinite; animation-delay: -2.50s; }
+    @keyframes hl-rag-2 { 0%,33%,49%,100% { stroke-opacity: .25; } 40% { stroke-opacity: 1; } }
+    .hl-rag-2 { animation: hl-rag-2 5.0s linear infinite; animation-delay: -2.50s; }
+    @keyframes hl-rag-3 { 0%,53%,69%,100% { stroke-opacity: .25; } 60% { stroke-opacity: 1; } }
+    .hl-rag-3 { animation: hl-rag-3 5.0s linear infinite; animation-delay: -2.50s; }
+    @keyframes hl-rag-4 { 0%,73%,89%,100% { stroke-opacity: .25; } 80% { stroke-opacity: 1; } }
+    .hl-rag-4 { animation: hl-rag-4 5.0s linear infinite; animation-delay: -2.50s; }
+    @keyframes hl-rag-5 { 0%,93%,100%,100% { stroke-opacity: .25; } 100% { stroke-opacity: 1; } }
+    .hl-rag-5 { animation: hl-rag-5 5.0s linear infinite; animation-delay: -2.50s; }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+  <g clip-path="url(#card)" font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif">
+    <rect width="1280" height="420" fill="url(#bg)"/>
+    <ellipse cx="300" cy="200" rx="320" ry="120" fill="#64ffb4" opacity=".06" filter="url(#blur)"/>
+    <ellipse cx="1000" cy="360" rx="320" ry="120" fill="#00d9ff" opacity=".07" filter="url(#blur)"/>
+    <circle r="7" fill="#64ffb4" opacity="1" filter="url(#soft)">
+  <animateMotion dur="5.0s" begin="-0.00s" repeatCount="indefinite" path="M140.0,223.0 L1120.0,223.0"/>
+</circle>
+    <circle r="5" fill="#64ffb4" opacity="0.5" filter="url(#soft)">
+  <animateMotion dur="5.0s" begin="-0.07s" repeatCount="indefinite" path="M140.0,223.0 L1120.0,223.0"/>
+</circle>
+    <circle r="3.5" fill="#64ffb4" opacity="0.25" filter="url(#soft)">
+  <animateMotion dur="5.0s" begin="-0.14s" repeatCount="indefinite" path="M140.0,223.0 L1120.0,223.0"/>
+</circle>
+    <circle r="7" fill="#00d9ff" opacity="1" filter="url(#soft)">
+  <animateMotion dur="5.0s" begin="-2.50s" repeatCount="indefinite" path="M140.0,371.0 L1120.0,371.0"/>
+</circle>
+    <circle r="5" fill="#00d9ff" opacity="0.5" filter="url(#soft)">
+  <animateMotion dur="5.0s" begin="-2.57s" repeatCount="indefinite" path="M140.0,371.0 L1120.0,371.0"/>
+</circle>
+    <circle r="3.5" fill="#00d9ff" opacity="0.25" filter="url(#soft)">
+  <animateMotion dur="5.0s" begin="-2.64s" repeatCount="indefinite" path="M140.0,371.0 L1120.0,371.0"/>
+</circle>
+    <text x="56" y="54" font-size="13" font-weight="700" letter-spacing="3" fill="#64ffb4">— ARCHITECTURE</text>
+    <text x="56" y="90" font-size="28" font-weight="800" fill="#f0f4ff">Two engines, <tspan fill="url(#brand)">one platform</tspan></text>
+    <text x="1232" y="90" text-anchor="end" font-size="14" fill="#5d6d8c">Django + DRF · ~80 ms predict · streamed answers</text>
+        <text x="56" y="174" font-size="12" font-weight="700" letter-spacing="2.6" fill="#64ffb4">ML PREDICTOR</text>
+    <line class="flow" x1="227" y1="223.0" x2="246" y2="223.0" stroke="#64ffb4" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M243,219.0 L249,223.0 L243,227.0" fill="none" stroke="#64ffb4" stroke-width="2"/>
+    <line class="flow" x1="423" y1="223.0" x2="442" y2="223.0" stroke="#64ffb4" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M439,219.0 L445,223.0 L439,227.0" fill="none" stroke="#64ffb4" stroke-width="2"/>
+    <line class="flow" x1="619" y1="223.0" x2="638" y2="223.0" stroke="#64ffb4" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M635,219.0 L641,223.0 L635,227.0" fill="none" stroke="#64ffb4" stroke-width="2"/>
+    <line class="flow" x1="815" y1="223.0" x2="834" y2="223.0" stroke="#64ffb4" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M831,219.0 L837,223.0 L831,227.0" fill="none" stroke="#64ffb4" stroke-width="2"/>
+    <line class="flow" x1="1011" y1="223.0" x2="1030" y2="223.0" stroke="#64ffb4" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M1027,219.0 L1033,223.0 L1027,227.0" fill="none" stroke="#64ffb4" stroke-width="2"/>
+    <g>
+  <rect x="56" y="190" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-ml-0" x="56" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-width="2" filter="url(#soft)"/>
+  <rect x="56" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-opacity=".3"/>
+  <text x="140.0" y="219" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">Product input</text>
+  <text x="140.0" y="239" text-anchor="middle" font-size="12" fill="#7d8db0">material · weight · route</text>
+</g>
+    <g>
+  <rect x="252" y="190" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-ml-1" x="252" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-width="2" filter="url(#soft)"/>
+  <rect x="252" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-opacity=".3"/>
+  <text x="336.0" y="219" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">Feature encoding</text>
+  <text x="336.0" y="239" text-anchor="middle" font-size="12" fill="#7d8db0">one-hot + numeric</text>
+</g>
+    <g>
+  <rect x="448" y="190" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-ml-2" x="448" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-width="2" filter="url(#soft)"/>
+  <rect x="448" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-opacity=".3"/>
+  <text x="532.0" y="219" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">XGBoost × 3</text>
+  <text x="532.0" y="239" text-anchor="middle" font-size="12" fill="#7d8db0">median · q05 · q95</text>
+</g>
+    <g>
+  <rect x="644" y="190" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-ml-3" x="644" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-width="2" filter="url(#soft)"/>
+  <rect x="644" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-opacity=".3"/>
+  <text x="728.0" y="219" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">Conformal q̂</text>
+  <text x="728.0" y="239" text-anchor="middle" font-size="12" fill="#7d8db0">calibrated 90% CI</text>
+</g>
+    <g>
+  <rect x="840" y="190" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-ml-4" x="840" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-width="2" filter="url(#soft)"/>
+  <rect x="840" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-opacity=".3"/>
+  <text x="924.0" y="219" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">SHAP</text>
+  <text x="924.0" y="239" text-anchor="middle" font-size="12" fill="#7d8db0">TreeExplainer</text>
+</g>
+    <g>
+  <rect x="1036" y="190" width="168" height="66" rx="14" fill="url(#resultFill)"/>
+  <rect class="hl-ml-5" x="1036" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-width="2" filter="url(#soft)"/>
+  <rect x="1036" y="190" width="168" height="66" rx="14" fill="none" stroke="#64ffb4" stroke-opacity=".3"/>
+  <text x="1120.0" y="219" text-anchor="middle" font-size="16" font-weight="700" fill="#04110b">7.60 kg CO₂e</text>
+  <text x="1120.0" y="239" text-anchor="middle" font-size="12" fill="#0b2a1f">± interval · grade</text>
+</g>
+    <text x="56" y="322" font-size="12" font-weight="700" letter-spacing="2.6" fill="#00d9ff">RAG ADVISOR</text>
+    <line class="flow" x1="227" y1="371.0" x2="246" y2="371.0" stroke="#00d9ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M243,367.0 L249,371.0 L243,375.0" fill="none" stroke="#00d9ff" stroke-width="2"/>
+    <line class="flow" x1="423" y1="371.0" x2="442" y2="371.0" stroke="#00d9ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M439,367.0 L445,371.0 L439,375.0" fill="none" stroke="#00d9ff" stroke-width="2"/>
+    <line class="flow" x1="619" y1="371.0" x2="638" y2="371.0" stroke="#00d9ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M635,367.0 L641,371.0 L635,375.0" fill="none" stroke="#00d9ff" stroke-width="2"/>
+    <line class="flow" x1="815" y1="371.0" x2="834" y2="371.0" stroke="#00d9ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M831,367.0 L837,371.0 L831,375.0" fill="none" stroke="#00d9ff" stroke-width="2"/>
+    <line class="flow" x1="1011" y1="371.0" x2="1030" y2="371.0" stroke="#00d9ff" stroke-opacity=".7" stroke-width="2" stroke-dasharray="4 4"/>
+    <path d="M1027,367.0 L1033,371.0 L1027,375.0" fill="none" stroke="#00d9ff" stroke-width="2"/>
+    <g>
+  <rect x="56" y="338" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-rag-0" x="56" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-width="2" filter="url(#soft)"/>
+  <rect x="56" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-opacity=".3"/>
+  <text x="140.0" y="367" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">Question</text>
+  <text x="140.0" y="387" text-anchor="middle" font-size="12" fill="#7d8db0">natural language</text>
+</g>
+    <g>
+  <rect x="252" y="338" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-rag-1" x="252" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-width="2" filter="url(#soft)"/>
+  <rect x="252" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-opacity=".3"/>
+  <text x="336.0" y="367" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">MiniLM embed</text>
+  <text x="336.0" y="387" text-anchor="middle" font-size="12" fill="#7d8db0">384-d vectors</text>
+</g>
+    <g>
+  <rect x="448" y="338" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-rag-2" x="448" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-width="2" filter="url(#soft)"/>
+  <rect x="448" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-opacity=".3"/>
+  <text x="532.0" y="367" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">ChromaDB</text>
+  <text x="532.0" y="387" text-anchor="middle" font-size="12" fill="#7d8db0">top-20 dense</text>
+</g>
+    <g>
+  <rect x="644" y="338" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-rag-3" x="644" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-width="2" filter="url(#soft)"/>
+  <rect x="644" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-opacity=".3"/>
+  <text x="728.0" y="367" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">Cross-encoder</text>
+  <text x="728.0" y="387" text-anchor="middle" font-size="12" fill="#7d8db0">rerank → top-4</text>
+</g>
+    <g>
+  <rect x="840" y="338" width="168" height="66" rx="14" fill="#0b1220"/>
+  <rect class="hl-rag-4" x="840" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-width="2" filter="url(#soft)"/>
+  <rect x="840" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-opacity=".3"/>
+  <text x="924.0" y="367" text-anchor="middle" font-size="16" font-weight="700" fill="#f0f4ff">GPT-4o-mini</text>
+  <text x="924.0" y="387" text-anchor="middle" font-size="12" fill="#7d8db0">streamed via SSE</text>
+</g>
+    <g>
+  <rect x="1036" y="338" width="168" height="66" rx="14" fill="url(#resultFill)"/>
+  <rect class="hl-rag-5" x="1036" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-width="2" filter="url(#soft)"/>
+  <rect x="1036" y="338" width="168" height="66" rx="14" fill="none" stroke="#00d9ff" stroke-opacity=".3"/>
+  <text x="1120.0" y="367" text-anchor="middle" font-size="16" font-weight="700" fill="#04110b">Cited answer</text>
+  <text x="1120.0" y="387" text-anchor="middle" font-size="12" fill="#0b2a1f">grounded sources</text>
+</g>
+  </g>
+  <rect x=".5" y=".5" width="1279" height="419" rx="22" fill="none" stroke="url(#brand)" stroke-opacity=".3"/>
+</svg>

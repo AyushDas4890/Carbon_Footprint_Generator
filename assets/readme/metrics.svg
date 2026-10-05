@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 300" width="1280" height="300" role="img" aria-labelledby="t d">
+  <title id="t">Model performance</title>
+  <desc id="d">Animated gauges for the held-out real-world evaluation on 524 products: R squared 0.29, Spearman 0.82, pairwise accuracy 81.8 percent, conformal coverage 91.2 percent.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#070b16"/><stop offset="1" stop-color="#050810"/></linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#64ffb4"/><stop offset=".55" stop-color="#00d9ff"/><stop offset="1" stop-color="#8b5cf6"/></linearGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="card"><rect width="1280" height="300" rx="22"/></clipPath>
+  </defs>
+  <style>
+        .g0 { animation: fill0 1.8s cubic-bezier(.16,1,.3,1) 0.35s both; }
+    @keyframes fill0 { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 71.0; } }
+    .g1 { animation: fill1 1.8s cubic-bezier(.16,1,.3,1) 0.60s both; }
+    @keyframes fill1 { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 18.0; } }
+    .g2 { animation: fill2 1.8s cubic-bezier(.16,1,.3,1) 0.85s both; }
+    @keyframes fill2 { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 18.2; } }
+    .g3 { animation: fill3 1.8s cubic-bezier(.16,1,.3,1) 1.10s both; }
+    @keyframes fill3 { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 8.8; } }
+    .spin { animation: spin 9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .halo { animation: halo 3.2s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes halo { 0%,100% { transform: scale(.92); opacity: .04; } 50% { transform: scale(1.06); opacity: .12; } }
+    .pop { animation: pop .7s cubic-bezier(.34,1.56,.64,1) both; transform-box: fill-box; transform-origin: center; }
+    @keyframes pop { from { opacity: 0; transform: scale(.5); } to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } }
+  </style>
+  <g clip-path="url(#card)" font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif">
+    <rect width="1280" height="300" fill="url(#bg)"/>
+        <g>
+  <circle cx="190" cy="150" r="78" fill="#64ffb4" opacity=".06" class="halo" style="animation-delay:0.0s"/>
+  <circle cx="190" cy="150" r="62" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="11"/>
+  <circle class="g0" cx="190" cy="150" r="62" fill="none" stroke="#64ffb4" stroke-width="11" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="71.0" transform="rotate(-90 190 150)" filter="url(#soft)"/>
+  <g class="spin" style="transform-origin:190px 150px; animation-duration:9s">
+    <circle cx="190" cy="72" r="2.5" fill="#64ffb4"/>
+  </g>
+  <text class="pop" style="animation-delay:0.85s" x="190" y="161" text-anchor="middle" font-size="32" font-weight="800" fill="#f0f4ff">0.29</text>
+  <text x="190" y="254" text-anchor="middle" font-size="16" font-weight="700" fill="#64ffb4">Real-world R²</text>
+  <text x="190" y="274" text-anchor="middle" font-size="12.5" fill="#7d8db0">honest fit · unseen products</text>
+</g>
+    <g>
+  <circle cx="490" cy="150" r="78" fill="#00d9ff" opacity=".06" class="halo" style="animation-delay:0.6s"/>
+  <circle cx="490" cy="150" r="62" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="11"/>
+  <circle class="g1" cx="490" cy="150" r="62" fill="none" stroke="#00d9ff" stroke-width="11" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="18.0" transform="rotate(-90 490 150)" filter="url(#soft)"/>
+  <g class="spin" style="transform-origin:490px 150px; animation-duration:11s">
+    <circle cx="490" cy="72" r="2.5" fill="#00d9ff"/>
+  </g>
+  <text class="pop" style="animation-delay:1.10s" x="490" y="161" text-anchor="middle" font-size="32" font-weight="800" fill="#f0f4ff">0.82</text>
+  <text x="490" y="254" text-anchor="middle" font-size="16" font-weight="700" fill="#00d9ff">Spearman ρ</text>
+  <text x="490" y="274" text-anchor="middle" font-size="12.5" fill="#7d8db0">ranks products correctly</text>
+</g>
+    <g>
+  <circle cx="790" cy="150" r="78" fill="#8b5cf6" opacity=".06" class="halo" style="animation-delay:1.2s"/>
+  <circle cx="790" cy="150" r="62" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="11"/>
+  <circle class="g2" cx="790" cy="150" r="62" fill="none" stroke="#8b5cf6" stroke-width="11" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="18.2" transform="rotate(-90 790 150)" filter="url(#soft)"/>
+  <g class="spin" style="transform-origin:790px 150px; animation-duration:13s">
+    <circle cx="790" cy="72" r="2.5" fill="#8b5cf6"/>
+  </g>
+  <text class="pop" style="animation-delay:1.35s" x="790" y="161" text-anchor="middle" font-size="32" font-weight="800" fill="#f0f4ff">81.8%</text>
+  <text x="790" y="254" text-anchor="middle" font-size="16" font-weight="700" fill="#8b5cf6">Pairwise accuracy</text>
+  <text x="790" y="274" text-anchor="middle" font-size="12.5" fill="#7d8db0">picks the lower-CO₂ option</text>
+</g>
+    <g>
+  <circle cx="1090" cy="150" r="78" fill="#ff6b35" opacity=".06" class="halo" style="animation-delay:1.8s"/>
+  <circle cx="1090" cy="150" r="62" fill="none" stroke="#ffffff" stroke-opacity=".07" stroke-width="11"/>
+  <circle class="g3" cx="1090" cy="150" r="62" fill="none" stroke="#ff6b35" stroke-width="11" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="8.8" transform="rotate(-90 1090 150)" filter="url(#soft)"/>
+  <g class="spin" style="transform-origin:1090px 150px; animation-duration:15s">
+    <circle cx="1090" cy="72" r="2.5" fill="#ff6b35"/>
+  </g>
+  <text class="pop" style="animation-delay:1.60s" x="1090" y="161" text-anchor="middle" font-size="32" font-weight="800" fill="#f0f4ff">91.2%</text>
+  <text x="1090" y="254" text-anchor="middle" font-size="16" font-weight="700" fill="#ff6b35">Conformal coverage</text>
+  <text x="1090" y="274" text-anchor="middle" font-size="12.5" fill="#7d8db0">of a nominal 90% interval</text>
+</g>
+    <text x="640" y="32" text-anchor="middle" font-size="12" font-weight="700" letter-spacing="3" fill="#5d6d8c">HELD-OUT REAL-WORLD EVAL · 524 PRODUCTS · 25 MATERIALS · MAE 13.3 kg CO₂e</text>
+  </g>
+  <rect x=".5" y=".5" width="1279" height="299" rx="22" fill="none" stroke="url(#brand)" stroke-opacity=".3"/>
+</svg>

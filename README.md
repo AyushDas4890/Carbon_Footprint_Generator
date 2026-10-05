@@ -12,15 +12,8 @@ short_description: AI Carbon Footprint Predictor + RAG Sustainability Advisor
 
 <div align="center">
 
-<br>
+<a href="https://ad074890-c4future.hf.space"><img src="assets/readme/hero.svg" width="100%" alt="C4Future — calculate the true carbon cost of any product"/></a>
 
-<img src="https://img.shields.io/badge/-🌍_C4FUTURE-0a0e27?style=for-the-badge&labelColor=0a0e27&color=64ffb4" height="60" alt="C4Future"/>
-
-# Building a Sustainable Tomorrow — Powered by AI
-
-### Predict · Explain · Compare · Decompose · Advise
-
-<br>
 
 > **A production-grade carbon-footprint platform that turns any product description into a calibrated CO₂ estimate, an explainable breakdown, and an actionable reduction plan — grounded in real LCA science.**
 
@@ -52,23 +45,20 @@ short_description: AI Carbon Footprint Predictor + RAG Sustainability Advisor
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## ⚡ What this is in 30 seconds
 
-```
-   User says:                                    Model returns:
-   ─────────                                     ─────────
-   "Cotton t-shirt          ┌──────────────┐     ┃ 7.63 kg CO₂e
-    0.5 kg, made in    ────▶│   C4Future   │────▶┃ ± 1.2 kg (90% interval)
-    China, sea freight"     │  AI Platform │     ┃ Grade: B (Good)
-                            └──────────────┘     ┃ Materials drove 72% of impact
-                                                 ┃ Try: Recycled cotton (-31%)
-```
+Describe a product — material, weight, where it's made, how it ships — and C4Future follows it through its
+lifecycle, returning a calibrated CO₂ estimate, what drove it, and how to cut it.
 
-Three production AI systems wired into one Django app, live on HuggingFace Spaces, all open-source.
+<p align="center"><img src="assets/readme/lifecycle.svg" width="100%" alt="A parcel travels from raw material to factory, freight and consumer, accumulating 2.75, 1.05 and 3.80 kg CO2e"/></p>
+
+Three production AI systems wired into one Django + React app, live on HuggingFace Spaces, all open-source.
 
 <br>
+
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 🎯 The Three Engines
 
@@ -84,7 +74,7 @@ Trained on real Agribalyse + Poore + DEFRA data.
 
 `Real-world R² = 0.29`  
 `Spearman ρ = 0.82`  
-`Coverage = 89.7%`
+`Coverage = 91.2%`
 
 </td>
 <td width="33%" align="center" valign="top">
@@ -117,19 +107,21 @@ Streams responses with citations.
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 📊 Live Performance Dashboard
+
+<p align="center"><img src="assets/readme/metrics.svg" width="100%" alt="Gauges: R² 0.29, Spearman 0.82, pairwise accuracy 81.8%, conformal coverage 91.2%"/></p>
 
 <div align="center">
 
 | 📈 Metric | 🎯 Value | 💡 What it means |
 |:---:|:---:|:---|
 | **Real-world R²** | `0.29` | Honest fit on **524 unseen products** across 25 materials |
-| **Pearson correlation** | `0.83` | Strong linear agreement between predicted and true CO₂ |
-| **Spearman rank ρ** | `0.82` | Model gets product **ranking** right 82% of the time |
-| **Pairwise accuracy** | `82.6%` | Picks the lower-CO₂ option in head-to-head pairs |
-| **Conformal coverage** | `89.7%` | Nominal 90% interval achieves **89.7% empirical coverage** |
+| **Pearson correlation** | `0.84` | Strong linear agreement between predicted and true CO₂ |
+| **Spearman rank ρ** | `0.82` | Strong agreement between predicted and true product **rankings** |
+| **Pairwise accuracy** | `81.8%` | Picks the lower-CO₂ option in head-to-head pairs |
+| **Conformal coverage** | `91.2%` | Nominal 90% interval achieves **91.2% empirical coverage** |
 | **MAE** | `13.3 kg CO₂e` | Mean absolute error on held-out products |
 | **Pipeline latency** | `~80 ms` | Predict → SHAP → conformal interval, end-to-end |
 
@@ -139,7 +131,7 @@ Streams responses with citations.
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## ✨ Features
 
@@ -200,7 +192,7 @@ Streams responses with citations.
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 🛠 Tech Stack
 
@@ -220,9 +212,14 @@ Streams responses with citations.
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 🏗 Architecture
+
+<p align="center"><img src="assets/readme/pipeline.svg" width="100%" alt="Two pipelines: ML predictor (input, encoding, XGBoost x3, conformal, SHAP, result) and RAG advisor (question, MiniLM, ChromaDB, cross-encoder, GPT-4o-mini, cited answer)"/></p>
+
+<details>
+<summary><b>Text diagram</b></summary>
 
 ```
                     ┌─────────────────────────────────────────┐
@@ -254,11 +251,13 @@ Streams responses with citations.
                                             PDFs / .md / .txt
 ```
 
+</details>
+
 📖 Full architecture details in **[ARCHITECTURE.md](ARCHITECTURE.md)** · Transparency in **[MODEL_CARD.md](MODEL_CARD.md)**
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 🚀 Quick Start
 
@@ -319,7 +318,7 @@ See **[FREE_DEPLOY.md](FREE_DEPLOY.md)** for a complete walkthrough.
 Short version:
 ```bash
 # 1. Create a Space at huggingface.co/new-space (Docker SDK, CPU-Basic free)
-# 2. Set secrets: OPENAI_API_KEY, DJANGO_SECRET_KEY, DJANGO_ALLOWED_HOSTS
+# 2. Set secrets: OPENAI_API_KEY, DJANGO_SECRET_KEY (ALLOWED_HOSTS comes from SPACE_HOST)
 # 3. Push:
 git remote add hf https://huggingface.co/spaces/<your-user>/c4future
 git push hf main
@@ -333,7 +332,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 🧪 API Reference
 
@@ -350,7 +349,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 🎓 What I Learned Building This
 
@@ -361,7 +360,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 ### 🧪 ML Lessons
 - **Distribution shift is the real problem.** Synthetic R²=0.99 ≠ real R²=0.29. Stratified product-level holdout with zero leakage is the only honest test.
 - **Conformal prediction > vanilla quantile regression** for calibrated intervals. Pushed coverage from 80% → 90% exactly.
-- **Rank metrics matter for recommenders.** Spearman ρ=0.82 means the model picks the right answer 82% of the time even when absolute kg estimates are off.
+- **Rank metrics matter for recommenders.** Spearman ρ=0.82 and 81.8% pairwise accuracy mean the model picks the lower-carbon option most of the time even when absolute kg estimates are off.
 
 </td>
 <td width="50%" valign="top">
@@ -377,7 +376,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 📁 Project Structure
 
@@ -407,16 +406,17 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 │   ├── evals/                       Gold eval set + RAGAS runner
 │   └── knowledge_base/seed_facts.md
 │
-├── 🌐 core/                         Web pages + PredictionLog model
+├── ⚛️  frontend/                     React + R3F + Motion + GSAP SPA (Vite, TypeScript)
+├── 🌐 core/                         SPA view + PredictionLog model
 ├── ⚙️  carbon_project/              Django config
 ├── 📊 data/                         Real LCA sources (Agribalyse, Poore)
 ├── 🧪 scripts/smoke_test.py         End-to-end pipeline test
-├── 🎨 static/                       CSS / JS / videos
+├── 🎞️  assets/readme/                Animated SVGs used in this README
 │
 ├── 🐳 Dockerfile                    Multi-stage, trains model at build
 ├── 🐳 docker-compose.yml
 ├── 🚢 render.yaml · fly.toml · Procfile · runtime.txt
-├── 🔄 .github/workflows/            CI + retrain
+├── 🔄 .github/workflows/            CI · HF auto-deploy · retrain
 │
 ├── 📖 ARCHITECTURE.md               System diagram + data flow
 ├── 📖 MODEL_CARD.md                 Transparency doc
@@ -429,7 +429,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 📖 Documentation
 
@@ -444,7 +444,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 👨‍💻 Author
 
@@ -471,7 +471,7 @@ Building practical AI systems at the intersection of **classical ML, retrieval-a
 
 <br>
 
----
+<p align="center"><img src="assets/readme/divider.svg" width="100%" alt=""/></p>
 
 ## 📜 License
 

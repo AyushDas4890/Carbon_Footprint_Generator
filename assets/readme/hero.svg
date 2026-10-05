@@ -1,0 +1,223 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 460" width="1280" height="460" role="img" aria-labelledby="t d">
+  <title id="t">C4Future</title>
+  <desc id="d">Animated banner: a rotating wireframe Earth with orbiting CO2 molecules beside the C4Future title and the tagline "Calculate the true carbon cost of any product".</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#070b16"/><stop offset="1" stop-color="#03050b"/>
+    </linearGradient>
+    <linearGradient id="brand" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#64ffb4"/><stop offset=".55" stop-color="#00d9ff"/><stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+    <linearGradient id="shimmer" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="760" y2="0" spreadMethod="repeat">
+      <stop offset="0" stop-color="#64ffb4"/><stop offset=".33" stop-color="#00d9ff"/>
+      <stop offset=".66" stop-color="#8b5cf6"/><stop offset="1" stop-color="#64ffb4"/>
+      <animateTransform attributeName="gradientTransform" type="translate" values="0 0;760 0" dur="7s" repeatCount="indefinite"/>
+    </linearGradient>
+    <linearGradient id="glint" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".75"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="sphere" cx=".38" cy=".32" r=".75">
+      <stop offset="0" stop-color="#0f3a35"/><stop offset=".6" stop-color="#071a22"/><stop offset="1" stop-color="#040a12"/>
+    </radialGradient>
+    <radialGradient id="atmo" cx=".5" cy=".5" r=".5">
+      <stop offset=".78" stop-color="#00d9ff" stop-opacity="0"/><stop offset=".9" stop-color="#00d9ff" stop-opacity=".22"/><stop offset="1" stop-color="#00d9ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="floorFade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff" stop-opacity=".9"/>
+    </linearGradient>
+    <mask id="floorMask"><rect x="0" y="385" width="1280" height="75" fill="url(#floorFade)"/></mask>
+    <filter id="blur40" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="40"/></filter>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    <clipPath id="card"><rect width="1280" height="460" rx="22"/></clipPath>
+    <clipPath id="globe"><circle cx="985" cy="228" r="138"/></clipPath>
+    <clipPath id="reveal"><rect x="70" y="120" width="0" height="130">
+      <animate attributeName="width" from="0" to="760" begin="0.3s" dur="1.4s" fill="freeze" calcMode="spline" keyTimes="0;1" keySplines="0.16 1 0.3 1"/>
+    </rect></clipPath>
+    <clipPath id="type"><rect x="78" y="258" width="0" height="40">
+      <animate attributeName="width" from="0" to="640" begin="1.5s" dur="2.6s" fill="freeze"/>
+    </rect></clipPath>
+    <clipPath id="titleShape"><text x="76" y="232" font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif" font-size="104" font-weight="800" letter-spacing="-2">C4FUTURE</text></clipPath>
+  </defs>
+  <style>
+    .tw { animation: twinkle 3s ease-in-out infinite; }
+    .t1 { animation-duration: 4.2s; animation-delay: -1s; }
+    .t2 { animation-duration: 2.6s; animation-delay: -2s; }
+    .t3 { animation-duration: 5.1s; animation-delay: -.5s; }
+    @keyframes twinkle { 0%,100% { opacity: .15; } 50% { opacity: 1; } }
+    .aurora { animation: drift 14s ease-in-out infinite alternate; }
+    .aurora.b { animation-duration: 18s; animation-direction: alternate-reverse; }
+    @keyframes drift { from { transform: translate(-40px, 10px); } to { transform: translate(60px, -20px); } }
+    .mer { transform-box: fill-box; transform-origin: center; animation: spin 6s ease-in-out infinite; }
+    @keyframes spin { 0% { transform: scaleX(1); } 50% { transform: scaleX(-1); } 100% { transform: scaleX(1); } }
+    .floor { animation: floor 1.6s linear infinite; }
+    @keyframes floor { from { transform: translateY(0); } to { transform: translateY(13px); } }
+    .pulse { animation: pulse 2s ease-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes pulse { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(3.2); opacity: 0; } }
+    .caret { animation: blink 1s steps(2) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .fade { opacity: 0; animation: fadeUp .8s cubic-bezier(.16,1,.3,1) forwards; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .glintbar { animation: glint 6s ease-in-out 2s infinite; }
+    @keyframes glint { 0% { transform: translateX(-260px) skewX(-20deg); } 35%,100% { transform: translateX(900px) skewX(-20deg); } }
+    .breathe { animation: breathe 5s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+    @keyframes breathe { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+    @media (prefers-reduced-motion: reduce) { * { animation: none !important; } .fade { opacity: 1; } }
+  </style>
+
+  <g clip-path="url(#card)">
+    <rect width="1280" height="460" fill="url(#bg)"/>
+    <ellipse class="aurora" cx="230" cy="70" rx="300" ry="120" fill="#64ffb4" opacity=".16" filter="url(#blur40)"/>
+    <ellipse class="aurora b" cx="1050" cy="420" rx="360" ry="130" fill="#8b5cf6" opacity=".2" filter="url(#blur40)"/>
+    <ellipse class="aurora" cx="980" cy="200" rx="230" ry="200" fill="#00d9ff" opacity=".08" filter="url(#blur40)"/>
+
+    <circle class="tw t0" cx="418" cy="76" r="0.6" fill="#ffffff"/>
+    <circle class="tw t1" cx="1045" cy="51" r="1.7" fill="#ffffff"/>
+    <circle class="tw t2" cx="1156" cy="104" r="0.6" fill="#b9a6ff"/>
+    <circle class="tw t3" cx="537" cy="116" r="1.7" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="84" cy="259" r="0.8" fill="#ffffff"/>
+    <circle class="tw t1" cx="737" cy="185" r="0.8" fill="#ffffff"/>
+    <circle class="tw t2" cx="711" cy="69" r="1.3" fill="#64ffb4"/>
+    <circle class="tw t3" cx="691" cy="261" r="1.7" fill="#64ffb4"/>
+    <circle class="tw t0" cx="140" cy="261" r="0.8" fill="#00d9ff"/>
+    <circle class="tw t1" cx="133" cy="323" r="1.7" fill="#ffffff"/>
+    <circle class="tw t2" cx="790" cy="228" r="1.7" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="1174" cy="169" r="0.8" fill="#64ffb4"/>
+    <circle class="tw t2" cx="734" cy="241" r="1.0" fill="#b9a6ff"/>
+    <circle class="tw t3" cx="373" cy="441" r="0.6" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="218" cy="161" r="1.3" fill="#b9a6ff"/>
+    <circle class="tw t1" cx="59" cy="304" r="1.7" fill="#00d9ff"/>
+    <circle class="tw t2" cx="439" cy="164" r="1.3" fill="#b9a6ff"/>
+    <circle class="tw t3" cx="97" cy="51" r="1.0" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="888" cy="39" r="1.0" fill="#b9a6ff"/>
+    <circle class="tw t1" cx="369" cy="180" r="1.0" fill="#ffffff"/>
+    <circle class="tw t2" cx="1195" cy="166" r="1.7" fill="#ffffff"/>
+    <circle class="tw t3" cx="632" cy="106" r="1.0" fill="#64ffb4"/>
+    <circle class="tw t1" cx="1165" cy="228" r="0.8" fill="#b9a6ff"/>
+    <circle class="tw t2" cx="516" cy="132" r="0.8" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="533" cy="168" r="1.3" fill="#64ffb4"/>
+    <circle class="tw t1" cx="200" cy="88" r="0.8" fill="#64ffb4"/>
+    <circle class="tw t2" cx="25" cy="376" r="0.8" fill="#00d9ff"/>
+    <circle class="tw t3" cx="365" cy="74" r="1.7" fill="#00d9ff"/>
+    <circle class="tw t0" cx="778" cy="150" r="0.8" fill="#ffffff"/>
+    <circle class="tw t1" cx="585" cy="393" r="1.7" fill="#b9a6ff"/>
+    <circle class="tw t2" cx="512" cy="183" r="1.3" fill="#b9a6ff"/>
+    <circle class="tw t3" cx="88" cy="40" r="0.8" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="215" cy="160" r="0.6" fill="#ffffff"/>
+    <circle class="tw t1" cx="10" cy="77" r="0.6" fill="#00d9ff"/>
+    <circle class="tw t2" cx="783" cy="41" r="0.8" fill="#b9a6ff"/>
+    <circle class="tw t3" cx="197" cy="121" r="1.0" fill="#00d9ff"/>
+    <circle class="tw t0" cx="607" cy="61" r="1.3" fill="#b9a6ff"/>
+    <circle class="tw t1" cx="615" cy="147" r="0.8" fill="#ffffff"/>
+    <circle class="tw t3" cx="613" cy="315" r="1.7" fill="#ffffff"/>
+    <circle class="tw t0" cx="269" cy="429" r="1.0" fill="#64ffb4"/>
+    <circle class="tw t1" cx="879" cy="412" r="1.7" fill="#00d9ff"/>
+    <circle class="tw t2" cx="1243" cy="390" r="1.0" fill="#00d9ff"/>
+    <circle class="tw t3" cx="1154" cy="167" r="0.8" fill="#00d9ff"/>
+    <circle class="tw t0" cx="812" cy="280" r="0.8" fill="#64ffb4"/>
+    <circle class="tw t2" cx="296" cy="238" r="1.0" fill="#ffffff"/>
+    <circle class="tw t3" cx="1257" cy="358" r="1.3" fill="#00d9ff"/>
+    <circle class="tw t0" cx="254" cy="276" r="1.0" fill="#b9a6ff"/>
+    <circle class="tw t2" cx="450" cy="439" r="0.6" fill="#64ffb4"/>
+    <circle class="tw t3" cx="139" cy="217" r="1.0" fill="#64ffb4"/>
+    <circle class="tw t0" cx="618" cy="444" r="1.7" fill="#ffffff"/>
+    <circle class="tw t1" cx="614" cy="297" r="0.6" fill="#ffffff"/>
+    <circle class="tw t2" cx="1156" cy="354" r="0.8" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="811" cy="48" r="1.3" fill="#b9a6ff"/>
+    <circle class="tw t1" cx="516" cy="427" r="0.8" fill="#64ffb4"/>
+    <circle class="tw t2" cx="1261" cy="22" r="1.7" fill="#b9a6ff"/>
+    <circle class="tw t0" cx="1051" cy="441" r="1.0" fill="#64ffb4"/>
+    <circle class="tw t1" cx="701" cy="68" r="0.6" fill="#ffffff"/>
+    <circle class="tw t2" cx="673" cy="421" r="1.3" fill="#64ffb4"/>
+    <circle class="tw t0" cx="327" cy="139" r="0.8" fill="#00d9ff"/>
+    <circle class="tw t1" cx="337" cy="194" r="0.8" fill="#ffffff"/>
+
+    <g mask="url(#floorMask)" stroke="#64ffb4" stroke-opacity=".35" stroke-width="1">
+      <g class="floor">
+      <line x1="0" y1="392" x2="1280" y2="392"/>
+      <line x1="0" y1="405" x2="1280" y2="405"/>
+      <line x1="0" y1="418" x2="1280" y2="418"/>
+      <line x1="0" y1="431" x2="1280" y2="431"/>
+      <line x1="0" y1="444" x2="1280" y2="444"/>
+      <line x1="0" y1="457" x2="1280" y2="457"/>
+      </g>
+      <line x1="640" y1="385" x2="-560" y2="470"/>
+      <line x1="640" y1="385" x2="-400" y2="470"/>
+      <line x1="640" y1="385" x2="-240" y2="470"/>
+      <line x1="640" y1="385" x2="-80" y2="470"/>
+      <line x1="640" y1="385" x2="80" y2="470"/>
+      <line x1="640" y1="385" x2="240" y2="470"/>
+      <line x1="640" y1="385" x2="400" y2="470"/>
+      <line x1="640" y1="385" x2="560" y2="470"/>
+      <line x1="640" y1="385" x2="720" y2="470"/>
+      <line x1="640" y1="385" x2="880" y2="470"/>
+      <line x1="640" y1="385" x2="1040" y2="470"/>
+      <line x1="640" y1="385" x2="1200" y2="470"/>
+      <line x1="640" y1="385" x2="1360" y2="470"/>
+      <line x1="640" y1="385" x2="1520" y2="470"/>
+      <line x1="640" y1="385" x2="1680" y2="470"/>
+      <line x1="640" y1="385" x2="1840" y2="470"/>
+    </g>
+
+    <!-- Globe -->
+    <circle cx="985" cy="228" r="164" fill="url(#atmo)" class="breathe"/>
+    <circle cx="985" cy="228" r="138" fill="url(#sphere)"/>
+    <g clip-path="url(#globe)" fill="none" stroke="#64ffb4" stroke-width="1.1">
+      <g stroke-opacity=".28">
+      <ellipse cx="985" cy="128" rx="95.1" ry="15.2"/><ellipse cx="985" cy="168" rx="124.3" ry="19.9"/><ellipse cx="985" cy="208" rx="136.5" ry="21.8"/><ellipse cx="985" cy="248" rx="136.5" ry="21.8"/><ellipse cx="985" cy="288" rx="124.3" ry="19.9"/><ellipse cx="985" cy="328" rx="95.1" ry="15.2"/>
+      </g>
+      <g stroke-opacity=".45">
+      <ellipse class="mer" style="animation-delay:-0.0s" cx="985" cy="228" rx="138" ry="138"/><ellipse class="mer" style="animation-delay:-1.0s" cx="985" cy="228" rx="138" ry="138"/><ellipse class="mer" style="animation-delay:-2.0s" cx="985" cy="228" rx="138" ry="138"/><ellipse class="mer" style="animation-delay:-3.0s" cx="985" cy="228" rx="138" ry="138"/><ellipse class="mer" style="animation-delay:-4.0s" cx="985" cy="228" rx="138" ry="138"/><ellipse class="mer" style="animation-delay:-5.0s" cx="985" cy="228" rx="138" ry="138"/>
+      </g>
+    </g>
+    <circle cx="985" cy="228" r="138" fill="none" stroke="#64ffb4" stroke-opacity=".55" stroke-width="1.5" filter="url(#glow)"/>
+
+    <!-- Orbits with CO2 molecules -->
+    <g transform="rotate(-16 985 228)">
+      <ellipse cx="985" cy="228" rx="205" ry="58" fill="none" stroke="#00d9ff" stroke-opacity=".5" stroke-dasharray="3 7"/>
+      <g filter="url(#glow)">
+        <circle r="6" fill="#16202f" stroke="#64ffb4" stroke-width="2"/><circle cx="-10" r="4.6" fill="#ff6b35"/><circle cx="10" r="4.6" fill="#ff6b35"/>
+        <animateMotion dur="7s" repeatCount="indefinite" path="M780,228 a205,58 0 1,0 410,0 a205,58 0 1,0 -410,0"/>
+      </g>
+      <g filter="url(#glow)">
+        <circle r="5" fill="#16202f" stroke="#64ffb4" stroke-width="2"/><circle cx="-9" r="4" fill="#ff6b35"/><circle cx="9" r="4" fill="#ff6b35"/>
+        <animateMotion dur="7s" begin="-3.5s" repeatCount="indefinite" path="M780,228 a205,58 0 1,0 410,0 a205,58 0 1,0 -410,0"/>
+      </g>
+    </g>
+    <g transform="rotate(24 985 228)">
+      <ellipse cx="985" cy="228" rx="178" ry="44" fill="none" stroke="#8b5cf6" stroke-opacity=".55" stroke-dasharray="2 6"/>
+      <g filter="url(#glow)">
+        <circle r="5" fill="#16202f" stroke="#00d9ff" stroke-width="2"/><circle cx="-9" r="4" fill="#ff6b35"/><circle cx="9" r="4" fill="#ff6b35"/>
+        <animateMotion dur="5s" repeatCount="indefinite" path="M1163,228 a178,44 0 1,1 -356,0 a178,44 0 1,1 356,0"/>
+      </g>
+    </g>
+
+    <!-- Copy -->
+    <g font-family="'Segoe UI','Helvetica Neue',Helvetica,Arial,sans-serif">
+      <g class="fade" style="animation-delay:.1s">
+        <rect x="80" y="86" width="318" height="30" rx="15" fill="#64ffb4" fill-opacity=".08" stroke="#64ffb4" stroke-opacity=".35"/>
+        <circle cx="100" cy="101" r="4" fill="#64ffb4"/><circle class="pulse" cx="100" cy="101" r="4" fill="#64ffb4"/>
+        <text x="114" y="106" font-size="13" font-weight="700" letter-spacing="2.6" fill="#64ffb4">AI-POWERED CARBON INTELLIGENCE</text>
+      </g>
+      <g clip-path="url(#reveal)">
+        <text x="76" y="232" font-size="104" font-weight="800" letter-spacing="-2" fill="url(#shimmer)">C4FUTURE</text>
+        <g clip-path="url(#titleShape)"><rect class="glintbar" x="0" y="120" width="110" height="130" fill="url(#glint)"/></g>
+      </g>
+      <g clip-path="url(#type)">
+        <text x="80" y="288" font-size="27" font-weight="500" fill="#e8eeff">Calculate the true carbon cost of any product.</text>
+      </g>
+      <rect class="caret" x="80" y="266" width="3" height="28" fill="#64ffb4">
+        <animate attributeName="x" from="80" to="720" begin="1.5s" dur="2.6s" fill="freeze"/>
+        <set attributeName="visibility" to="hidden" begin="4.2s" fill="freeze"/>
+      </rect>
+      <g font-size="14" font-weight="600" fill="#9fb0d0">
+        <g class="fade" style="animation-delay:3.9s"><rect x="80" y="322" width="96" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".12"/><text x="128" y="343" text-anchor="middle">XGBoost</text></g>
+        <g class="fade" style="animation-delay:4.05s"><rect x="186" y="322" width="150" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".12"/><text x="261" y="343" text-anchor="middle">Conformal 90% CI</text></g>
+        <g class="fade" style="animation-delay:4.2s"><rect x="346" y="322" width="76" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".12"/><text x="384" y="343" text-anchor="middle">SHAP</text></g>
+        <g class="fade" style="animation-delay:4.35s"><rect x="432" y="322" width="122" height="32" rx="16" fill="#ffffff" fill-opacity=".05" stroke="#ffffff" stroke-opacity=".12"/><text x="493" y="343" text-anchor="middle">RAG Advisor</text></g>
+        <g class="fade" style="animation-delay:4.5s"><rect x="564" y="322" width="96" height="32" rx="16" fill="#00d9ff" fill-opacity=".08" stroke="#00d9ff" stroke-opacity=".35"/><text x="612" y="343" text-anchor="middle" fill="#00d9ff">3D UI</text></g>
+      </g>
+      <text class="fade" style="animation-delay:4.8s" x="80" y="392" font-size="13" font-weight="600" letter-spacing="3.2" fill="#5d6d8c">PREDICT · EXPLAIN · COMPARE · DECOMPOSE · ADVISE</text>
+    </g>
+  </g>
+  <rect x=".5" y=".5" width="1279" height="459" rx="22" fill="none" stroke="url(#brand)" stroke-opacity=".35"/>
+</svg>
