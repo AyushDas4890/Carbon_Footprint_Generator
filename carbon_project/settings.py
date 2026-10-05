@@ -45,6 +45,15 @@ _render_host = os.getenv('RENDER_EXTERNAL_HOSTNAME')
 if _render_host and _render_host not in ALLOWED_HOSTS:
     ALLOWED_HOSTS.append(_render_host)
 
+# HuggingFace Spaces injects SPACE_HOST (e.g. "user-c4future.hf.space").
+_space_host = os.getenv('SPACE_HOST')
+if _space_host and _space_host not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(_space_host)
+
+# The Space page on huggingface.co renders the app in an iframe, so on HF we
+# allow that parent instead of sending X-Frame-Options: DENY.
+FRAME_ANCESTORS = ["'self'", 'https://huggingface.co'] if _space_host else []
+
 # CSRF: trust the same origins. Most platforms put us behind HTTPS.
 CSRF_TRUSTED_ORIGINS = [
     f"https://{h}" for h in ALLOWED_HOSTS if h not in ('*', 'localhost', '127.0.0.1')
@@ -73,7 +82,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'core.middleware.FrameAncestorsMiddleware' if FRAME_ANCESTORS
+    else 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 ROOT_URLCONF = 'carbon_project.urls'
@@ -138,6 +148,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = os.getenv('DJANGO_SSL_REDIRECT', 'True').lower() == 'true'
+    # The Docker HEALTHCHECK probes plain http://localhost; don't bounce it to https.
+    SECURE_REDIRECT_EXEMPT = [r'^health/$']
     SECURE_HSTS_SECONDS = int(os.getenv('DJANGO_HSTS_SECONDS', '3600'))
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = False
