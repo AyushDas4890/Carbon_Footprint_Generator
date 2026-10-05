@@ -7,7 +7,7 @@
 | One-line promise | Calculate the true carbon cost of any product |
 | Audience / platform | README / portfolio / LinkedIn + Shorts; sound-off readable |
 | Duration (s) | 19 |
-| Formats | 16x9 + 9x16 |
+| Formats | 16x9 (9:16 dropped at the user's request) |
 | Brand colours | void #050810, surface #0d1525, text #f0f4ff / #8899bb, accent green #64ffb4 (cyan/violet only inside the real logo + gradient headline) |
 | Fonts | Space Grotesk (display), Inter (UI) — the site's own Google Fonts |
 | Reference film | none: house rhythm |

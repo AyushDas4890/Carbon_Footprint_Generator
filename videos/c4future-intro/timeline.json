@@ -5,8 +5,7 @@
   "fps": 60,
   "bpm": 120,
   "formats": [
-    "16x9",
-    "9x16"
+    "16x9"
   ],
   "music": {
     "source": "synth",
@@ -67,7 +66,8 @@
     "sweep": 36.5,
     "done": 38,
     "hook_q": 5.5,
-    "ci": 18.5
+    "ci": 18.5,
+    "ci_ul": 19
   },
   "sfx": [
     {
@@ -96,9 +96,9 @@
     },
     {
       "at": "hook_q",
-      "type": "pop",
-      "gain": 0.6,
-      "what": "\"What's yours?\""
+      "type": "whoosh",
+      "gain": 0.5,
+      "what": "\"What's yours?\" swaps in (lines lift, question lands)"
     },
     {
       "at": "calc",
@@ -128,6 +128,12 @@
     },
     {
       "at": "ci",
+      "type": "whoosh",
+      "gain": 0.4,
+      "what": "caption swaps to \"And the uncertainty.\""
+    },
+    {
+      "at": "ci_ul",
       "type": "pop",
       "gain": 0.45,
       "what": "underline under the 95% interval"

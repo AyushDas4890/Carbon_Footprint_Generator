@@ -78,3 +78,28 @@ Scores 1–10. Ship only when EVERY score is ≥ 8, after at least 3 rounds.
 2. Re-measure sync on the 60 fps final with review.py final; nudge only cues still > 45 ms.
 
 **Verdict:** ANOTHER ROUND
+
+## Round 3: drafts after round-2 fixes (+ 9:16 safe-zone pass)
+
+| Criterion | Score | Evidence |
+|---|---|---|
+| Hook (first 2 s) | 8 | f0 reads "Every"; promise complete at 1.5 s |
+| Readability at phone size | 8 | phone_16x9 17.5–19 s: CTA + URL legible at 360 px; 9:16 text now clear of the right 12 % zone |
+| Motion quality | 8 | strips clean; end-card hero card rises with the tagline and drifts |
+| Variety / pacing | 8 | max gap 3.0 s; longest static 1.27 s |
+| Brand accuracy | 8 | only real captures; hero card is the real home page |
+| Sound sync | 7 | 13/17 at 30 fps; needs 60 fps measurement |
+| Composition | 8 | 16:9 end card balanced (lockup left, real hero right) |
+| Polish | 8 | determinism 12/12 identical in both formats |
+
+**3 worst problems**
+1. Swap hits ("What's yours?", caption → "And the uncertainty.") measure early because the outgoing line's exit is the first visible change.
+2. One near-blank frame at 2.7 s (hook lines gone, question not yet up) — found on the 60 fps final.
+3. Pressed Calculate button showed the captured button's edge behind it (double outline at 6.03–6.08 s).
+
+**Fixes**
+1. Swap cues are whooshes (they build into the landing by design); the underline gets its own pop on b19.
+2. Hook exit moved to b5.36 so the question takes over without a blank frame.
+3. Card-coloured backing under the lifted button.
+
+**Verdict:** SHIP after the fixes verify on the 60 fps final. The user asked for 16:9 only, so 9:16 is not rendered as a final.

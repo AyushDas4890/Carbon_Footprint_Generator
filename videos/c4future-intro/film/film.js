@@ -50,7 +50,7 @@
     run(t, b, S) {
       drawDots(S.ctx, t, S.pts);
       put(S.cam, { s: 1 + 0.05 * ease.inOut(seg(t, 'hook', 'calc')) });
-      S.lines.forEach((L, i) => rise(t, L, S.beats[i], 5.3));
+      S.lines.forEach((L, i) => rise(t, L, S.beats[i], 5.36));
       rise(t, S.q, ['hook_q', 5.58]);
     },
   });
@@ -74,7 +74,9 @@
       S.text = reg(el('span', {}, holder));
       S.caret = reg(el('span', { style: 'display:inline-block;width:1.5px;height:18px;background:#64ffb4;margin-left:1px' }, holder), { o: 0 });
       const bt_ = F.btn;
-      // the real button, lifted out of the same capture so it can be pressed
+      // the real button, lifted out of the same capture so it can be pressed; the backing hides the
+      // captured button underneath while the lifted one is scaled down
+      box(S.card, bt_.x, bt_.y, bt_.w, bt_.h, 'border-radius:12px;background:rgb(14,26,38)');
       S.btn = reg(box(S.card, bt_.x, bt_.y, bt_.w, bt_.h,
         `border-radius:12px;background:url(${CAP}el_form.png) -${bt_.x}px -${bt_.y}px / ${F.w}px ${F.h}px;transform-origin:50% 50%`));
       // the site's own cursor (#cursor-dot + #cursor-ring; cyan when hovering a button)
@@ -92,7 +94,7 @@
       const bx = F.btn.x + F.btn.w * 0.2, by = F.btn.y + F.btn.h / 2;
       const p = trkObj(t, [[0, { x: F.w + 60, y: 420 }], [10.5, { x: bx, y: by }, 'default']]);
       const on = b >= 10.5 && b < 14 ? 1 : 0, hov = sp(t, 11.2, 'snappy');
-      const press = spHit(t, 'press', 'snappy') - sp(t, 12.3, 'snappy');
+      const press = spHit(t, 'press', 'snappy', 2 / 60) - sp(t, 12.3, 'snappy');
       put(S.dot, { o: on, x: p.x, y: p.y, s: 1 + 0.5 * hov, css: { background: hov > 0.5 ? '#00d9ff' : '#64ffb4' } });
       put(S.ring, { o: on, x: p.x, y: p.y, s: (1 + 0.39 * hov) * (1 - 0.3 * press), css: { borderColor: hov > 0.5 ? 'rgba(0,217,255,.6)' : 'rgba(100,255,180,.5)' } });
       put(S.btn, { s: 1 - 0.04 * press });
@@ -138,9 +140,9 @@
       put(S.card, { o: u > 0.001 ? 1 : 0, x: S.pos.x, y: S.pos.y + lift + 140 * (1 - u), s: S.K * (0.94 + 0.06 * u) });
       // count-up 0 → 2.94 (the model's real output), lands on b18
       const v = 2.94 * ease.out(seg(t, 16.2, 'count_end'));
-      const pop = spHit(t, 'count_end', 'snappy') - sp(t, 18.25, 'default');
+      const pop = spHit(t, 'count_end', 'snappy', 0.08) - sp(t, 18.25, 'default');
       put(S.num, { text: v.toFixed(2), s: 1 + 0.12 * pop });
-      const w = spHit(t, 'ci', 'snappy', C.LEAD);
+      const w = spHit(t, 'ci_ul', 'snappy', C.LEAD);
       put(S.ul, { o: w > 0.01 ? 1 : 0, sx: w });
       const d = spHit(t, 'breakdown', 'default', C.LEAD);
       put(S.bd, { o: d > 0.001 ? 1 : 0, x: S.pos2.x, y: S.pos2.y + 200 * (1 - d), s: S.K2 * (0.9 + 0.1 * d), r: 2.5 * (1 - d) });
@@ -203,7 +205,7 @@
     run(t, b, S) {
       drawDots(S.ctx, t, S.pts);
       put(S.cam, { s: 1 + 0.06 * ease.inOut(seg(t, 'end', 'done')) });
-      const m = spHit(t, 'end', 'heavy');
+      const m = spHit(t, 'end', 'heavy', C.LEAD);
       put(S.mark, { o: m > 0.001 ? 1 : 0, s: 0.82 + 0.18 * m });
       rise(t, S.word, 'end', null, { stagger: 0.1 });
       rise(t, S.tag, beatOf('tag') - 0.1, null, { stagger: 0.04, preset: 'snappy' });
