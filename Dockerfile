@@ -18,15 +18,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --user --upgrade pip \
-    && pip install --user -r requirements.txt
+# --prefix (not --user): HF Spaces runs the container as uid 1000, which
+# can't read /root/.local. /install is copied to /usr/local below.
+RUN pip install --upgrade pip \
+    && pip install --prefix=/install -r requirements.txt
 
 # ---- Stage 2: runtime ----
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH=/root/.local/bin:$PATH \
     # HF Spaces caches HuggingFace models in /tmp by default (writable).
     HF_HOME=/app/.cache/huggingface \
     TRANSFORMERS_CACHE=/app/.cache/huggingface
@@ -39,7 +40,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Bring deps over from builder
-COPY --from=builder /root/.local /root/.local
+COPY --from=builder /install /usr/local
 COPY . .
 
 # ---- Build-time setup ----
@@ -58,7 +59,10 @@ RUN DJANGO_SECRET_KEY=$BUILD_SK DJANGO_DEBUG=False \
     python predictor/training/train_xgboost.py && \
     echo "[build] Ingesting RAG knowledge base..." && \
     DJANGO_SECRET_KEY=$BUILD_SK DJANGO_DEBUG=False \
-    python manage.py ingest_seed || echo "[build] non-critical step failed (release.sh will retry)"
+    python manage.py ingest_seed || echo "[build] non-critical step failed (release.sh will retry)"; \
+    # HF runs as uid 1000, not root: release.sh must still be able to write the
+    # SQLite DB, staticfiles, model, vector store and HF cache under /app.
+    chmod -R a+rwX /app
 
 # Make release script executable
 RUN chmod +x release.sh || true
