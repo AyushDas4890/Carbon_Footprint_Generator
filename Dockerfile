@@ -28,8 +28,16 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY requirements.txt .
 # --prefix (not --user): HF Spaces runs the container as uid 1000, which
 # can't read /root/.local. /install is copied to /usr/local below.
+# CPU-only torch goes in first: the default PyPI wheel pulls ~3 GB of CUDA
+# libraries the CPU-only Space never uses. PYTHONPATH lets the second install
+# see that torch as already satisfied instead of fetching the CUDA build.
 RUN pip install --upgrade pip \
-    && pip install --prefix=/install -r requirements.txt
+    && pip install --prefix=/install torch --index-url https://download.pytorch.org/whl/cpu \
+    && PYTHONPATH=/install/lib/python3.11/site-packages \
+       pip install --prefix=/install -r requirements.txt \
+    && if ls /install/lib/python3.11/site-packages | grep -qi '^nvidia'; then \
+         echo "CUDA wheels were installed; torch must come from the CPU index" >&2; exit 1; \
+       fi
 
 # ---- Stage 2: runtime ----
 FROM python:3.11-slim
