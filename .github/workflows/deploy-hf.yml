@@ -1,0 +1,39 @@
+name: Deploy to HF Space
+
+# HuggingFace Spaces rebuild from their own git repo, so a green main has to be
+# pushed there. Runs after CI succeeds on main, or manually from the Actions tab.
+# Needs a repository secret HF_TOKEN with write access to the Space.
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-hf
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Push main to HuggingFace Space
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout the commit CI tested
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+
+      - name: Push to Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE: AD074890/c4future
+        run: |
+          if [ -z "$HF_TOKEN" ]; then
+            echo "::error::Missing HF_TOKEN secret (Settings → Secrets and variables → Actions)."
+            exit 1
+          fi
+          git push "https://AD074890:${HF_TOKEN}@huggingface.co/spaces/${HF_SPACE}" HEAD:main

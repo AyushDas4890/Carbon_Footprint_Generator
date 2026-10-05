@@ -1,7 +1,15 @@
 # ===== C4Future Production Dockerfile =====
-# Multi-stage build: small final image, no build tools in prod.
+# Multi-stage build: small final image, no build tools (or Node) in prod.
 # Optimised for HuggingFace Spaces (port 7860) and any platform that
 # respects $PORT (Render, Railway, Fly.io, Cloud Run, etc.).
+
+# ---- Stage 0: frontend (React + Vite → frontend/dist) ----
+FROM node:22-slim AS frontend
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY frontend/ ./
+RUN npm run build
 
 # ---- Stage 1: builder ----
 FROM python:3.11-slim AS builder
@@ -18,15 +26,28 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
-RUN pip install --user --upgrade pip \
-    && pip install --user -r requirements.txt
+# --prefix (not --user): HF Spaces runs the container as uid 1000, which
+# can't read /root/.local. /install is copied to /usr/local below.
+# CPU-only builds of torch and xgboost go in first: the default PyPI wheels pull
+# ~3 GB of CUDA libraries (torch) and NCCL (xgboost) the CPU-only Space never
+# uses. xgboost-cpu is the same module at the same pinned version, so it is
+# swapped in for the xgboost line; PYTHONPATH lets the main install see torch as
+# already satisfied instead of fetching the CUDA build.
+RUN pip install --upgrade pip \
+    && pip install --prefix=/install torch --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --prefix=/install --no-deps "xgboost-cpu==$(sed -n 's/^xgboost==\([0-9.]*\).*/\1/p' requirements.txt)" \
+    && grep -v '^xgboost==' requirements.txt > /tmp/requirements-cpu.txt \
+    && PYTHONPATH=/install/lib/python3.11/site-packages \
+       pip install --prefix=/install -r /tmp/requirements-cpu.txt \
+    && if ls /install/lib/python3.11/site-packages | grep -qi '^nvidia'; then \
+         echo "CUDA wheels were installed; torch must come from the CPU index" >&2; exit 1; \
+       fi
 
 # ---- Stage 2: runtime ----
 FROM python:3.11-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PATH=/root/.local/bin:$PATH \
     # HF Spaces caches HuggingFace models in /tmp by default (writable).
     HF_HOME=/app/.cache/huggingface \
     TRANSFORMERS_CACHE=/app/.cache/huggingface
@@ -39,8 +60,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 WORKDIR /app
 
 # Bring deps over from builder
-COPY --from=builder /root/.local /root/.local
+COPY --from=builder /install /usr/local
 COPY . .
+# Built SPA must exist before collectstatic (settings adds it to STATICFILES_DIRS).
+COPY --from=frontend /frontend/dist ./frontend/dist
 
 # ---- Build-time setup ----
 # 1. collectstatic so WhiteNoise serves /static/ in prod
@@ -58,7 +81,10 @@ RUN DJANGO_SECRET_KEY=$BUILD_SK DJANGO_DEBUG=False \
     python predictor/training/train_xgboost.py && \
     echo "[build] Ingesting RAG knowledge base..." && \
     DJANGO_SECRET_KEY=$BUILD_SK DJANGO_DEBUG=False \
-    python manage.py ingest_seed || echo "[build] non-critical step failed (release.sh will retry)"
+    python manage.py ingest_seed || echo "[build] non-critical step failed (release.sh will retry)"; \
+    # HF runs as uid 1000, not root: release.sh must still be able to write the
+    # SQLite DB, staticfiles, model, vector store and HF cache under /app.
+    chmod -R a+rwX /app
 
 # Make release script executable
 RUN chmod +x release.sh || true

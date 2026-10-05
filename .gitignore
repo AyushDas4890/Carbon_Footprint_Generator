@@ -25,3 +25,7 @@ staticfiles/
 
 # Git LFS leftovers (we're going Docker-only)
 .gitattributes
+
+# React frontend (built by Vite in Docker/CI)
+frontend/node_modules/
+frontend/dist/

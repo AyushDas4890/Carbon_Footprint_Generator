@@ -54,9 +54,11 @@ def test_calibration():
     np.random.seed(0)
     n = 2000
     y_true = np.random.normal(10, 3, n)
-    # Deliberately narrow intervals → ~50% raw coverage
-    y_lower = y_true - 1.0 + np.random.normal(0, 0.5, n)
-    y_upper = y_true + 1.0 + np.random.normal(0, 0.5, n)
+    # Narrow ±1 intervals around a noisy (σ=2) point prediction → ~38% raw coverage.
+    # Centring on y_true instead would over-cover and correctly yield q_hat < 0.
+    y_pred = y_true + np.random.normal(0, 2.0, n)
+    y_lower = y_pred - 1.0
+    y_upper = y_pred + 1.0
 
     raw_cov, _ = evaluate_coverage(y_true, y_lower, y_upper)
     q_hat = fit_conformal_offset(y_true, y_lower, y_upper, alpha=0.10)
