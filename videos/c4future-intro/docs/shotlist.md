@@ -1,6 +1,6 @@
 # Shotlist: C4Future intro · 19 s · 120 BPM · 38 beats · formats 16x9, 9x16
 
-STATUS: DRAFT — waiting for the user's OK.
+STATUS: APPROVED (2026-10-05)
 
 | # | Beats | Time (s) | Shot | On-screen text (exact) | Motion | SFX | 9:16 notes |
 |---|---|---|---|---|---|---|---|

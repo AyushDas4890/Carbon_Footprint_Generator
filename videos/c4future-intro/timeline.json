@@ -1,50 +1,196 @@
 {
   "note": "Single source of truth for picture + sound. Everything is in BEATS on the measured grid (beats.json). film.js reads marks via data.js; sync.mjs turns sfx events into cues.json; music.py reads music.sections.",
-  "title": "C4Future — intro",
+  "title": "C4Future \u2014 intro",
   "duration": 19,
   "fps": 60,
   "bpm": 120,
-  "formats": ["16x9", "9x16"],
+  "formats": [
+    "16x9",
+    "9x16"
+  ],
   "music": {
     "source": "synth",
-    "chords": ["Em", "C", "G", "D"],
-    "sections": [
-      { "at": "hook",   "kind": "intro" },
-      { "at": "calc",   "kind": "full" },
-      { "at": "mont",   "kind": "build" },
-      { "at": "gap",    "kind": "gap" },
-      { "at": "end",    "kind": "drop" }
+    "chords": [
+      "Em",
+      "C",
+      "G",
+      "D"
     ],
-    "accents": ["end"]
+    "sections": [
+      {
+        "at": "hook",
+        "kind": "intro"
+      },
+      {
+        "at": "calc",
+        "kind": "full"
+      },
+      {
+        "at": "mont",
+        "kind": "build"
+      },
+      {
+        "at": "gap",
+        "kind": "gap"
+      },
+      {
+        "at": "end",
+        "kind": "drop"
+      }
+    ],
+    "accents": [
+      "end"
+    ]
   },
   "voiceover": null,
   "marks": {
-    "hook": 0, "hook_w2": 1, "hook_w3": 2, "hook_cc": 3,
-    "calc": 8, "type_in": 9, "type_out": 11, "press": 12,
-    "result": 16, "count_end": 18, "breakdown": 20,
-    "mont": 24, "m_ins": 24, "m_cmp": 26, "m_dec": 28, "m_adv": 30,
+    "hook": 0,
+    "hook_w2": 1,
+    "hook_w3": 2,
+    "hook_cc": 3,
+    "calc": 8,
+    "type_in": 9,
+    "type_out": 11,
+    "press": 12,
+    "result": 16,
+    "count_end": 18,
+    "breakdown": 20,
+    "mont": 24,
+    "m_ins": 24,
+    "m_cmp": 26,
+    "m_dec": 28,
+    "m_adv": 30,
     "gap": 31.5,
-    "end": 32, "tag": 33.5, "cta": 35, "sweep": 36.5,
-    "done": 38
+    "end": 32,
+    "tag": 33.5,
+    "cta": 35,
+    "sweep": 36.5,
+    "done": 38,
+    "hook_q": 5.5,
+    "ci": 18.5
   },
   "sfx": [
-    { "at": "hook",      "type": "pop",     "gain": 0.7,  "what": "\"Every\" lands on frame 0" },
-    { "at": "hook_w2",   "type": "pop",     "gain": 0.5,  "what": "\"product\"" },
-    { "at": "hook_w3",   "type": "pop",     "gain": 0.5,  "what": "\"has a\"" },
-    { "at": "hook_cc",   "type": "thump",   "gain": 0.75, "what": "\"carbon cost.\" in green" },
-    { "at": "calc",      "type": "shutter", "gain": 0.55, "what": "hard cut to calculator" },
-    { "at": 9, "to": 11, "every": 0.25, "type": "tick", "gain": 0.32, "what": "typing Cotton T-Shirt" },
-    { "at": "press",     "type": "click",   "gain": 0.8,  "what": "Calculate pressed" },
-    { "at": "result",    "type": "whoosh",  "gain": 0.6,  "what": "push into results" },
-    { "at": "count_end", "type": "pop",     "gain": 0.8,  "what": "2.94 lands" },
-    { "at": "breakdown", "type": "pop",     "gain": 0.55, "what": "breakdown card rises" },
-    { "at": "m_ins",     "type": "shutter", "gain": 0.55, "what": "cut: Insights" },
-    { "at": "m_cmp",     "type": "shutter", "gain": 0.55, "what": "cut: Compare" },
-    { "at": "m_dec",     "type": "shutter", "gain": 0.55, "what": "cut: Decompose" },
-    { "at": "m_adv",     "type": "shutter", "gain": 0.55, "what": "cut: Advisor" },
-    { "at": "end",       "type": "riser",   "gain": 0.5,  "what": "riser peaks on the logo" },
-    { "at": "end",       "type": "thump",   "gain": 0.9,  "what": "logo lands" },
-    { "at": "tag",       "type": "pop",     "gain": 0.45, "what": "tagline" },
-    { "at": "cta",       "type": "pop",     "gain": 0.6,  "what": "CTA" }
+    {
+      "at": "hook",
+      "type": "pop",
+      "gain": 0.7,
+      "what": "\"Every\" lands on frame 0"
+    },
+    {
+      "at": "hook_w2",
+      "type": "pop",
+      "gain": 0.5,
+      "what": "\"product\""
+    },
+    {
+      "at": "hook_w3",
+      "type": "pop",
+      "gain": 0.5,
+      "what": "\"has a\""
+    },
+    {
+      "at": "hook_cc",
+      "type": "thump",
+      "gain": 0.75,
+      "what": "\"carbon cost.\" in green"
+    },
+    {
+      "at": "hook_q",
+      "type": "pop",
+      "gain": 0.6,
+      "what": "\"What's yours?\""
+    },
+    {
+      "at": "calc",
+      "type": "shutter",
+      "gain": 0.55,
+      "what": "hard cut to calculator"
+    },
+    {
+      "at": 9,
+      "to": 11,
+      "every": 0.25,
+      "type": "tick",
+      "gain": 0.32,
+      "what": "typing Cotton T-Shirt"
+    },
+    {
+      "at": "press",
+      "type": "click",
+      "gain": 0.8,
+      "what": "Calculate pressed"
+    },
+    {
+      "at": "result",
+      "type": "whoosh",
+      "gain": 0.6,
+      "what": "push into results"
+    },
+    {
+      "at": "ci",
+      "type": "pop",
+      "gain": 0.45,
+      "what": "underline under the 95% interval"
+    },
+    {
+      "at": "count_end",
+      "type": "pop",
+      "gain": 0.8,
+      "what": "2.94 lands"
+    },
+    {
+      "at": "breakdown",
+      "type": "pop",
+      "gain": 0.55,
+      "what": "breakdown card rises"
+    },
+    {
+      "at": "m_ins",
+      "type": "shutter",
+      "gain": 0.55,
+      "what": "cut: Insights"
+    },
+    {
+      "at": "m_cmp",
+      "type": "shutter",
+      "gain": 0.55,
+      "what": "cut: Compare"
+    },
+    {
+      "at": "m_dec",
+      "type": "shutter",
+      "gain": 0.55,
+      "what": "cut: Decompose"
+    },
+    {
+      "at": "m_adv",
+      "type": "shutter",
+      "gain": 0.55,
+      "what": "cut: Advisor"
+    },
+    {
+      "at": "end",
+      "type": "riser",
+      "gain": 0.5,
+      "what": "riser peaks on the logo"
+    },
+    {
+      "at": "end",
+      "type": "thump",
+      "gain": 0.9,
+      "what": "logo lands"
+    },
+    {
+      "at": "tag",
+      "type": "pop",
+      "gain": 0.45,
+      "what": "tagline"
+    },
+    {
+      "at": "cta",
+      "type": "pop",
+      "gain": 0.6,
+      "what": "CTA"
+    }
   ]
 }

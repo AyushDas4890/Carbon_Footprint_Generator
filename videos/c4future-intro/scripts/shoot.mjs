@@ -23,6 +23,20 @@ fs.mkdirSync('assets/cap', { recursive: true });
 
 await page.goto(BASE + '/', { waitUntil: 'networkidle' }); await hideCursor(); await settle();
 await page.screenshot({ path: 'assets/cap/home_hero.png' });
+const geo = {};
+const rel = (sel, inner) => page.evaluate(([a, b]) => {
+  const A = document.querySelector(a).getBoundingClientRect(), B = document.querySelector(b), r = B.getBoundingClientRect(), cs = getComputedStyle(B);
+  return { x: r.left - A.left, y: r.top - A.top, w: r.width, h: r.height, W: A.width, H: A.height, font: cs.fontSize, weight: cs.fontWeight, color: cs.color, family: cs.fontFamily, pl: cs.paddingLeft };
+}, [sel, inner]);
+// empty calculator card, placeholder cleared: the film types "Cotton T-Shirt" into the field itself
+await page.locator('#calculator').scrollIntoViewIfNeeded(); await page.waitForTimeout(600);
+await page.selectOption('#material', 'Cotton'); await page.selectOption('#transportMode', 'SEA');
+await page.evaluate(() => { for (const [id, v] of [['weight', 0.3], ['distance', 8000]]) { const e = document.getElementById(id); e.value = v; e.dispatchEvent(new Event('input')); } });
+await page.evaluate(() => { document.getElementById('productName').placeholder = ''; });
+await page.mouse.move(0, 0);
+geo.form = { field: await rel('#calculator', '#productName'), button: await rel('#calculator', '#carbonForm button[type=submit]') };
+await page.locator('#calculator').screenshot({ path: 'assets/cap/el_form.png' });
+await page.evaluate(() => { document.getElementById('productName').placeholder = 'e.g. Cotton T-Shirt'; });
 await page.fill('#productName', 'Cotton T-Shirt');
 await page.selectOption('#material', { index: 1 }).catch(() => {});
 const mats = await page.$$eval('#material option', (o) => o.map((x) => x.value));
@@ -34,11 +48,19 @@ await page.locator('#calculator').screenshot({ path: 'assets/cap/form.png' });
 await Promise.all([page.waitForURL('**/results/', { timeout: 30000 }), page.evaluate(() => document.getElementById('carbonForm').requestSubmit())]);
 await hideCursor(); await settle();
 await page.screenshot({ path: 'assets/cap/results.png' });
+geo.result = { value: await rel('.result-hero-card', '#resultValue'), text: await page.textContent('#resultValue'),
+  ciLow: await page.textContent('#ciLow'), ciHigh: await page.textContent('#ciHigh') };
+await page.locator('.result-hero-card').screenshot({ path: 'assets/cap/el_result.png' });
+await page.evaluate(() => { document.getElementById('resultValue').style.visibility = 'hidden'; });
+await page.locator('.result-hero-card').screenshot({ path: 'assets/cap/el_result_blank.png' });
+await page.evaluate(() => { document.getElementById('resultValue').style.visibility = ''; });
+await page.locator('.results-layout .glass-card').first().screenshot({ path: 'assets/cap/el_breakdown.png' });
 await page.screenshot({ path: 'assets/cap/results_full.png', fullPage: true });
 for (const p of ['insights', 'compare', 'decompose', 'advisor']) {
   await page.goto(`${BASE}/${p}/`, { waitUntil: 'networkidle' }); await hideCursor(); await settle();
   await page.screenshot({ path: `assets/cap/${p}.png` });
   await page.screenshot({ path: `assets/cap/${p}_full.png`, fullPage: true });
 }
+fs.writeFileSync('assets/cap/geo.json', JSON.stringify(geo, null, 2));
 await browser.close();
 console.log('mats:', mats.slice(0, 12).join(','));
