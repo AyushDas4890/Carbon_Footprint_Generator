@@ -1,0 +1,9 @@
+# Regenerable: screenshots (node scripts/shoot.mjs), CDN cache, audio (scripts/music.py etc.), renders and review output
+.owner
+assets/cap/
+assets/site/
+assets/cdn/
+audio/
+renders/
+review/
+node_modules
