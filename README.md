@@ -325,6 +325,10 @@ git remote add hf https://huggingface.co/spaces/<your-user>/c4future
 git push hf main
 ```
 
+**Auto-deploy:** `.github/workflows/deploy-hf.yml` pushes `main` to the Space after every
+green CI run (or on demand from the Actions tab). Add a repository secret `HF_TOKEN` with
+write access to the Space, and change `HF_SPACE` in the workflow if you deploy your own copy.
+
 </details>
 
 <br>
