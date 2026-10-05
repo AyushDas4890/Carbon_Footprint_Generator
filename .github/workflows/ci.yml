@@ -36,6 +36,15 @@ jobs:
           DJANGO_SECRET_KEY: ci-not-secret
           DJANGO_DEBUG: "False"
 
+      # Model + eval artifacts are gitignored; build them so the smoke tests can load them.
+      - name: Build ML artifacts
+        run: |
+          python predictor/training/data_adapter.py
+          python predictor/training/train_xgboost.py
+        env:
+          DJANGO_SECRET_KEY: ci-not-secret
+          DJANGO_DEBUG: "False"
+
       - name: Run tests
         run: pytest -q
         env:
