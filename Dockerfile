@@ -1,7 +1,15 @@
 # ===== C4Future Production Dockerfile =====
-# Multi-stage build: small final image, no build tools in prod.
+# Multi-stage build: small final image, no build tools (or Node) in prod.
 # Optimised for HuggingFace Spaces (port 7860) and any platform that
 # respects $PORT (Render, Railway, Fly.io, Cloud Run, etc.).
+
+# ---- Stage 0: frontend (React + Vite → frontend/dist) ----
+FROM node:22-slim AS frontend
+WORKDIR /frontend
+COPY frontend/package.json frontend/package-lock.json ./
+RUN npm ci --no-audit --no-fund
+COPY frontend/ ./
+RUN npm run build
 
 # ---- Stage 1: builder ----
 FROM python:3.11-slim AS builder
@@ -42,6 +50,8 @@ WORKDIR /app
 # Bring deps over from builder
 COPY --from=builder /install /usr/local
 COPY . .
+# Built SPA must exist before collectstatic (settings adds it to STATICFILES_DIRS).
+COPY --from=frontend /frontend/dist ./frontend/dist
 
 # ---- Build-time setup ----
 # 1. collectstatic so WhiteNoise serves /static/ in prod

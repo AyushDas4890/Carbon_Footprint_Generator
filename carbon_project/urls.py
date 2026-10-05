@@ -2,8 +2,6 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
-from django.conf import settings
-from django.conf.urls.static import static
 
 
 def healthcheck(_request):
@@ -18,6 +16,3 @@ urlpatterns = [
     path('', include('advisor.urls')),
     path('', include('core.urls')),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
