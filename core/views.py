@@ -1,40 +1,17 @@
-"""Core page views — home form, results, insights, compare, decompose."""
-import json
-from django.shortcuts import render
-from predictor.services import CarbonFootprintService
+"""Serves the React single-page app (built from frontend/ by Vite)."""
+from django.conf import settings
+from django.http import HttpResponse
+
+SPA_INDEX = settings.BASE_DIR / 'frontend' / 'dist' / 'index.html'
 
 
-def home_view(request):
-    """Landing page with product input form"""
-    service = CarbonFootprintService()
-    materials = service.get_available_materials()
-    return render(request, 'home.html', {
-        'materials': materials,
-        'transport_modes': ['AIR', 'SEA', 'ROAD', 'RAIL'],
-    })
-
-
-def results_view(request):
-    """Results dashboard (loaded dynamically via AJAX)"""
-    return render(request, 'results.html')
-
-
-def insights_view(request):
-    """Model insights and compensation strategies"""
-    service = CarbonFootprintService()
-    return render(request, 'insights.html', {
-        'model_info': service.get_model_info(),
-    })
-
-
-def compare_view(request):
-    """Side-by-side product comparison UI."""
-    service = CarbonFootprintService()
-    return render(request, 'compare.html', {
-        'materials_json': json.dumps(service.get_available_materials()),
-    })
-
-
-def decompose_view(request):
-    """LLM-powered Bill-of-Materials decomposer UI."""
-    return render(request, 'decompose.html')
+def spa_view(request):
+    """Return the SPA shell; React Router renders the page for this URL client-side."""
+    try:
+        html = SPA_INDEX.read_text(encoding='utf-8')
+    except FileNotFoundError:
+        return HttpResponse(
+            'Frontend not built. Run: npm --prefix frontend ci && npm --prefix frontend run build',
+            status=503, content_type='text/plain',
+        )
+    return HttpResponse(html)

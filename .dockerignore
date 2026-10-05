@@ -18,3 +18,5 @@ node_modules/
 .pytest_cache/
 mlruns/
 staticfiles/
+frontend/node_modules/
+frontend/dist/

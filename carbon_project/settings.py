@@ -137,7 +137,9 @@ USE_TZ = True
 
 # ===== Static files =====
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+# Vite builds the React app into frontend/dist (index.html + hashed assets/).
+_frontend_dist = BASE_DIR / 'frontend' / 'dist'
+STATICFILES_DIRS = [_frontend_dist] if _frontend_dist.exists() else []
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 

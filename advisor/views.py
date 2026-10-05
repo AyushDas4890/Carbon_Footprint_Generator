@@ -1,10 +1,9 @@
 """
-Advisor views — page render + JSON chat + SSE streaming endpoint.
+Advisor views — knowledge-base info + JSON chat + SSE streaming endpoint.
 """
 import json
 import logging
 from django.http import StreamingHttpResponse
-from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_POST
 from rest_framework.views import APIView
@@ -35,12 +34,15 @@ def _persist_messages(session_key: str, question: str, answer: str,
         logger.warning("Failed to persist chat history", exc_info=True)
 
 
-def advisor_page(request):
-    docs = IngestedDocument.objects.all()[:20]
-    return render(request, 'advisor.html', {
-        'ingested_docs': docs,
-        'doc_count': IngestedDocument.objects.count(),
-    })
+class KnowledgeBaseView(APIView):
+    """GET /api/advisor/kb/ — indexed document count + a few source names."""
+
+    def get(self, request):
+        return Response({
+            "success": True,
+            "doc_count": IngestedDocument.objects.count(),
+            "docs": list(IngestedDocument.objects.values_list("source_name", flat=True)[:20]),
+        })
 
 
 class ChatView(APIView):
