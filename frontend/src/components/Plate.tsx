@@ -11,15 +11,15 @@ export type PlateKind = 'contour' | 'plume' | 'routes' | 'ridges' | 'halftone' |
 interface Props {
   kind: PlateKind;
   seed?: number;
-  /** 'paper' = ink on stone; 'ink' = stone on near-black. */
+  /** 'paper' = green ink on sage; 'ink' = sage on deep green. */
   tone?: 'paper' | 'ink';
   className?: string;
   label?: string;
 }
 
 const COLORS = {
-  paper: { bg: '#e3dfd6', fg: '#0e0e0c', accent: '#e0481d' },
-  ink: { bg: '#141412', fg: '#edeae3', accent: '#e0481d' },
+  paper: { bg: '#e2e6dd', fg: '#2b3a30', accent: '#b4502a' },
+  ink: { bg: '#223027', fg: '#ebeee7', accent: '#d98a5f' },
 };
 
 function rng(seed: number) {

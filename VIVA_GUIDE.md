@@ -24,7 +24,7 @@ The project follows a **Modified Model-View-Template (MVT)** architecture integr
 | **Django** | Web Framework | Provides robust security, built-in admin panel, and excellent ORM for database management. |
 | **Scikit-learn** | Machine Learning | Industry standard for Python; the Random Forest algorithm deals well with non-linear relationships in emission data. |
 | **Hand-built React charts** | Visualization | Plain DOM bars animated with Motion, values printed on every row and exact figures on hover; no chart library to ship, and they follow the design tokens. |
-| **Editorial design system (CSS tokens)** | Design Style | Stone paper, near-black ink and one ember accent keep the data legible and give C4Future a distinct, print-like identity. |
+| **Editorial design system (CSS tokens)** | Design Style | Sage paper, dark green ink and one rust accent, with Fraunces and Inter, keep the data legible and give C4Future a distinct engraved, print-like identity. |
 | **Singleton Pattern** | Design Pattern | Used in `CarbonFootprintService` to ensure the ML model is loaded into memory only once, saving server resources. |
 
 ---
