@@ -22,20 +22,30 @@ behaviour below 1100px, 820px and 761px (see "Small screens").
 
 ## 1. Home (`/`)
 
-**Hero**
+**Intro (scroll-zoom), the first screen**
 
-- [ ] The pill nav drops in from the top; the headline lines rise out of their
-      masks one after another.
-- [ ] The dotted globe fades and scales in, spins slowly, and its orange
-      electrons travel the three orbits and disappear behind the sphere.
-- [ ] Dragging the globe sideways spins it faster; after release it eases back
-      to its idle speed.
-- [ ] Scrolling out of the hero shrinks, lifts and tilts the globe.
+- [ ] The pill nav drops in from the top; "The hidden" and *number* rise in on
+      either side of a thin rounded dark bar, centred between them.
+- [ ] Scrolling holds the section in place while the bar swells into a capsule
+      and then fills the screen with the contour plate; the headline halves
+      slide apart.
+- [ ] The stat numbers roll up from zero once the plate is open.
+
+**Hero (Overview)**
+
+- [ ] The compass, `c4future` wordmark, tagline, nav and credits line rise in
+      one after another.
+- [ ] The engraved viaduct fills the lower part of the screen with no white
+      box around it (it multiplies into the paper); a stagecoach crosses it.
+- [ ] Hovering a nav link draws an underline from the left.
+- [ ] The section is exactly one screen tall: no gap, no cut-off.
 
 **Dial nav (right edge)**
 
 - [ ] The readout shows `01/06` and changes as each section crosses the middle
       of the screen.
+- [ ] The dial is dark green on paper and turns paper-coloured over the open
+      plate and the footer.
 - [ ] Labels turn on a drum; the active one lines up with the needle and the
       others tilt away and fade.
 - [ ] Clicking a label glides to that section.
@@ -44,12 +54,6 @@ behaviour below 1100px, 820px and 761px (see "Small screens").
 
 - [ ] Words brighten one by one as the paragraph scrolls up; scrolling back
       dims them again.
-
-**Model (scroll-zoom)**
-
-- [ ] The section holds in place while a small framed plate opens to fill the
-      screen, and "The hidden" / "number" slide apart.
-- [ ] The stat numbers roll up from zero once the frame is open.
 
 **Tools (image scroller)**
 
@@ -60,6 +64,12 @@ behaviour below 1100px, 820px and 761px (see "Small screens").
       gap, no cut-off card).
 - [ ] The "Predict" card glides to the calculator; the others route to their
       pages.
+
+**Start**
+
+- [ ] The dotted globe beside the closing call to action spins slowly; its
+      rust electrons travel the orbits and disappear behind the sphere.
+- [ ] Dragging the globe spins it faster; after release it eases back to idle.
 
 **Pill nav**
 

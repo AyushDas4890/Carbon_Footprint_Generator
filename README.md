@@ -165,7 +165,7 @@ Streams responses with citations.
 <td valign="top">
 
 ### 🎨 UX Polish
-- ✅ React editorial design system: stone paper, ink, one ember accent, serif display type
+- ✅ Engraved editorial design system: sage paper, green ink, one rust accent, Fraunces + Inter
 - ✅ Seven motion components: pill nav, dotted atomic globe, scroll text reveals, scroll-zoom section, horizontal image scroller, rotary section dial, draggable lanyard pass
 - ✅ Generative canvas plates as imagery (no binary images) + hand-built animated bar charts
 - ✅ GSAP ScrollTrigger + SplitText, Motion page transitions, Lenis smooth scroll

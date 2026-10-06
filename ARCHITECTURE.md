@@ -90,7 +90,7 @@ sustainability advisor, and an agentic Bill-of-Materials decomposer.
   `/`, `/results/`, `/insights/`, `/compare/`, `/decompose/` and
   `/advisor/`; WhiteNoise serves the hashed assets under `/static/`. In
   development Vite runs on :5173 and proxies `/api` and `/health` to Django.
-- **Pages** (`src/pages/`): Home (hero + calculator), Results, Insights,
+- **Pages** (`src/pages/`): Home (scroll-zoom intro, engraving hero, calculator), Results, Insights,
   Compare, Decompose, Advisor. All but Home are lazy-loaded.
 - **Kit components** (`src/components/kit/`): `PillNav`, `AtomicGlobe`,
   `TextReveal` (`TextRevealOnScroll`, `SplitHeading`), `ScrollZoomReveal`,

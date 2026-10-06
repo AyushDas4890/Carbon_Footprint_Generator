@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'motion/react';
 import { api, COUNTRIES, END_OF_LIFE, TRANSPORT_MODES, type Country, type EndOfLife, type TransportMode } from '../lib/api';
 import { prettyMaterial, saveResult } from '../lib/result';
-import { ScrollTrigger, useGSAP } from '../lib/gsap';
 import { AtomicGlobe } from '../components/kit/AtomicGlobe';
 import { ScrollZoomReveal } from '../components/kit/ScrollZoomReveal';
 import { ImageScroller, type ScrollerItem } from '../components/kit/ImageScroller';
 import { SplitHeading, TextRevealOnScroll } from '../components/kit/TextReveal';
 import { VerticalDialNav } from '../components/kit/VerticalDialNav';
+import { Hero } from '../components/Hero';
 import { Plate } from '../components/Plate';
 import { Button } from '../components/ui/Button';
 import { CountUp } from '../components/ui/CountUp';
@@ -17,8 +17,8 @@ import { Segmented } from '../components/ui/Segmented';
 
 const SECTIONS = [
   { id: 'intro', label: 'Intro' },
+  { id: 'overview', label: 'Overview' },
   { id: 'why', label: 'Why' },
-  { id: 'model', label: 'Model' },
   { id: 'calculate', label: 'Calculate' },
   { id: 'tools', label: 'Tools' },
   { id: 'start', label: 'Start' },
@@ -123,8 +123,6 @@ function Calculator({ materials, loadError }: { materials: string[]; loadError: 
 }
 
 export default function Home() {
-  const hero = useRef<HTMLElement>(null);
-  const globeProgress = useRef(0);
   const [materials, setMaterials] = useState<string[]>([]);
   const [coverage, setCoverage] = useState<number | null>(null);
   const [loadError, setLoadError] = useState('');
@@ -135,20 +133,6 @@ export default function Home() {
       .then((m) => setCoverage(m.conformal_coverage_90 ?? null))
       .catch((e: Error) => console.warn('Model info unavailable:', e.message));
   }, []);
-
-  // Feed hero scroll progress into the globe so it tilts away as you leave.
-  useGSAP(
-    () => {
-      const st = ScrollTrigger.create({
-        trigger: hero.current,
-        start: 'top top',
-        end: 'bottom top',
-        onUpdate: (self) => { globeProgress.current = self.progress; },
-      });
-      return () => st.kill();
-    },
-    { scope: hero },
-  );
 
   const stats = [
     { v: 14000, s: '+', d: 0, label: 'Training rows' },
@@ -163,47 +147,8 @@ export default function Home() {
     <>
       <VerticalDialNav sections={SECTIONS} />
 
-      <section ref={hero} id="intro" className="hero tone-ink">
-        <div className="container hero-grid">
-          <div className="hero-copy">
-            <motion.p className="mono eyebrow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
-              Carbon intelligence for physical products
-            </motion.p>
-            <SplitHeading as="h1" className="display hero-title" trigger="load" delay={0.5}>
-              Every object carries a <em>carbon weight.</em>
-            </SplitHeading>
-            <motion.p className="lead" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }}>
-              C4Future estimates a product&rsquo;s lifecycle emissions from five inputs — material, mass, origin, freight and end-of-life — and tells you how sure it is.
-            </motion.p>
-            <motion.div className="cta-row" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.15, duration: 0.8 }}>
-              <Button href="#calculate" variant="accent">Calculate a footprint</Button>
-              <Button to="/advisor/" variant="line">Ask the advisor</Button>
-            </motion.div>
-          </div>
-          <motion.div className="hero-globe" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 1.6, ease: [0.16, 1, 0.3, 1] }}>
-            <AtomicGlobe progress={globeProgress} />
-            <span className="hero-globe-caption mono">Drag to spin</span>
-          </motion.div>
-        </div>
-        <motion.div className="hero-meta container mono" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
-          <span>XGBoost regressor</span>
-          <span>Conformal 90% intervals</span>
-          <span>TreeSHAP attributions</span>
-          <span>&lt; 100 ms inference</span>
-        </motion.div>
-      </section>
-
-      <section id="why" className="why">
-        <div className="container">
-          <p className="mono eyebrow">01 — Why</p>
-          <TextRevealOnScroll className="why-text">
-            A cotton shirt flown out of Shanghai can emit more <em>in the air</em> than it did in the field. Most of a product&rsquo;s footprint is decided before it exists — by what it is made of, where, and how it travels. C4Future puts a number on those choices, <em>with honest error bars,</em> while they can still change.
-          </TextRevealOnScroll>
-        </div>
-      </section>
-
-      <ScrollZoomReveal id="model" left="The hidden" right="number" media={<Plate kind="contour" seed={14} tone="ink" label="Topographic contour plate" />}>
-        <p className="mono eyebrow">02 — The model</p>
+      <ScrollZoomReveal id="intro" left="The hidden" right="number" media={<Plate kind="contour" seed={14} tone="ink" label="Topographic contour plate" />}>
+        <p className="mono eyebrow">01 — The model</p>
         <div className="szr-stats">
           {stats.map((s) => (
             <div key={s.label} className="szr-stat">
@@ -213,6 +158,17 @@ export default function Home() {
           ))}
         </div>
       </ScrollZoomReveal>
+
+      <Hero id="overview" />
+
+      <section id="why" className="why">
+        <div className="container">
+          <p className="mono eyebrow">02 — Why</p>
+          <TextRevealOnScroll className="why-text">
+            A cotton shirt flown out of Shanghai can emit more <em>in the air</em> than it did in the field. Most of a product&rsquo;s footprint is decided before it exists — by what it is made of, where, and how it travels. C4Future puts a number on those choices, <em>with honest error bars,</em> while they can still change.
+          </TextRevealOnScroll>
+        </div>
+      </section>
 
       <section id="calculate" className="section calc-section">
         <div className="container calc-grid">
@@ -245,12 +201,18 @@ export default function Home() {
       />
 
       <section id="start" className="section start">
-        <div className="container">
-          <p className="mono eyebrow">05 — Start</p>
-          <SplitHeading className="display start-title">Your product. <em>Its real footprint.</em></SplitHeading>
-          <div className="cta-row">
-            <Button href="#calculate" variant="accent">Calculate a footprint</Button>
-            <Button to="/compare/" variant="line">Compare two products</Button>
+        <div className="container start-grid">
+          <div>
+            <p className="mono eyebrow">05 — Start</p>
+            <SplitHeading className="display start-title">Your product. <em>Its real footprint.</em></SplitHeading>
+            <div className="cta-row">
+              <Button href="#calculate" variant="accent">Calculate a footprint</Button>
+              <Button to="/compare/" variant="line">Compare two products</Button>
+            </div>
+          </div>
+          <div className="start-globe">
+            <AtomicGlobe />
+            <span className="start-globe-caption mono">Drag to spin</span>
           </div>
         </div>
       </section>

@@ -34,10 +34,10 @@ Three pieces cooperate, all set up once:
 | --- | --- | --- |
 | `TextRevealOnScroll` | `top 82%` → `bottom 45%`, `scrub: true` | Words (SplitText `type: 'words'`) go from opacity 0.14 to 1 with a 0.1 stagger. Reverses on scroll up. |
 | `SplitHeading` (`trigger="scroll"`) | `top 88%`, `once: true` | Masked lines rise from `yPercent: 110`. With `trigger="load"` there is no ScrollTrigger and it plays on mount after `delay`. |
-| `ScrollZoomReveal` | `top top` → `bottom bottom`, `scrub: 0.6` | The section is `320vh` tall with a sticky inner stage, so it "pins" through CSS rather than GSAP. One timeline opens the frame's `clip-path` from `inset(34% 37% …)` to `inset(0)`, scales the media 1.45 → 1, moves the headline halves to `xPercent ∓160`, fades the "Scroll to open" hint, then staggers the overlay copy in from 82% of the way through. |
+| `ScrollZoomReveal` | `top top` → `bottom bottom`, `scrub: 0.6` | The section is `320vh` tall with a sticky inner stage, so it "pins" through CSS rather than GSAP. One timeline opens the frame's `clip-path` from a thin rounded bar, `inset(48.4% 42% … round 999px)` (`inset(48.6% 30% …)` at 600px and below), to `inset(0)`. The CSS sets the same start value so nothing flashes before GSAP runs. The timeline also scales the media 1.45 → 1, moves the headline halves to `xPercent ∓160`, fades the "Scroll to open" hint, then staggers the overlay copy in from 82% of the way through. |
 | `ImageScroller` | `top top` → `+=(scrollWidth − innerWidth)`, `pin: true`, `scrub: 0.8` | The track translates left by exactly its overflow. Each `.isc-img-inner` uses `containerAnimation` to drift `xPercent −12 → 12` as its card crosses the viewport. A separate trigger scales the progress hairline from 0 to 1. `invalidateOnRefresh` re-measures on resize. Only active under `gsap.matchMedia('(min-width: 761px) and (prefers-reduced-motion: no-preference)')`; otherwise CSS turns the track into a native scroll-snap strip. |
-| `VerticalDialNav` | Own rAF loop, no ScrollTrigger | Each frame it reads the `top` of every section id, computes a continuous index (1.5 = halfway between sections 1 and 2) against the viewport midline, eases toward it (factor 0.14) and writes `translateY` on the drum and `rotateX`/`opacity` on each label and tick. |
-| `AtomicGlobe` (via Home) | `ScrollTrigger.create` on the hero, `top top` → `bottom top` | `onUpdate` writes `self.progress` into a ref passed as the globe's `progress` prop. The globe's own render loop reads it to shrink (−18%), lift and tilt the sphere. No React state, so no re-renders. |
+| `VerticalDialNav` | Own rAF loop, no ScrollTrigger | Each frame it reads the `top` of every section id, computes a continuous index (1.5 = halfway between sections 1 and 2) against the viewport midline, eases toward it (factor 0.14) and writes `translateY` on the drum and `rotateX`/`opacity` on each label and tick. Every sixth frame it hit-tests under the needle (`elementsFromPoint`, which respects `clip-path`) and toggles `is-on-dark` when the nearest `[data-surface]` ancestor is `dark`. Mark any new dark section with `data-surface="dark"`. |
+| `Hero` | Motion `whileInView`, `viewport={{ once: true, amount: 0.4 }}` | The compass, wordmark, tagline, nav and credits rise in with a 0.09s stagger. An `IntersectionObserver` (threshold 0.15) plays the background video only while the hero is visible. |
 | `CountUp` | `top 92%`, `once: true` | Rolls the number up from zero. Pass `onView={false}` to start on mount instead. |
 | Charts (`ui/Charts.tsx`) | Motion `whileInView`, `viewport={{ once: true }}` | Bars grow on `scaleX` (segments on `scaleY`) with a per-row delay. These use Motion's IntersectionObserver, not ScrollTrigger. |
 | `PillNav` | Motion `useScroll` | Hides when `scrollY` increases past 240px and reappears on any upward scroll, unless a menu is open. |
@@ -48,12 +48,12 @@ Three pieces cooperate, all set up once:
 
 ```ts
 const SECTIONS = [
-  { id: 'intro', label: 'Intro' },        // hero + AtomicGlobe
+  { id: 'intro', label: 'Intro' },        // ScrollZoomReveal + CountUp stats
+  { id: 'overview', label: 'Overview' },  // Hero (engraving video)
   { id: 'why', label: 'Why' },            // TextRevealOnScroll
-  { id: 'model', label: 'Model' },        // ScrollZoomReveal + CountUp stats
   { id: 'calculate', label: 'Calculate' },// calculator form
   { id: 'tools', label: 'Tools' },        // ImageScroller of Plate cards
-  { id: 'start', label: 'Start' },        // closing CTA
+  { id: 'start', label: 'Start' },        // closing CTA + AtomicGlobe
 ];
 ```
 
@@ -73,9 +73,9 @@ import { Plate } from '../components/Plate';
   Most of a product's footprint is decided <em>before it exists.</em>
 </TextRevealOnScroll>
 
-<ScrollZoomReveal id="model" left="The hidden" right="number"
+<ScrollZoomReveal id="intro" left="The hidden" right="number"
   media={<Plate kind="contour" seed={14} tone="ink" label="Topographic contour plate" />}>
-  <p className="mono eyebrow">02 — The model</p>
+  <p className="mono eyebrow">01 — The model</p>
 </ScrollZoomReveal>
 ```
 
@@ -95,8 +95,8 @@ accent once lit.
   for anything that depends on element sizes.
 - Don't add a second smooth-scroll or rAF-driven `scrollTo`; go through
   `scrollToTarget` so Lenis stays the single source of scroll position.
-- For per-frame values another component needs (like the globe's progress),
-  pass a ref, not state.
+- For per-frame values another component needs (like `AtomicGlobe`'s
+  `progress`), pass a ref, not state.
 
 ## Troubleshooting
 

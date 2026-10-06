@@ -93,7 +93,7 @@ function Dashboard({ stored }: { stored: StoredResult }) {
           <div>
             <SplitHeading as="h2" className="heading-sm">Production intensity, <em>kg CO₂e per kg</em></SplitHeading>
             <p className="muted small">
-              {benchHasMaterial ? <>Your material is marked in <span className="accent-text">ember</span>.</> : <>{material} is not in this reference set.</>}
+              {benchHasMaterial ? <>Your material is marked in <span className="accent-text">rust</span>.</> : <>{material} is not in this reference set.</>}
             </p>
           </div>
           <BarList

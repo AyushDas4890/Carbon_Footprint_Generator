@@ -28,7 +28,11 @@ export function ScrollZoomReveal({ media, left, right, children, id }: Props) {
         defaults: { ease: 'none' },
         scrollTrigger: { trigger: root.current, start: 'top top', end: 'bottom bottom', scrub: 0.6 },
       });
-      tl.fromTo(q('.szr-frame'), { clipPath: 'inset(34% 37% 34% 37% round 6px)' }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', duration: 1 }, 0)
+      // Starts as a thin rounded bar between the headline halves; must match the CSS start value.
+      const bar = window.matchMedia('(max-width: 600px)').matches
+        ? 'inset(48.6% 30% 48.6% 30% round 999px)'
+        : 'inset(48.4% 42% 48.4% 42% round 999px)';
+      tl.fromTo(q('.szr-frame'), { clipPath: bar }, { clipPath: 'inset(0% 0% 0% 0% round 0px)', duration: 1, ease: 'power2.inOut' }, 0)
         .fromTo(q('.szr-media'), { scale: 1.45 }, { scale: 1, duration: 1 }, 0)
         .fromTo(q('.szr-left'), { xPercent: 0, opacity: 1 }, { xPercent: -160, opacity: 0, duration: 0.8 }, 0)
         .fromTo(q('.szr-right'), { xPercent: 0, opacity: 1 }, { xPercent: 160, opacity: 0, duration: 0.8 }, 0)
@@ -41,7 +45,7 @@ export function ScrollZoomReveal({ media, left, right, children, id }: Props) {
   return (
     <section ref={root} id={id} className="szr">
       <div className="szr-sticky">
-        <div className="szr-frame">
+        <div className="szr-frame" data-surface="dark">
           <div className="szr-media">{media}</div>
           <div className="szr-shade" />
         </div>

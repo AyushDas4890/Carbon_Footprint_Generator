@@ -36,9 +36,9 @@ export const BREAKDOWN_PARTS = [
   { key: 'transport_co2', label: 'Transport', color: 'var(--series-3)' },
 ] as const;
 
-/** Sequential ink-to-ember scale: A is the lightest footprint, F the heaviest. */
+/** Sequential green-to-rust scale: A is the lightest footprint, F the heaviest. */
 export const GRADE_COLORS: Record<string, string> = {
-  A: '#2f6b4f', B: '#6b7f2e', C: '#a07812', D: '#c4611a', E: '#e0481d', F: '#a3240c',
+  A: '#2e6a4a', B: '#5d7535', C: '#987515', D: '#b0612a', E: '#a4442a', F: '#7a2a1c',
 };
 
 export const prettyMaterial = (m: string) => m.replace(/_/g, ' ');

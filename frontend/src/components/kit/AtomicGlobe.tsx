@@ -60,7 +60,7 @@ function buildSphere() {
  * on a Fibonacci sphere; orbits are tilted circles split into a back half
  * (hidden behind the sphere's disc) and a front half drawn over it.
  */
-export function AtomicGlobe({ ink = '#edeae3', accent = '#e0481d', background = '#0e0e0c', className, progress }: Props) {
+export function AtomicGlobe({ ink = '#2b3a30', accent = '#b4502a', background = '#ebeee7', className, progress }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {

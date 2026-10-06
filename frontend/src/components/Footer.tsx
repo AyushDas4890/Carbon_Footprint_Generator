@@ -4,7 +4,7 @@ import { Mark, TOOLS } from './kit/PillNav';
 
 export function Footer() {
   return (
-    <footer className="footer tone-ink">
+    <footer className="footer tone-ink" data-surface="dark">
       <div className="container">
         <div className="footer-top">
           <p className="footer-pitch">
