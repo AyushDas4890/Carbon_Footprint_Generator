@@ -1,224 +1,118 @@
-# Scroll Animation System Documentation
+# Scroll Animations
 
-## Overview
+How scroll-linked motion works in the React frontend (`frontend/src`). For the
+full component inventory, including the non-scroll pieces, see
+[ANIMATION_SUMMARY.md](ANIMATION_SUMMARY.md).
 
-This Carbon Footprint Generator now features a comprehensive scroll animation system that triggers animations both on page load and when elements scroll into view. The animations repeat when you scroll back up and down, creating a dynamic and engaging user experience.
+## Wiring
 
-## Features
+Three pieces cooperate, all set up once:
 
-### 1. **Initial Page Load Animations**
+1. **`lib/gsap.ts`** registers `ScrollTrigger`, `SplitText` and `useGSAP` and
+   re-exports them, together with `prefersReducedMotion()`. Import GSAP from
+   here, never from `gsap` directly, so the plugins are always registered.
+2. **`lib/useSmoothScroll.ts`** starts Lenis (`duration: 1.15`, exponential
+   ease) inside `App.tsx`. Lenis is advanced by `gsap.ticker` rather than its
+   own rAF loop, `lagSmoothing(0)` is set, and every Lenis scroll event calls
+   `ScrollTrigger.update`. Smoothed scroll and ScrollTrigger therefore read the
+   same position on the same frame. Under reduced motion Lenis is not created.
+3. **`App.tsx`** runs route changes through
+   `<AnimatePresence mode="wait">`. When the old page has exited it scrolls to
+   the top and calls `ScrollTrigger.refresh()` on the next frame, so the new
+   page's pinned sections are measured after the swap.
 
-- Elements animate when the page first loads
-- Staggered timing for sequential appearance
-- Smooth fade-in and slide-up effects
+`useSmoothScroll.ts` also exports two helpers that every in-page jump should use:
 
-### 2. **Scroll-Triggered Animations**
+- `scrollToTarget(elementOrY, offset)` glides through Lenis when it is running
+  and falls back to `window.scrollTo` otherwise.
+- `scrollToHash` is a click handler for `<a href="#id">` links. `Button` and
+  `ImageScroller` attach it automatically to hash links.
 
-- Elements re-animate when scrolling into viewport
-- Animations reset when elements leave viewport
-- Repeatable animations for continuous engagement
+## Scroll-driven components
 
-### 3. **Multiple Animation Types**
+| Component | Trigger | Behaviour |
+| --- | --- | --- |
+| `TextRevealOnScroll` | `top 82%` → `bottom 45%`, `scrub: true` | Words (SplitText `type: 'words'`) go from opacity 0.14 to 1 with a 0.1 stagger. Reverses on scroll up. |
+| `SplitHeading` (`trigger="scroll"`) | `top 88%`, `once: true` | Masked lines rise from `yPercent: 110`. With `trigger="load"` there is no ScrollTrigger and it plays on mount after `delay`. |
+| `ScrollZoomReveal` | `top top` → `bottom bottom`, `scrub: 0.6` | The section is `320vh` tall with a sticky inner stage, so it "pins" through CSS rather than GSAP. One timeline opens the frame's `clip-path` from `inset(34% 37% …)` to `inset(0)`, scales the media 1.45 → 1, moves the headline halves to `xPercent ∓160`, fades the "Scroll to open" hint, then staggers the overlay copy in from 82% of the way through. |
+| `ImageScroller` | `top top` → `+=(scrollWidth − innerWidth)`, `pin: true`, `scrub: 0.8` | The track translates left by exactly its overflow. Each `.isc-img-inner` uses `containerAnimation` to drift `xPercent −12 → 12` as its card crosses the viewport. A separate trigger scales the progress hairline from 0 to 1. `invalidateOnRefresh` re-measures on resize. Only active under `gsap.matchMedia('(min-width: 761px) and (prefers-reduced-motion: no-preference)')`; otherwise CSS turns the track into a native scroll-snap strip. |
+| `VerticalDialNav` | Own rAF loop, no ScrollTrigger | Each frame it reads the `top` of every section id, computes a continuous index (1.5 = halfway between sections 1 and 2) against the viewport midline, eases toward it (factor 0.14) and writes `translateY` on the drum and `rotateX`/`opacity` on each label and tick. |
+| `AtomicGlobe` (via Home) | `ScrollTrigger.create` on the hero, `top top` → `bottom top` | `onUpdate` writes `self.progress` into a ref passed as the globe's `progress` prop. The globe's own render loop reads it to shrink (−18%), lift and tilt the sphere. No React state, so no re-renders. |
+| `CountUp` | `top 92%`, `once: true` | Rolls the number up from zero. Pass `onView={false}` to start on mount instead. |
+| Charts (`ui/Charts.tsx`) | Motion `whileInView`, `viewport={{ once: true }}` | Bars grow on `scaleX` (segments on `scaleY`) with a per-row delay. These use Motion's IntersectionObserver, not ScrollTrigger. |
+| `PillNav` | Motion `useScroll` | Hides when `scrollY` increases past 240px and reappears on any upward scroll, unless a menu is open. |
 
-- **Fade In**: Smooth opacity transition with slight upward movement
-- **Slide Up**: Elements slide up from below
-- **Slide Left**: Elements slide in from the left
-- **Slide Right**: Elements slide in from the right
-- **Scale Up**: Elements scale from 85% to 100% with fade
+## Home page section order
 
-## CSS Classes
+`pages/Home.tsx` declares its sections once and passes them to the dial:
 
-### Base Animation Classes (Page Load)
-
-```css
-.fade-in          /* Fades in with slight upward movement */
-.slide-up         /* Slides up from below */
-.slide-in-left    /* Slides in from left */
-.slide-in-right   /* Slides in from right */
-.scale-up         /* Scales up with fade */
+```ts
+const SECTIONS = [
+  { id: 'intro', label: 'Intro' },        // hero + AtomicGlobe
+  { id: 'why', label: 'Why' },            // TextRevealOnScroll
+  { id: 'model', label: 'Model' },        // ScrollZoomReveal + CountUp stats
+  { id: 'calculate', label: 'Calculate' },// calculator form
+  { id: 'tools', label: 'Tools' },        // ImageScroller of Plate cards
+  { id: 'start', label: 'Start' },        // closing CTA
+];
 ```
 
-### Scroll Animation Classes (Viewport Triggered)
+Each `id` must exist on a rendered element. The dial measures them by
+`document.getElementById`, so a missing id simply never becomes active.
 
-```css
-.scroll-fade-in    /* Fades in on scroll */
-.scroll-slide-left /* Slides from left on scroll */
-.scroll-slide-right/* Slides from right on scroll */
-.scroll-scale      /* Scales up on scroll */
+## Usage
+
+```tsx
+import { SplitHeading, TextRevealOnScroll } from '../components/kit/TextReveal';
+import { ScrollZoomReveal } from '../components/kit/ScrollZoomReveal';
+import { Plate } from '../components/Plate';
+
+<SplitHeading className="heading">Five inputs. <em>One honest number.</em></SplitHeading>
+
+<TextRevealOnScroll className="why-text">
+  Most of a product's footprint is decided <em>before it exists.</em>
+</TextRevealOnScroll>
+
+<ScrollZoomReveal id="model" left="The hidden" right="number"
+  media={<Plate kind="contour" seed={14} tone="ink" label="Topographic contour plate" />}>
+  <p className="mono eyebrow">02 — The model</p>
+</ScrollZoomReveal>
 ```
 
-### Stagger Classes (Delay Timing)
+`<em>` inside `TextRevealOnScroll` keeps its own styling and picks up the
+accent once lit.
 
-```css
-.stagger-1  /* 0.1s delay */
-.stagger-2  /* 0.2s delay */
-.stagger-3  /* 0.3s delay */
-.stagger-4  /* 0.4s delay */
-.stagger-5  /* 0.5s delay */
-.stagger-6  /* 0.6s delay */
-```
+## Adding a new scroll animation
 
-## How It Works
-
-### 1. CSS Transitions
-
-Elements with scroll animation classes start invisible:
-
-```css
-.scroll-fade-in {
-  opacity: 0;
-  transform: translateY(30px);
-  transition:
-    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
-}
-```
-
-### 2. Intersection Observer
-
-JavaScript monitors when elements enter/leave the viewport:
-
-```javascript
-const observerOptions = {
-  root: null,
-  rootMargin: "0px 0px -100px 0px",
-  threshold: 0.1,
-};
-```
-
-### 3. Visibility Toggle
-
-When elements intersect viewport, the `.visible` class is added:
-
-```css
-.scroll-fade-in.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-```
-
-### 4. Repeatable Animations
-
-When elements leave viewport, `.visible` class is removed, allowing re-animation on scroll back.
-
-## Usage Examples
-
-### Example 1: Simple Fade In
-
-```html
-<div class="glass-card scroll-fade-in">
-  <h2>This will fade in when scrolled into view</h2>
-</div>
-```
-
-### Example 2: Slide with Stagger
-
-```html
-<div class="stats-grid">
-  <div class="stat-card scroll-scale stagger-1">Card 1</div>
-  <div class="stat-card scroll-scale stagger-2">Card 2</div>
-  <div class="stat-card scroll-scale stagger-3">Card 3</div>
-</div>
-```
-
-### Example 3: Combined Animations
-
-```html
-<div class="glass-card fade-in scroll-fade-in" style="animation-delay: 0.2s;">
-  <!-- Animates on page load AND on scroll -->
-</div>
-```
-
-## Automatic Application
-
-The JavaScript automatically adds scroll animations to:
-
-- **Stat Cards**: `.scroll-scale` with staggered delays
-- **Glass Cards**: `.scroll-fade-in` with staggered delays
-- **Breakdown Items**: `.scroll-slide-left` with staggered delays
-- **Compensation Items**: `.scroll-slide-right` with staggered delays
-
-## Customization
-
-### Adjust Animation Speed
-
-Modify the transition duration in CSS:
-
-```css
-.scroll-fade-in {
-  transition:
-    opacity 1.2s ease,
-    transform 1.2s ease; /* Slower */
-}
-```
-
-### Change Trigger Point
-
-Adjust the `rootMargin` in JavaScript:
-
-```javascript
-rootMargin: "0px 0px -200px 0px"; // Trigger earlier
-```
-
-### Disable Repeat Animations
-
-Uncomment the unobserve line in `app.js`:
-
-```javascript
-observer.unobserve(entry.target); // Animate only once
-```
-
-## Browser Support
-
-- ✅ Chrome/Edge (Modern)
-- ✅ Firefox
-- ✅ Safari
-- ✅ Opera
-- ⚠️ IE11 (Requires polyfill for Intersection Observer)
-
-## Performance
-
-- Uses CSS transforms (GPU accelerated)
-- Intersection Observer is efficient (no scroll listeners)
-- Minimal JavaScript overhead
-- Smooth 60fps animations
-
-## Testing
-
-1. **Load the page** - Elements should animate in sequence
-2. **Scroll down** - New elements should animate as they appear
-3. **Scroll up** - Elements should fade out
-4. **Scroll down again** - Elements should re-animate
-
-## Files Modified
-
-1. `static/css/main.css` - Animation keyframes and classes
-2. `static/js/app.js` - Intersection Observer implementation
-3. `core/templates/home.html` - Added scroll classes
-4. `core/templates/results.html` - Added scroll classes
-5. `core/templates/insights.html` - Added scroll classes
+- Write it inside `useGSAP(() => { … }, { scope: ref })` so its tweens,
+  ScrollTriggers and SplitText instances are reverted on unmount. Return
+  `split.revert()` or `mm.revert()` for anything created outside a tween.
+- Bail out early with `if (prefersReducedMotion()) return;` and make sure the
+  un-animated markup reads correctly on its own. For layout that only works
+  animated (pinning, horizontal tracks), put the whole setup in
+  `gsap.matchMedia()` and give CSS a fallback under the same media query.
+- Use function values (`x: () => -distance()`) plus `invalidateOnRefresh: true`
+  for anything that depends on element sizes.
+- Don't add a second smooth-scroll or rAF-driven `scrollTo`; go through
+  `scrollToTarget` so Lenis stays the single source of scroll position.
+- For per-frame values another component needs (like the globe's progress),
+  pass a ref, not state.
 
 ## Troubleshooting
 
-### Animations not triggering?
+**Pinned sections are offset or end early after navigating.** The new page was
+measured before its content mounted. `App.tsx` already refreshes on
+`onExitComplete`; if a page loads data that changes its height, call
+`ScrollTrigger.refresh()` after the data arrives.
 
-- Check browser console for JavaScript errors
-- Ensure elements have scroll animation classes
-- Verify Intersection Observer is supported
+**Scrubbed animations stutter or lag behind the wheel.** Check that nothing
+creates its own Lenis instance or rAF loop calling `lenis.raf`. There must be
+exactly one, the one in `useSmoothScroll`.
 
-### Animations too fast/slow?
+**Nothing animates.** The OS "reduce motion" setting is on; that is the
+intended fallback. In Chrome DevTools, Rendering → "Emulate CSS media feature
+prefers-reduced-motion" toggles it for testing.
 
-- Adjust `transition` duration in CSS
-- Modify `animation-delay` inline styles
-
-### Elements not visible initially?
-
-- Ensure scroll animation classes have `opacity: 0` initial state
-- Check that JavaScript is loaded and running
-
-## Future Enhancements
-
-- [ ] Add parallax scrolling effects
-- [ ] Implement scroll-linked animations
-- [ ] Add entrance/exit animation variants
-- [ ] Create animation presets for different page types
+**Heading lines split wrongly after a font loads or the window resizes.**
+`SplitHeading` uses `autoSplit: true` and re-creates its tween in `onSplit`.
+Keep that pattern for any new line-based split.

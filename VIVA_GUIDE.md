@@ -8,7 +8,7 @@ This guide is designed to help you confidently explain the technical and functio
 The project follows a **Modified Model-View-Template (MVT)** architecture integrated with a **Service-Oriented Design** for Machine Learning.
 
 ### **Architecture Flow:**
-1.  **Frontend (UI)**: Built with Django Templates, CSS (Glassmorphism), and Vanilla JavaScript.
+1.  **Frontend (UI)**: A React + TypeScript single-page app built with Vite and served by Django, styled as an editorial design system and animated with GSAP, Motion and Lenis.
 2.  **API Layer**: Django REST Framework (DRF) handles communication between the frontend and ML services.
 3.  **Service Layer (`predictor/services.py`)**: A Singleton-patterned service that manages the ML model lifecycle (loading, predicting).
 4.  **Model Layer**: 
@@ -23,8 +23,8 @@ The project follows a **Modified Model-View-Template (MVT)** architecture integr
 | :--- | :--- | :--- |
 | **Django** | Web Framework | Provides robust security, built-in admin panel, and excellent ORM for database management. |
 | **Scikit-learn** | Machine Learning | Industry standard for Python; the Random Forest algorithm deals well with non-linear relationships in emission data. |
-| **Chart.js** | Visualization | Lightweight, responsive, and allows for high-performance interactive dashboards. |
-| **Glassmorphism (CSS)** | Design Style | Provides a premium, futuristic "vibe" that aligns with the "C4Future" sustainability theme. |
+| **Hand-built React charts** | Visualization | Plain DOM bars animated with Motion, values printed on every row and exact figures on hover; no chart library to ship, and they follow the design tokens. |
+| **Editorial design system (CSS tokens)** | Design Style | Stone paper, near-black ink and one ember accent keep the data legible and give C4Future a distinct, print-like identity. |
 | **Singleton Pattern** | Design Pattern | Used in `CarbonFootprintService` to ensure the ML model is loaded into memory only once, saving server resources. |
 
 ---
@@ -61,10 +61,10 @@ The internal logic combines three main components:
 ---
 
 ## 🌟 5. Technical Strengths (To Impress)
-1.  **Full-Stack Integration**: Demonstrates ability to connect Python ML backend with a polished JS/CSS frontend.
+1.  **Full-Stack Integration**: Demonstrates ability to connect Python ML backend with a polished React frontend.
 2.  **Sustainability Focus**: Practical application of technology to solve a real-world environmental problem.
 3.  **Code Scalability**: The service-oriented architecture allows for adding new materials or transport modes without rewriting the core engine.
-4.  **User Experience (UX)**: Interactive Chart.js visualizations make complex data understandable for non-technical users.
+4.  **User Experience (UX)**: Interactive animated bar charts make complex data understandable for non-technical users.
 
 ---
 

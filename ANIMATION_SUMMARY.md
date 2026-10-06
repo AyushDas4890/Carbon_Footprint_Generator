@@ -1,178 +1,115 @@
-# Scroll Animation Implementation Summary
+# Animation Summary
 
-## ✅ What Was Implemented
+The React frontend (`frontend/src`) is an editorial design system: stone paper,
+near-black ink and one ember accent (`--accent: #e0481d`), with Instrument Serif
+for display type, Inter Tight for UI and JetBrains Mono for data. Motion is
+carried by seven kit components plus a handful of smaller UI pieces. There is no
+WebGL and no chart library; everything that draws is a 2D canvas, SVG or
+plain DOM.
 
-### 1. CSS Animations (main.css)
+For how scroll is wired (Lenis, ScrollTrigger, pinning, scrubbing) see
+[SCROLL_ANIMATIONS.md](SCROLL_ANIMATIONS.md).
 
-Added comprehensive animation system with:
+## Libraries
 
-- **Base animations**: fade-in, slide-up, slide-left, slide-right, scale-up
-- **Scroll-triggered animations**: scroll-fade-in, scroll-slide-left, scroll-slide-right, scroll-scale
-- **Stagger classes**: stagger-1 through stagger-6 for sequential timing
-- **Smooth transitions**: Using cubic-bezier easing for professional feel
+| Package | Used for |
+| --- | --- |
+| `gsap` + `@gsap/react` | ScrollTrigger (pin, scrub), SplitText (word and line splits), `useGSAP` for scoped cleanup. Registered once in `lib/gsap.ts`. |
+| `motion` | Route transitions, the pill nav, shared-layout highlights, `whileInView` chart bars. Imported from `motion/react`. |
+| `lenis` | Smooth scroll, driven by GSAP's ticker so ScrollTrigger reads the same position (`lib/useSmoothScroll.ts`). |
 
-### 2. JavaScript Intersection Observer (app.js)
+## The seven kit components (`components/kit/`)
 
-Implemented scroll detection system that:
+| Component | What it does | Driven by | Used on |
+| --- | --- | --- | --- |
+| `PillNav` | Floating pill header. The active route gets a spring highlight shared via `layoutId`; "Tools" opens a dropdown that blurs and scales in (hover on desktop, click or keyboard anywhere; Escape and outside clicks close it). Hides when scrolling down past 240px and returns on scroll up. Below 820px the pill expands into a staggered menu. Also exports `Mark` (the logo) and `TOOLS`, which the footer reuses. | Motion | Every page (`App.tsx`) |
+| `AtomicGlobe` | Dotted globe on a 2D canvas: 1,400 points on a Fibonacci sphere, clumped into "land" with value noise, tilted 23.4°, ringed by three electron orbits. Orbits are split into a back half (hidden behind the sphere's disc) and a front half drawn over it. Drag to spin with inertia; the pointer adds slight parallax. A `progress` ref lets the page tilt, shrink and lift it as the hero scrolls away. | `requestAnimationFrame` | Home hero |
+| `TextRevealOnScroll` (`TextReveal.tsx`) | Paragraph whose words brighten from 14% to full opacity as it scrolls through the viewport. Scrubbed, so scrolling back dims them again. | GSAP SplitText + ScrollTrigger | Home "Why" |
+| `SplitHeading` (`TextReveal.tsx`) | Heading whose lines rise out of a mask one after another (`expo.out`, 1.1s, 0.08s stagger). `trigger="load"` plays on mount; `trigger="scroll"` plays once at 88% of the viewport. Re-splits on resize. | GSAP SplitText | Home, Results, Insights, and every page title through `ui/PageHead` |
+| `ScrollZoomReveal` | Pinned section. A small framed window opens to full-bleed via `clip-path`, so the media never distorts, while the media counter-zooms from 1.45× to 1×, the two headline halves slide apart, and the overlay copy settles in at the end. | GSAP timeline, scrubbed | Home "Model" |
+| `ImageScroller` | Vertical scroll drives a horizontal strip of cards. The section pins for exactly as long as the strip overflows; each image drifts inside its frame for parallax and a hairline tracks progress. Cards link to routes or in-page anchors. | GSAP ScrollTrigger + `containerAnimation` | Home "Tools" |
+| `VerticalDialNav` | Fixed rotary dial on the right edge. Section labels and minor ticks sit on a drum that turns with scroll so the current section lines up with a fixed needle; labels further away tilt (`rotateX`) and fade. A mono readout shows `03/06`. Clicking a label glides there through Lenis. Hidden below 1100px. | `requestAnimationFrame`, writes to the DOM directly | Home |
+| `LanyardPass` | A badge hanging from a strap. The strap is a 14-segment Verlet rope; the card is two extra particles (clip and bottom edge) held a card-height apart, so it swings, twists on its vertical axis with horizontal speed, and can be grabbed by either end and thrown. On mount it drops in from above. The strap is an SVG ribbon with its label running along it through `<textPath>`. | Fixed-step (120 Hz) physics on `requestAnimationFrame` | Results |
 
-- Monitors when elements enter/exit viewport
-- Adds `.visible` class to trigger animations
-- Removes `.visible` class when elements leave (enables re-animation)
-- Automatically applies animations to stat cards, glass cards, breakdown items, and compensation items
-- Supports staggered animations with 100ms delays
+## Supporting pieces
 
-### 3. HTML Template Updates
+- **`components/Plate.tsx`**: generative "printed plates" used as all imagery,
+  so the repo ships no binary images and the art always matches the palette.
+  Six kinds, each a reading of emissions data: `contour` (marching-squares
+  isolines), `plume` (particles through a noise field), `routes` (freight arcs
+  between hubs), `ridges` (ridgeline plot), `halftone` and `bars`. Output is
+  deterministic per `seed`, comes in `paper` or `ink` tone, and repaints only
+  when the element resizes (debounced 120ms). Plates are static, not animated.
+- **`components/ui/Charts.tsx`**: four hand-built charts that replace the old
+  chart library. `BarList` (labelled horizontal bars that double as a table),
+  `DivergingBars` (SHAP contributions growing left or right from zero),
+  `GroupedBars` (two or more series per category, used by Compare) and
+  `StackBar` (one segmented bar with a legend). Bars grow in once on
+  `whileInView`; hovering a row shows the exact value and, where it applies,
+  the share of the total. Colours come from the `--series-1…5` CSS tokens.
+- **`components/ui/CountUp.tsx`**: numbers roll up from zero (GSAP, `expo.out`,
+  1.8s), on view by default or on mount with `onView={false}`.
+- **`components/PageTransition.tsx`**: on route change an ink curtain rises over
+  the old page, then lifts away carrying the new page's title.
+- **`components/ui/Button.tsx`**: pill button whose label rolls up to a
+  duplicate on hover. **`ui/Segmented.tsx`** slides a shared-layout thumb
+  between options. **`ui/PageHead.tsx`** draws the index rule and runs the
+  title through `SplitHeading`. **`Footer.tsx`** lifts its oversized wordmark in
+  on view.
 
-Updated all pages with scroll animation classes:
+## Reduced motion
 
-#### Home Page (home.html)
+Every component checks `prefers-reduced-motion` and falls back to a still,
+fully readable state:
 
-- Hero section: `scroll-fade-in`
-- Form card: `scroll-scale`
-- Stats cards: `scroll-slide-left` and `scroll-slide-right` with stagger
+- `App.tsx` wraps the tree in `<MotionConfig reducedMotion="user">`, and
+  `PageTransition` renders a plain `<main>` with no curtain.
+- Lenis is not started; scrolling is native.
+- `AtomicGlobe` draws one static frame. `LanyardPass` settles the rope
+  off-screen (400 physics steps) and renders it at rest.
+- `TextRevealOnScroll`, `SplitHeading`, `ScrollZoomReveal` and `CountUp` skip
+  their tweens and show final values. `ScrollZoomReveal` also unpins in CSS and
+  hides its split headline.
+- `ImageScroller` falls back to a native horizontal swipe with scroll-snap (the
+  same fallback it uses below 761px).
+- `VerticalDialNav` snaps straight to the current section instead of easing.
+- A global rule in `styles/global.css` shortens all CSS transitions and
+  animations to 0.01ms.
 
-#### Results Page (results.html)
+## Performance notes
 
-- Hero section: `scroll-fade-in`
-- Charts section: `scroll-fade-in`
-- Compensation card: `scroll-fade-in`
-- Auto-applied to stat cards, breakdown items, compensation items
+- Canvas components cap device pixel ratio at 2 and resize through
+  `ResizeObserver`.
+- `AtomicGlobe` and `LanyardPass` stop their animation loops while off-screen
+  (`IntersectionObserver`).
+- `VerticalDialNav` reads scroll position in a rAF loop and writes transforms
+  straight to the DOM, so nothing re-renders while scrolling.
+- GSAP work lives in `useGSAP` with a `scope`, so tweens, ScrollTriggers and
+  SplitText instances are reverted on unmount.
+- Non-home routes are lazy-loaded in `App.tsx`.
 
-#### Insights Page (insights.html)
+## Files
 
-- Header: `scroll-fade-in`
-- Performance card: `scroll-scale`
-- Methodology card: `scroll-fade-in`
-- Training data card: `scroll-slide-left`
-- Limitations card: `scroll-slide-right`
-
-## 🎬 Animation Behavior
-
-### On Page Load
-
-1. Elements with `fade-in`, `slide-up`, etc. animate immediately
-2. Staggered delays create sequential appearance
-3. Smooth, professional entrance
-
-### On Scroll Down
-
-1. Elements with `scroll-*` classes start invisible
-2. When 10% of element enters viewport, animation triggers
-3. Elements fade/slide/scale into view
-4. Staggered timing for multiple elements
-
-### On Scroll Up (Back)
-
-1. When elements leave viewport, `.visible` class removed
-2. Elements return to invisible state
-3. Ready to re-animate on next scroll down
-
-### On Scroll Down Again
-
-1. Elements re-animate as they enter viewport
-2. Infinite repeat capability
-3. Creates dynamic, engaging experience
-
-## 🎨 Animation Types
-
-| Class                | Effect                        | Use Case                     |
-| -------------------- | ----------------------------- | ---------------------------- |
-| `scroll-fade-in`     | Fades in with upward movement | General content, headers     |
-| `scroll-slide-left`  | Slides in from left           | Left-aligned content, lists  |
-| `scroll-slide-right` | Slides in from right          | Right-aligned content, cards |
-| `scroll-scale`       | Scales up from 85% to 100%    | Cards, important elements    |
-
-## 🔧 Configuration
-
-### Trigger Point
-
-- Elements trigger when 10% visible
-- 100px margin from bottom of viewport
-- Adjustable in `observerOptions`
-
-### Animation Duration
-
-- 0.8s for most animations
-- Smooth cubic-bezier easing
-- GPU-accelerated transforms
-
-### Stagger Timing
-
-- 100ms between elements in groups
-- 0.1s to 0.6s delay classes available
-- Customizable via inline styles
-
-## 📱 Browser Support
-
-- ✅ All modern browsers (Chrome, Firefox, Safari, Edge)
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-- ⚠️ IE11 requires Intersection Observer polyfill
-
-## 🚀 Performance
-
-- Uses CSS transforms (GPU accelerated)
-- No scroll event listeners (uses Intersection Observer)
-- Minimal JavaScript overhead
-- Smooth 60fps animations
-
-## 📝 How to Use
-
-### Add to New Element
-
-```html
-<!-- Simple fade in on scroll -->
-<div class="glass-card scroll-fade-in">Content here</div>
-
-<!-- Slide from left with delay -->
-<div class="stat-card scroll-slide-left stagger-2">Content here</div>
-
-<!-- Both page load and scroll animations -->
-<div class="hero fade-in scroll-fade-in">Content here</div>
 ```
-
-### Customize Timing
-
-```html
-<!-- Custom delay -->
-<div class="scroll-scale" style="transition-delay: 0.3s;">Content here</div>
+frontend/src/
+├── components/
+│   ├── kit/
+│   │   ├── AtomicGlobe.tsx
+│   │   ├── ImageScroller.tsx
+│   │   ├── LanyardPass.tsx
+│   │   ├── PillNav.tsx
+│   │   ├── ScrollZoomReveal.tsx
+│   │   ├── TextReveal.tsx          TextRevealOnScroll + SplitHeading
+│   │   └── VerticalDialNav.tsx
+│   ├── ui/
+│   │   ├── Charts.tsx              BarList · DivergingBars · GroupedBars · StackBar
+│   │   ├── CountUp.tsx
+│   │   ├── Button.tsx · PageHead.tsx · Range.tsx · Segmented.tsx
+│   ├── Plate.tsx
+│   ├── PageTransition.tsx
+│   └── Footer.tsx
+├── lib/
+│   ├── gsap.ts                     plugin registration + prefersReducedMotion()
+│   └── useSmoothScroll.ts          Lenis + scrollToTarget / scrollToHash
+└── styles/global.css               tokens, layout and component styles
 ```
-
-## 🎯 Testing Instructions
-
-1. **Start the server** (already running on port 8000)
-2. **Open browser** to http://127.0.0.1:8000/
-3. **Observe page load** - Elements should animate in sequence
-4. **Scroll down slowly** - Watch form and stats cards animate
-5. **Scroll back up** - Elements should fade out
-6. **Scroll down again** - Elements should re-animate
-7. **Navigate to /results/** - Test animations there
-8. **Navigate to /insights/** - Test animations there
-
-## ✨ Key Features
-
-✅ **Repeatable Animations** - Animations trigger every time you scroll
-✅ **Smooth Transitions** - Professional cubic-bezier easing
-✅ **Staggered Effects** - Sequential appearance for multiple elements
-✅ **Auto-Applied** - JavaScript automatically adds classes to common elements
-✅ **Performance Optimized** - GPU-accelerated, no scroll listeners
-✅ **Mobile Friendly** - Works on all devices and screen sizes
-✅ **Customizable** - Easy to adjust timing, delays, and effects
-
-## 📄 Files Modified
-
-1. ✅ `static/css/main.css` - Added 150+ lines of animation CSS
-2. ✅ `static/js/app.js` - Added 120+ lines of Intersection Observer code
-3. ✅ `core/templates/home.html` - Added scroll classes to 4 elements
-4. ✅ `core/templates/results.html` - Added scroll classes to 3 elements
-5. ✅ `core/templates/insights.html` - Added scroll classes to 5 elements
-6. ✅ `SCROLL_ANIMATIONS.md` - Created comprehensive documentation
-
-## 🎉 Result
-
-Your Carbon Footprint Generator now has a **professional, dynamic animation system** that:
-
-- Engages users with smooth entrance animations
-- Repeats animations on scroll for continuous engagement
-- Works across all pages consistently
-- Performs smoothly on all devices
-- Is fully customizable and well-documented
