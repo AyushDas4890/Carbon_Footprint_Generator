@@ -1,36 +1,43 @@
-import { lazy, Suspense, useEffect, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
 import { api, COUNTRIES, END_OF_LIFE, TRANSPORT_MODES, type Country, type EndOfLife, type TransportMode } from '../lib/api';
-import { saveResult } from '../lib/result';
+import { prettyMaterial, saveResult } from '../lib/result';
 import { ScrollTrigger, useGSAP } from '../lib/gsap';
-import { KineticHeading } from '../components/motion-graphics/KineticHeading';
-import { Marquee } from '../components/motion-graphics/Marquee';
-import { MorphBlob } from '../components/motion-graphics/MorphBlob';
-import { CountUp } from '../components/motion-graphics/CountUp';
-import { SupplyChainStory } from '../components/motion-graphics/SupplyChainStory';
-import { TiltCard } from '../components/TiltCard';
-import { MagneticButton } from '../components/MagneticButton';
-import { Reveal, RevealGroup, RevealItem } from '../components/Reveal';
-import { StackedCards, type StackItem } from '../components/StackedCards';
+import { AtomicGlobe } from '../components/kit/AtomicGlobe';
+import { ScrollZoomReveal } from '../components/kit/ScrollZoomReveal';
+import { ImageScroller, type ScrollerItem } from '../components/kit/ImageScroller';
+import { SplitHeading, TextRevealOnScroll } from '../components/kit/TextReveal';
+import { VerticalDialNav } from '../components/kit/VerticalDialNav';
+import { Plate } from '../components/Plate';
+import { Button } from '../components/ui/Button';
+import { CountUp } from '../components/ui/CountUp';
+import { Range } from '../components/ui/Range';
+import { Segmented } from '../components/ui/Segmented';
 
-const CarbonGlobe = lazy(() => import('../three/CarbonGlobe'));
-
-const FEATURES: StackItem[] = [
-  { meta: 'Engine 01 · XGBoost', title: 'Instant estimates', tag: 'predict', art: 'liquid', to: '#calculator',
-    body: 'Sub-100 ms predictions from a locally served XGBoost model. Material, weight, origin, freight and end-of-life in; a calibrated CO₂ figure out.' },
-  { meta: 'Engine 01 · TreeSHAP', title: 'Explanations that add up', tag: 'explain', art: 'blades', to: '/insights/',
-    body: 'Every prediction is decomposed into per-feature contributions, so you see exactly which choice pushed the number up and which pulled it down.' },
-  { meta: 'Engine 02 · RAG', title: 'A grounded sustainability advisor', tag: 'advise', art: 'pigment', to: '/advisor/',
-    body: 'MiniLM retrieval over LCA and IPCC sources, cross-encoder reranking and streamed answers that cite where every claim came from.' },
-  { meta: 'Engine 03 · Agentic', title: 'Bill-of-materials decomposer', tag: 'decompose', art: 'bloom', to: '/decompose/',
-    body: 'Describe a product in plain language; the LLM breaks it into components and the model estimates each one, totalled into a full footprint.' },
-  { meta: 'Engine 01 · Ranking', title: 'Side-by-side compare', tag: 'compare', art: 'ribbons', to: '/compare/',
-    body: 'Run two products through the real model and see which is lower-impact, by how much, and exactly where the difference comes from.' },
-  { meta: 'Engine 01 · Conformal', title: 'Honest uncertainty', tag: 'calibrate', art: 'marble', to: '/insights/',
-    body: 'Conformalized quantile regression wraps each estimate in a 90% interval that holds up on unseen products: 91.2% held-out coverage.' },
+const SECTIONS = [
+  { id: 'intro', label: 'Intro' },
+  { id: 'why', label: 'Why' },
+  { id: 'model', label: 'Model' },
+  { id: 'calculate', label: 'Calculate' },
+  { id: 'tools', label: 'Tools' },
+  { id: 'start', label: 'Start' },
 ];
-const TECH = ['XGBoost', 'Conformal Prediction', 'SHAP', 'LangChain', 'ChromaDB', 'Django 5', 'React', 'Three.js', 'GSAP', 'Motion'];
+
+const TOOLS: ScrollerItem[] = [
+  { index: '01', tag: 'Predict', to: '#calculate', title: 'Instant estimates', image: <Plate kind="contour" seed={3} />,
+    body: 'Material, weight, origin, freight and end-of-life in; a calibrated CO₂e figure out, from a locally served XGBoost model in under 100 ms.' },
+  { index: '02', tag: 'Explain', to: '/insights/', title: 'Explanations that add up', image: <Plate kind="bars" seed={11} />,
+    body: 'TreeSHAP splits every estimate into per-feature contributions, so you see which choice pushed the number up and which pulled it down.' },
+  { index: '03', tag: 'Advise', to: '/advisor/', title: 'A grounded advisor', image: <Plate kind="halftone" seed={5} />,
+    body: 'Retrieval over LCA and IPCC sources, cross-encoder reranking and streamed answers that cite where every claim came from.' },
+  { index: '04', tag: 'Decompose', to: '/decompose/', title: 'Bill-of-materials decomposer', image: <Plate kind="ridges" seed={8} />,
+    body: 'Describe a product in plain language; an LLM breaks it into components and the model prices each one in CO₂e.' },
+  { index: '05', tag: 'Compare', to: '/compare/', title: 'Side-by-side compare', image: <Plate kind="routes" seed={21} />,
+    body: 'Run two products through the same model and see which is lighter, by how much, and exactly where the gap comes from.' },
+  { index: '06', tag: 'Calibrate', to: '/insights/', title: 'Honest uncertainty', image: <Plate kind="plume" seed={2} />,
+    body: 'Conformalized quantile regression wraps each estimate in a 90% interval that holds on unseen products.' },
+];
 
 function Calculator({ materials, loadError }: { materials: string[]; loadError: string }) {
   const navigate = useNavigate();
@@ -47,8 +54,6 @@ function Calculator({ materials, loadError }: { materials: string[]; loadError: 
   });
 
   const set = <K extends keyof typeof form>(key: K, value: (typeof form)[K]) => setForm((f) => ({ ...f, [key]: value }));
-  const pct = (v: number, min: number, max: number) => ((v - min) / (max - min)) * 100;
-  const rangeBg = (p: number) => ({ background: `linear-gradient(90deg, var(--green) ${p}%, rgba(255,255,255,0.08) ${p}%)` });
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
@@ -66,75 +71,54 @@ function Calculator({ materials, loadError }: { materials: string[]; loadError: 
   };
 
   return (
-    <TiltCard intensity={6} id="calculator" style={{ padding: '2.25rem' }}>
-      <div className="depth-1">
-        <div className="row" style={{ justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-          <h2 style={{ fontSize: '1.15rem', fontWeight: 600 }}>Product details</h2>
-          <span className="pill">~100 ms inference</span>
-        </div>
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div key="loading" className="stack" style={{ alignItems: 'center', padding: '4rem 0' }} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }}>
-              <div className="spinner" />
-              <p className="secondary">Analysing environmental impact…</p>
-            </motion.div>
-          ) : (
-            <motion.form key="form" onSubmit={submit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0, scale: 0.97 }}>
-              <div className="field">
-                <label className="label" htmlFor="productName">Product name</label>
-                <input id="productName" className="input" placeholder="e.g. Cotton T-Shirt" value={form.product_name} onChange={(e) => set('product_name', e.target.value)} maxLength={200} />
-              </div>
-              <div className="form-row">
-                <div className="field">
-                  <label className="label" htmlFor="material">Material</label>
-                  <select id="material" className="select" required value={form.material} onChange={(e) => set('material', e.target.value)}>
-                    <option value="">{materials.length ? 'Select material…' : 'Loading…'}</option>
-                    {materials.map((m) => <option key={m} value={m}>{m.replace(/_/g, ' ')}</option>)}
-                  </select>
-                </div>
-                <div className="field">
-                  <label className="label" htmlFor="country">Manufacturing country</label>
-                  <select id="country" className="select" value={form.country} onChange={(e) => set('country', e.target.value as Country)}>
-                    {COUNTRIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div className="field">
-                <label className="label" htmlFor="weight">Product weight <span className="value">{form.weight_kg.toFixed(1)} kg</span></label>
-                <input id="weight" type="range" className="range" min={0.1} max={50} step={0.1} value={form.weight_kg} style={rangeBg(pct(form.weight_kg, 0.1, 50))} onChange={(e) => set('weight_kg', parseFloat(e.target.value))} />
-              </div>
-              <div className="field">
-                <span className="label">Transport</span>
-                <LayoutGroup id="transport">
-                  <div className="segmented" role="group" aria-label="Transport mode">
-                    {TRANSPORT_MODES.map((m) => (
-                      <button key={m.value} type="button" aria-pressed={form.transport_mode === m.value} onClick={() => set('transport_mode', m.value)}>
-                        {form.transport_mode === m.value && <motion.span layoutId="seg" className="seg-pill" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
-                        {m.icon} {m.label}
-                      </button>
-                    ))}
-                  </div>
-                </LayoutGroup>
-              </div>
-              <div className="form-row">
-                <div className="field">
-                  <label className="label" htmlFor="distance">Distance <span className="value">{form.transport_distance_km.toLocaleString()} km</span></label>
-                  <input id="distance" type="range" className="range" min={50} max={20000} step={50} value={form.transport_distance_km} style={rangeBg(pct(form.transport_distance_km, 50, 20000))} onChange={(e) => set('transport_distance_km', parseFloat(e.target.value))} />
-                </div>
-                <div className="field">
-                  <label className="label" htmlFor="eol">End-of-life</label>
-                  <select id="eol" className="select" value={form.eol} onChange={(e) => set('eol', e.target.value as EndOfLife)}>
-                    {END_OF_LIFE.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                </div>
-              </div>
-              {(loadError || submitError) && <div className="error-box" style={{ marginBottom: '1rem' }}>{loadError || submitError}</div>}
-              <MagneticButton type="submit" block disabled={!form.material}>🌱 Calculate carbon footprint</MagneticButton>
-            </motion.form>
-          )}
-        </AnimatePresence>
+    <div className="panel calc">
+      <div className="panel-head mono">
+        <span>Product sheet</span>
+        <span>{loading ? 'Running model…' : 'XGBoost · conformal 90%'}</span>
       </div>
-    </TiltCard>
+      <AnimatePresence mode="wait">
+        {loading ? (
+          <motion.div key="loading" className="calc-loading" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="loader" aria-hidden><span /><span /><span /></div>
+            <p className="mono">Estimating lifecycle emissions</p>
+          </motion.div>
+        ) : (
+          <motion.form key="form" onSubmit={submit} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <div className="field">
+              <label className="label" htmlFor="productName">Product name</label>
+              <input id="productName" className="input" placeholder="Cotton T-shirt" value={form.product_name} onChange={(e) => set('product_name', e.target.value)} maxLength={200} />
+            </div>
+            <div className="form-row">
+              <div className="field">
+                <label className="label" htmlFor="material">Material</label>
+                <select id="material" className="select" required value={form.material} onChange={(e) => set('material', e.target.value)}>
+                  <option value="">{materials.length ? 'Select material' : 'Loading…'}</option>
+                  {materials.map((m) => <option key={m} value={m}>{prettyMaterial(m)}</option>)}
+                </select>
+              </div>
+              <div className="field">
+                <label className="label" htmlFor="country">Made in</label>
+                <select id="country" className="select" value={form.country} onChange={(e) => set('country', e.target.value as Country)}>
+                  {COUNTRIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                </select>
+              </div>
+            </div>
+            <Range id="weight" label="Weight" value={form.weight_kg} min={0.1} max={50} step={0.1} format={(v) => `${v.toFixed(1)} kg`} onChange={(v) => set('weight_kg', v)} />
+            <div className="field">
+              <span className="label">Freight</span>
+              <Segmented id="transport" label="Transport mode" value={form.transport_mode} options={TRANSPORT_MODES} onChange={(v) => set('transport_mode', v)} />
+            </div>
+            <Range id="distance" label="Distance" value={form.transport_distance_km} min={50} max={20000} step={50} format={(v) => `${v.toLocaleString()} km`} onChange={(v) => set('transport_distance_km', v)} />
+            <div className="field">
+              <span className="label">End of life</span>
+              <Segmented id="eol" label="End of life" value={form.eol} options={END_OF_LIFE} onChange={(v) => set('eol', v)} />
+            </div>
+            {(loadError || submitError) && <div className="error-box" role="alert">{loadError || submitError}</div>}
+            <Button type="submit" variant="accent" block disabled={!form.material}>Calculate footprint</Button>
+          </motion.form>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -152,7 +136,7 @@ export default function Home() {
       .catch((e: Error) => console.warn('Model info unavailable:', e.message));
   }, []);
 
-  // Feed hero scroll progress into the 3D globe so it recedes as you scroll.
+  // Feed hero scroll progress into the globe so it tilts away as you leave.
   useGSAP(
     () => {
       const st = ScrollTrigger.create({
@@ -166,91 +150,109 @@ export default function Home() {
     { scope: hero },
   );
 
+  const stats = [
+    { v: 14000, s: '+', d: 0, label: 'Training rows' },
+    coverage != null
+      ? { v: coverage * 100, s: '%', d: 1, label: 'Held-out coverage of the 90% interval' }
+      : { v: 90, s: '%', d: 0, label: 'Conformal interval target' },
+    { v: materials.length || 35, s: '', d: 0, label: 'Materials modelled' },
+    { v: 4, s: '', d: 0, label: 'Freight modes' },
+  ];
+
   return (
     <>
-      <section ref={hero} className="hero">
-        <MorphBlob from="#64ffb4" to="#00d9ff" size={560} style={{ top: '-10%', left: '-12%' }} />
-        <MorphBlob from="#8b5cf6" to="#ff6b35" size={460} duration={8} style={{ bottom: '-15%', right: '-8%', opacity: 0.35 }} />
-        <div className="container hero-grid" style={{ position: 'relative', zIndex: 1 }}>
-          <div>
-            <motion.div className="hero-badge" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
-              <span className="pulse-dot" /> AI-powered carbon intelligence
-            </motion.div>
-            <KineticHeading as="h1" className="display" trigger="load" delay={0.5}>
-              Calculate the true <span className="gradient-text">carbon cost</span> of any product
-            </KineticHeading>
-            <motion.p className="lead" style={{ marginTop: '1.5rem' }} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.1, duration: 0.8 }}>
-              A custom-trained XGBoost model with conformal prediction delivers instant, uncertainty-bounded carbon estimates — grounded in real emission data.
+      <VerticalDialNav sections={SECTIONS} />
+
+      <section ref={hero} id="intro" className="hero tone-ink">
+        <div className="container hero-grid">
+          <div className="hero-copy">
+            <motion.p className="mono eyebrow" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }}>
+              Carbon intelligence for physical products
             </motion.p>
-            <motion.div className="hero-ctas" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.3 }}>
-              <MagneticButton href="#calculator">🌱 Calculate now</MagneticButton>
-              <MagneticButton to="/advisor/" variant="ghost">Ask the AI Advisor →</MagneticButton>
+            <SplitHeading as="h1" className="display hero-title" trigger="load" delay={0.5}>
+              Every object carries a <em>carbon weight.</em>
+            </SplitHeading>
+            <motion.p className="lead" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1, duration: 0.8 }}>
+              C4Future estimates a product&rsquo;s lifecycle emissions from five inputs — material, mass, origin, freight and end-of-life — and tells you how sure it is.
+            </motion.p>
+            <motion.div className="cta-row" initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.15, duration: 0.8 }}>
+              <Button href="#calculate" variant="accent">Calculate a footprint</Button>
+              <Button to="/advisor/" variant="line">Ask the advisor</Button>
             </motion.div>
           </div>
-          <motion.div className="hero-globe" initial={{ opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4, duration: 1.4, ease: [0.16, 1, 0.3, 1] }}>
-            <Suspense fallback={null}>
-              <CarbonGlobe progress={globeProgress} />
-            </Suspense>
+          <motion.div className="hero-globe" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, duration: 1.6, ease: [0.16, 1, 0.3, 1] }}>
+            <AtomicGlobe progress={globeProgress} />
+            <span className="hero-globe-caption mono">Drag to spin</span>
           </motion.div>
         </div>
-        <div className="scroll-hint" aria-hidden>
-          Scroll
-          <motion.div className="line" animate={{ scaleY: [0, 1, 0], originY: [0, 0, 1] }} transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }} />
+        <motion.div className="hero-meta container mono" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}>
+          <span>XGBoost regressor</span>
+          <span>Conformal 90% intervals</span>
+          <span>TreeSHAP attributions</span>
+          <span>&lt; 100 ms inference</span>
+        </motion.div>
+      </section>
+
+      <section id="why" className="why">
+        <div className="container">
+          <p className="mono eyebrow">01 — Why</p>
+          <TextRevealOnScroll className="why-text">
+            A cotton shirt flown out of Shanghai can emit more <em>in the air</em> than it did in the field. Most of a product&rsquo;s footprint is decided before it exists — by what it is made of, where, and how it travels. C4Future puts a number on those choices, <em>with honest error bars,</em> while they can still change.
+          </TextRevealOnScroll>
         </div>
       </section>
 
-      <Marquee items={['Measure', 'Explain', 'Compare', 'Decompose', 'Reduce']} />
+      <ScrollZoomReveal id="model" left="The hidden" right="number" media={<Plate kind="contour" seed={14} tone="ink" label="Topographic contour plate" />}>
+        <p className="mono eyebrow">02 — The model</p>
+        <div className="szr-stats">
+          {stats.map((s) => (
+            <div key={s.label} className="szr-stat">
+              <CountUp className="szr-stat-value" value={s.v} suffix={s.s} decimals={s.d} />
+              <span className="mono">{s.label}</span>
+            </div>
+          ))}
+        </div>
+      </ScrollZoomReveal>
 
-      <section className="section-sm">
-        <div className="container" style={{ maxWidth: 720 }}>
+      <section id="calculate" className="section calc-section">
+        <div className="container calc-grid">
+          <div className="calc-intro">
+            <p className="mono eyebrow">03 — Calculate</p>
+            <SplitHeading className="heading">Five inputs. <em>One honest number.</em></SplitHeading>
+            <p className="lead">
+              Fill in the product sheet. The estimate comes back with a 90% interval, a grade, the features that drove it and what it equals in everyday terms.
+            </p>
+            <ol className="calc-steps mono">
+              <li><span>A</span>Material and mass set the production baseline</li>
+              <li><span>B</span>Country sets the grid that powers manufacturing</li>
+              <li><span>C</span>Freight mode and distance add transport</li>
+              <li><span>D</span>End-of-life adds or credits disposal</li>
+            </ol>
+          </div>
           <Calculator materials={materials} loadError={loadError} />
         </div>
       </section>
 
-      <section className="section-sm">
-        <RevealGroup className="container grid-4">
-          {[
-            { v: 14000, s: '+', label: 'Training rows', d: 0 },
-            coverage != null
-              ? { v: coverage * 100, s: '%', label: 'Conformal 90% coverage (held-out)', d: 1 }
-              : { v: 90, s: '%', label: 'Conformal interval target', d: 0 },
-            { v: materials.length || 35, s: '', label: 'Materials modelled', d: 0 },
-            { v: 4, s: '', label: 'Transport modes', d: 0 },
-          ].map((s) => (
-            <RevealItem key={s.label}>
-              <div className="glass stat">
-                <CountUp className="stat-value gradient-text" value={s.v} suffix={s.s} decimals={s.d} />
-                <div className="stat-label">{s.label}</div>
-              </div>
-            </RevealItem>
-          ))}
-        </RevealGroup>
-      </section>
-
-      <SupplyChainStory />
-
-      <section className="paper">
-        <div className="container text-center">
-          <span className="eyebrow">Capabilities</span>
-          <KineticHeading className="heading">
-            Everything you need to <span className="gradient-text">measure &amp; reduce</span>
-          </KineticHeading>
-          <p className="lead" style={{ margin: '1rem auto 0' }}>Three engines, six tools. Scroll through the deck.</p>
-        </div>
-        <StackedCards items={FEATURES} />
-      </section>
-
-      <Marquee items={TECH} speed={-1.8} outline />
-
-      <section className="section-sm">
-        <Reveal className="container text-center">
-          <span className="eyebrow">Start now</span>
-          <h2 className="heading">Your product. Its <span className="gradient-text">real footprint</span>.</h2>
-          <div className="hero-ctas" style={{ justifyContent: 'center' }}>
-            <MagneticButton href="#calculator">Calculate a footprint</MagneticButton>
-            <MagneticButton to="/compare/" variant="ghost">Compare two products</MagneticButton>
+      <ImageScroller
+        id="tools"
+        items={TOOLS}
+        heading={
+          <div className="isc-heading">
+            <p className="mono eyebrow">04 — Tools</p>
+            <SplitHeading className="heading">Three engines, <em>six tools.</em></SplitHeading>
           </div>
-        </Reveal>
+        }
+      />
+
+      <section id="start" className="section start">
+        <div className="container">
+          <p className="mono eyebrow">05 — Start</p>
+          <SplitHeading className="display start-title">Your product. <em>Its real footprint.</em></SplitHeading>
+          <div className="cta-row">
+            <Button href="#calculate" variant="accent">Calculate a footprint</Button>
+            <Button to="/compare/" variant="line">Compare two products</Button>
+          </div>
+        </div>
       </section>
     </>
   );

@@ -17,11 +17,11 @@ export const COUNTRIES: { value: Country; label: string }[] = [
   { value: 'SWEDEN', label: 'Sweden' },
   { value: 'AUSTRALIA', label: 'Australia' },
 ];
-export const TRANSPORT_MODES: { value: TransportMode; label: string; icon: string }[] = [
-  { value: 'ROAD', label: 'Road', icon: '🚚' },
-  { value: 'RAIL', label: 'Rail', icon: '🚂' },
-  { value: 'SEA', label: 'Sea', icon: '🚢' },
-  { value: 'AIR', label: 'Air', icon: '✈️' },
+export const TRANSPORT_MODES: { value: TransportMode; label: string }[] = [
+  { value: 'ROAD', label: 'Road' },
+  { value: 'RAIL', label: 'Rail' },
+  { value: 'SEA', label: 'Sea' },
+  { value: 'AIR', label: 'Air' },
 ];
 export const END_OF_LIFE: { value: EndOfLife; label: string }[] = [
   { value: 'LANDFILL', label: 'Landfill' },

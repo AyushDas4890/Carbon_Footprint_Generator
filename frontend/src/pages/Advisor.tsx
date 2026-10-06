@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { api, streamChat, type ChatSource, type KnowledgeBase } from '../lib/api';
-import { KineticHeading } from '../components/motion-graphics/KineticHeading';
-import { MagneticButton } from '../components/MagneticButton';
+import { PageHead } from '../components/ui/PageHead';
+import { Button } from '../components/ui/Button';
 
 interface Message {
   id: number;
@@ -92,84 +92,84 @@ export default function Advisor() {
 
   return (
     <div className="container page-pad">
-      <span className="eyebrow">RAG intelligence</span>
-      <KineticHeading as="h1" className="heading" trigger="load" delay={0.6}>
-        Sustainability <span className="gradient-text">advisor</span>
-      </KineticHeading>
-      <p className="lead" style={{ marginTop: '0.75rem', marginBottom: '2.5rem' }}>
-        Ask anything about carbon footprints, materials, transport, or offsets. Every answer is grounded in indexed LCA &amp; IPCC sources, with citations.
-      </p>
+      <PageHead
+        index="A—01"
+        eyebrow="Advisor"
+        title={<>Ask the <em>literature</em></>}
+        lead="Questions on materials, food, freight or offsets, answered strictly from indexed LCA and IPCC sources, with citations."
+      />
 
-      <div className="split-layout">
-        <aside className="stack sticky">
-          <div className="glass">
-            <div className="card-title">Knowledge base</div>
+      <div className="split">
+        <aside className="split-side advisor-side">
+          <div className="side-block">
+            <h2 className="mono side-title">Knowledge base</h2>
             {kb ? (
               <>
-                <span className="pill" style={{ color: 'var(--green)' }}>
-                  <span className="pulse-dot" style={{ marginRight: 8, alignSelf: 'center' }} />
-                  {kb.doc_count} document{kb.doc_count === 1 ? '' : 's'} indexed
-                </span>
-                <ul style={{ listStyle: 'none', marginTop: '1rem', fontSize: '0.85rem' }} className="secondary">
-                  {kb.docs.slice(0, 5).map((d) => (
-                    <li key={d} style={{ padding: '0.35rem 0', borderBottom: '1px solid var(--glass-border)' }}>📄 {d}</li>
-                  ))}
+                <p className="kb-count"><span className="live-dot" aria-hidden />{kb.doc_count} document{kb.doc_count === 1 ? '' : 's'} indexed</p>
+                <ul className="kb-docs mono">
+                  {kb.docs.slice(0, 5).map((d) => <li key={d}>{d}</li>)}
                 </ul>
               </>
             ) : kbError ? (
-              <p className="muted" style={{ fontSize: '0.85rem' }}>Unavailable: {kbError}</p>
+              <p className="muted small">Unavailable: {kbError}</p>
             ) : (
-              <div className="spinner" style={{ width: 24, height: 24 }} />
+              <div className="loader" aria-label="Loading"><span /><span /><span /></div>
             )}
           </div>
-          <div className="glass">
-            <div className="card-title">Try asking</div>
-            {SUGGESTIONS.map((s) => (
-              <button key={s} type="button" className="chip" onClick={() => ask(s)} disabled={busy}>{s}</button>
-            ))}
+          <div className="side-block">
+            <h2 className="mono side-title">Try asking</h2>
+            <div className="chips">
+              {SUGGESTIONS.map((s) => (
+                <button key={s} type="button" className="chip" onClick={() => ask(s)} disabled={busy}>{s}</button>
+              ))}
+            </div>
           </div>
-          <div className="glass">
-            <div className="card-title">How it works</div>
-            <p className="secondary" style={{ fontSize: '0.85rem', lineHeight: 1.6 }}>
-              Your question is embedded with <b style={{ color: 'var(--green)' }}>MiniLM-L6</b>, retrieved from ChromaDB, reranked with a cross-encoder, then answered strictly from the top chunks — streamed, with citations and conversation memory.
+          <div className="side-block">
+            <h2 className="mono side-title">How it works</h2>
+            <p className="muted small">
+              The question is embedded with MiniLM-L6, retrieved from ChromaDB, reranked with a cross-encoder, then answered only from the top chunks — streamed, cited, with conversation memory.
             </p>
           </div>
         </aside>
 
-        <div className="glass chat">
-          <div ref={logRef} className="chat-log" data-lenis-prevent>
+        <div className="chat">
+          <div ref={logRef} className="chat-log" data-lenis-prevent aria-live="polite">
             <AnimatePresence initial={false}>
               {messages.map((m) => (
                 <motion.div
                   key={m.id}
-                  layout
-                  className={`bubble ${m.role}${m.error ? ' error' : ''}`}
-                  initial={{ opacity: 0, y: 20, scale: 0.96, rotateX: -20 }}
-                  animate={{ opacity: 1, y: 0, scale: 1, rotateX: 0 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 24 }}
-                  style={{ originX: m.role === 'user' ? 1 : 0 }}
+                  layout="position"
+                  className={`msg msg-${m.role}${m.error ? ' is-error' : ''}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  {m.text}
-                  {m.streaming && <span className="typing" />}
-                  {m.sources && m.sources.length > 0 && !m.streaming && (
-                    <motion.div className="sources" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
-                      <div className="eyebrow" style={{ marginBottom: '0.4rem' }}>Sources</div>
-                      {m.sources.map((s) => (
-                        <div className="source" key={s.n}>
-                          <b>[{s.n}]</b> {s.citation || s.source_name} <span style={{ opacity: 0.7 }}>· score {s.score}</span>
-                          {s.snippet && <div style={{ marginTop: '0.3rem', opacity: 0.85 }}>{s.snippet}</div>}
-                        </div>
-                      ))}
-                    </motion.div>
-                  )}
-                  {m.meta && !m.streaming && <div className="muted" style={{ fontSize: '0.7rem', marginTop: '0.5rem' }}>{m.meta}</div>}
+                  <span className="msg-role mono">{m.role === 'user' ? 'You' : 'Advisor'}</span>
+                  <div className="msg-body">
+                    {m.text}
+                    {m.streaming && <span className="caret" aria-hidden />}
+                    {m.sources && m.sources.length > 0 && !m.streaming && (
+                      <motion.ol className="sources" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }}>
+                        {m.sources.map((s) => (
+                          <li key={s.n}>
+                            <span className="mono">[{s.n}]</span>
+                            <div>
+                              {s.citation || s.source_name} <span className="mono muted">score {s.score}</span>
+                              {s.snippet && <p className="muted">{s.snippet}</p>}
+                            </div>
+                          </li>
+                        ))}
+                      </motion.ol>
+                    )}
+                    {m.meta && !m.streaming && <div className="msg-meta mono">{m.meta}</div>}
+                  </div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
           <div className="chat-input">
-            <textarea className="textarea" rows={1} maxLength={1000} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey} placeholder="Ask about a material, food, transport mode, or offset…" aria-label="Your question" />
-            <MagneticButton onClick={() => ask(input)} disabled={busy || !input.trim()}>Ask →</MagneticButton>
+            <textarea className="textarea" rows={1} maxLength={1000} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={onKey} placeholder="Ask about a material, food, freight mode or offset…" aria-label="Your question" />
+            <Button variant="accent" onClick={() => ask(input)} disabled={busy || !input.trim()}>Ask</Button>
           </div>
         </div>
       </div>

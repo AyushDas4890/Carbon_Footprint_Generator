@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Bar } from 'react-chartjs-2';
-import { barOptions, PALETTE } from '../lib/charts';
 import { api, type ModelInfo } from '../lib/api';
-import { loadResult, BREAKDOWN_PARTS } from '../lib/result';
-import { KineticHeading } from '../components/motion-graphics/KineticHeading';
-import { CountUp } from '../components/motion-graphics/CountUp';
-import { MagneticButton } from '../components/MagneticButton';
-import { Reveal, RevealGroup, RevealItem } from '../components/Reveal';
-import { TiltCard } from '../components/TiltCard';
+import { BREAKDOWN_PARTS, loadResult, prettyMaterial, type StoredResult } from '../lib/result';
+import { SplitHeading } from '../components/kit/TextReveal';
+import { Plate } from '../components/Plate';
+import { Button } from '../components/ui/Button';
+import { CountUp } from '../components/ui/CountUp';
+import { PageHead } from '../components/ui/PageHead';
+import { BarList } from '../components/ui/Charts';
 
 // Reference intensities (kg CO₂e per kg) from predictor/training/real_factors.json.
 const MATERIAL_BENCH: Record<string, number> = {
@@ -27,137 +26,125 @@ export default function Insights() {
 
   return (
     <div className="container page-pad">
-      <span className="eyebrow">Analytics</span>
-      <KineticHeading as="h1" className="heading" trigger="load" delay={0.6}>
-        Carbon <span className="gradient-text">insights</span>
-      </KineticHeading>
-      <p className="lead" style={{ marginTop: '0.75rem' }}>Your most recent prediction, benchmarked against materials and transport modes, with its uncertainty band.</p>
+      <PageHead
+        index="I—01"
+        eyebrow="Insights"
+        title={<>Benchmarks &amp; <em>uncertainty</em></>}
+        lead="Your latest prediction set against reference materials and freight modes, with the interval the model puts around it."
+      />
 
       {model && (
-        <RevealGroup className="grid-4" stagger={0.08}>
-          {[
-            { label: 'Model', node: <span style={{ fontSize: '0.95rem' }}>{model.model_family}</span> },
-            { label: 'R² (held-out)', node: <CountUp value={model.r2_score} decimals={3} onView={false} /> },
-            { label: 'MAE', node: <CountUp value={model.mae} decimals={2} suffix=" kg" onView={false} /> },
-            { label: 'Conformal coverage', node: model.conformal_coverage_90 != null ? <CountUp value={model.conformal_coverage_90 * 100} decimals={1} suffix="%" onView={false} /> : '—' },
-          ].map((c) => (
-            <RevealItem key={c.label}>
-              <div className="glass" style={{ marginTop: '2rem', padding: '1.25rem 1.5rem' }}>
-                <div className="muted" style={{ fontSize: '0.68rem', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{c.label}</div>
-                <div style={{ fontFamily: 'var(--font-display)', fontWeight: 700, fontSize: '1.3rem', color: 'var(--green)' }}>{c.node}</div>
-              </div>
-            </RevealItem>
-          ))}
-        </RevealGroup>
+        <dl className="kpis">
+          <div><dt className="mono">Model</dt><dd className="kpi-text">{model.model_family}</dd></div>
+          <div><dt className="mono">R² held-out</dt><dd><CountUp value={model.r2_score} decimals={3} onView={false} /></dd></div>
+          <div><dt className="mono">MAE</dt><dd><CountUp value={model.mae} decimals={2} suffix=" kg" onView={false} /></dd></div>
+          <div><dt className="mono">90% coverage</dt><dd>{model.conformal_coverage_90 != null ? <CountUp value={model.conformal_coverage_90 * 100} decimals={1} suffix="%" onView={false} /> : '—'}</dd></div>
+        </dl>
       )}
-      {modelError && <div className="error-box" style={{ marginTop: '2rem' }}>Model info unavailable: {modelError}</div>}
+      {modelError && <div className="error-box" role="alert">Model info unavailable: {modelError}</div>}
 
-      {!stored ? (
-        <Reveal>
-          <TiltCard className="empty" style={{ maxWidth: 560, margin: '3rem auto' }}>
-            <div className="empty-icon depth-2">📊</div>
-            <div className="depth-1">
-              <h2 style={{ fontFamily: 'var(--font-display)', marginBottom: '0.6rem' }}>No prediction yet</h2>
-              <p className="secondary" style={{ marginBottom: '1.75rem' }}>
-                Make your first prediction and your personalised KPIs, benchmarks and uncertainty band will appear here.
-              </p>
-              <div className="row" style={{ justifyContent: 'center' }}>
-                <MagneticButton to="/">Start a prediction</MagneticButton>
-                <MagneticButton to="/compare/" variant="ghost">Compare products</MagneticButton>
-              </div>
+      {stored ? <Dashboard stored={stored} /> : (
+        <div className="empty">
+          <div className="empty-art"><Plate kind="bars" seed={4} /></div>
+          <div>
+            <h2 className="heading-sm">No prediction <em>yet.</em></h2>
+            <p className="muted">Run the calculator once and your benchmarks and interval appear here.</p>
+            <div className="cta-row">
+              <Button to="/" variant="accent">Start a prediction</Button>
+              <Button to="/compare/" variant="line">Compare products</Button>
             </div>
-          </TiltCard>
-        </Reveal>
-      ) : (
-        <Dashboard stored={stored} />
+          </div>
+        </div>
       )}
     </div>
   );
 }
 
-function Dashboard({ stored }: { stored: NonNullable<ReturnType<typeof loadResult>> }) {
-  const r = stored.response;
-  const val = r.co2_kg;
-  const bd = r.breakdown;
+function Dashboard({ stored }: { stored: StoredResult }) {
+  const { request, response: r } = stored;
   const ci = r.confidence_interval;
-  const parts = BREAKDOWN_PARTS.map((p) => ({ ...p, value: bd[p.key] }));
-
-  const kpis = [
-    { icon: '📦', value: val, decimals: 2, suffix: '', label: 'Carbon footprint (kg CO₂e)' },
-    { icon: '⚡', value: bd.materials_percent, decimals: 0, suffix: '%', label: 'Material share of breakdown' },
-    { icon: '🚢', value: bd.transport_percent, decimals: 0, suffix: '%', label: 'Transport share of breakdown' },
-    { icon: '🎯', value: ci ? ci.upper - ci.lower : 0, decimals: 2, suffix: ' kg', label: '90% interval width' },
-  ];
+  const material = prettyMaterial(request.material);
+  const benchHasMaterial = Object.keys(MATERIAL_BENCH).some((m) => m.toLowerCase() === material.toLowerCase());
+  const transportLabel = request.transport_mode.charAt(0) + request.transport_mode.slice(1).toLowerCase();
 
   return (
     <>
-      <RevealGroup className="grid-4" stagger={0.1}>
-        {kpis.map((k) => (
-          <RevealItem key={k.label}>
-            <TiltCard style={{ marginTop: '1.5rem' }}>
-              <div className="depth-2" style={{ fontSize: '1.6rem', marginBottom: '0.6rem' }}>{k.icon}</div>
-              <div className="depth-1">
-                <CountUp className="stat-value gradient-text" value={k.value} decimals={k.decimals} suffix={k.suffix} />
-                <div className="stat-label" style={{ textAlign: 'left' }}>{k.label}</div>
-              </div>
-            </TiltCard>
-          </RevealItem>
-        ))}
-      </RevealGroup>
+      <section className="results-section">
+        <div className="section-label mono"><span>01</span>{request.product_name}</div>
+        <div className="kpis kpis-big">
+          <div><dt className="mono">Footprint</dt><dd><CountUp value={r.co2_kg} decimals={2} suffix=" kg" /></dd></div>
+          <div><dt className="mono">Material share</dt><dd><CountUp value={r.breakdown.materials_percent} suffix="%" /></dd></div>
+          <div><dt className="mono">Transport share</dt><dd><CountUp value={r.breakdown.transport_percent} suffix="%" /></dd></div>
+          <div><dt className="mono">Interval width</dt><dd>{ci ? <CountUp value={ci.upper - ci.lower} decimals={2} suffix=" kg" /> : '—'}</dd></div>
+        </div>
+      </section>
 
-      <div className="grid-2" style={{ marginTop: '1.5rem' }}>
-        <Reveal>
-          <div className="glass">
-            <div className="card-title">Emission breakdown (kg CO₂e)</div>
-            <Bar
-              data={{ labels: parts.map((p) => p.label), datasets: [{ label: 'kg CO₂e', data: parts.map((p) => p.value), backgroundColor: parts.map((p) => p.color), borderRadius: 8, borderSkipped: false }] }}
-              options={barOptions({ plugins: { legend: { display: false } } })}
+      <section className="results-section">
+        <div className="section-label mono"><span>02</span>Breakdown</div>
+        <div className="results-grid">
+          <SplitHeading as="h2" className="heading-sm">Emissions by <em>stage</em></SplitHeading>
+          <BarList unit="kg CO₂e" rows={BREAKDOWN_PARTS.map((p) => ({ label: p.label, value: r.breakdown[p.key], color: p.color }))} />
+        </div>
+      </section>
+
+      <section className="results-section">
+        <div className="section-label mono"><span>03</span>Material benchmark</div>
+        <div className="results-grid">
+          <div>
+            <SplitHeading as="h2" className="heading-sm">Production intensity, <em>kg CO₂e per kg</em></SplitHeading>
+            <p className="muted small">
+              {benchHasMaterial ? <>Your material is marked in <span className="accent-text">ember</span>.</> : <>{material} is not in this reference set.</>}
+            </p>
+          </div>
+          <BarList
+            unit="kg CO₂e/kg"
+            rows={Object.entries(MATERIAL_BENCH)
+              .sort((a, b) => b[1] - a[1])
+              .map(([m, v]) => {
+                const mine = m.toLowerCase() === material.toLowerCase();
+                return { label: m, value: v, color: mine ? 'var(--accent)' : 'var(--ink)', highlight: mine, note: mine ? 'yours' : undefined };
+              })}
+          />
+        </div>
+      </section>
+
+      <section className="results-section">
+        <div className="section-label mono"><span>04</span>Freight benchmark</div>
+        <div className="results-grid">
+          <SplitHeading as="h2" className="heading-sm">Transport, <em>kg CO₂e per kg per 1,000 km</em></SplitHeading>
+          <BarList
+            unit="kg CO₂e"
+            decimals={3}
+            rows={Object.entries(TRANSPORT_BENCH).map(([m, v]) => {
+              const mine = m === transportLabel;
+              return { label: m, value: v, color: mine ? 'var(--accent)' : 'var(--ink)', highlight: mine, note: mine ? 'yours' : undefined };
+            })}
+          />
+        </div>
+      </section>
+
+      <section className="results-section">
+        <div className="section-label mono"><span>05</span>Uncertainty</div>
+        <div className="results-grid">
+          <div>
+            <SplitHeading as="h2" className="heading-sm">Conformal <em>90% interval</em></SplitHeading>
+            <p className="muted small">On held-out products, the true value lands inside this band about nine times in ten.</p>
+          </div>
+          {ci ? (
+            <BarList
+              unit="kg CO₂e"
+              max={ci.upper}
+              rows={[
+                { label: 'Lower bound', value: ci.lower, color: 'var(--ink-40)' },
+                { label: 'Point estimate', value: r.co2_kg, color: 'var(--accent)', highlight: true },
+                { label: 'Upper bound', value: ci.upper, color: 'var(--ink-40)' },
+              ]}
             />
-          </div>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <div className="glass">
-            <div className="card-title">Material benchmark (kg CO₂e per kg)</div>
-            <Bar
-              data={{
-                labels: Object.keys(MATERIAL_BENCH),
-                datasets: [{
-                  label: 'kg CO₂e per kg',
-                  data: Object.values(MATERIAL_BENCH),
-                  backgroundColor: Object.keys(MATERIAL_BENCH).map((m) => (m === stored.request.material ? 'rgba(255,107,53,0.85)' : 'rgba(100,255,180,0.55)')),
-                  borderRadius: 6, borderSkipped: false,
-                }],
-              }}
-              options={barOptions({ indexAxis: 'y', plugins: { legend: { display: false } } })}
-            />
-          </div>
-        </Reveal>
-        <Reveal>
-          <div className="glass">
-            <div className="card-title">Transport benchmark (kg CO₂e per kg per 1000 km)</div>
-            <Bar
-              data={{ labels: Object.keys(TRANSPORT_BENCH), datasets: [{ label: 'kg CO₂e', data: Object.values(TRANSPORT_BENCH), backgroundColor: PALETTE.slice(0, 4), borderRadius: 6, borderSkipped: false }] }}
-              options={barOptions({ plugins: { legend: { display: false } } })}
-            />
-          </div>
-        </Reveal>
-        <Reveal delay={0.1}>
-          <div className="glass">
-            <div className="card-title">Uncertainty band (conformal 90%)</div>
-            {ci ? (
-              <Bar
-                data={{
-                  labels: ['Lower bound', 'Point estimate', 'Upper bound'],
-                  datasets: [{ label: 'kg CO₂e', data: [ci.lower, val, ci.upper], backgroundColor: ['rgba(100,255,180,0.35)', 'rgba(100,255,180,0.85)', 'rgba(100,255,180,0.35)'], borderRadius: 8, borderSkipped: false }],
-                }}
-                options={barOptions({ plugins: { legend: { display: false } } })}
-              />
-            ) : (
-              <p className="muted">This prediction has no interval.</p>
-            )}
-          </div>
-        </Reveal>
-      </div>
+          ) : (
+            <p className="muted">This prediction has no interval.</p>
+          )}
+        </div>
+      </section>
     </>
   );
 }

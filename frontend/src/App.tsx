@@ -1,16 +1,14 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Route, Routes, useLocation } from 'react-router-dom';
 import { AnimatePresence, MotionConfig } from 'motion/react';
-import { Navbar } from './components/Navbar';
+import { PillNav } from './components/kit/PillNav';
 import { Footer } from './components/Footer';
-import { Cursor } from './components/Cursor';
 import { PageTransition } from './components/PageTransition';
-import { MagneticButton } from './components/MagneticButton';
+import { Button } from './components/ui/Button';
 import { useSmoothScroll } from './lib/useSmoothScroll';
 import { ScrollTrigger } from './lib/gsap';
 import Home from './pages/Home';
 
-const ParticleField = lazy(() => import('./three/ParticleField'));
 const Results = lazy(() => import('./pages/Results'));
 const Insights = lazy(() => import('./pages/Insights'));
 const Compare = lazy(() => import('./pages/Compare'));
@@ -19,10 +17,10 @@ const Advisor = lazy(() => import('./pages/Advisor'));
 
 function NotFound() {
   return (
-    <div className="container page-pad text-center" style={{ paddingTop: '12rem' }}>
-      <div className="display gradient-text">404</div>
-      <p className="lead" style={{ margin: '1rem auto 2rem' }}>This page drifted off into the atmosphere.</p>
-      <MagneticButton to="/">Back home</MagneticButton>
+    <div className="container page-pad">
+      <p className="mono eyebrow">404 — Off the map</p>
+      <h1 className="display" style={{ margin: '1.5rem 0 2.5rem' }}>This page drifted<br /><em>into the atmosphere.</em></h1>
+      <Button to="/">Back to the calculator</Button>
     </div>
   );
 }
@@ -47,12 +45,7 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <Suspense fallback={null}>
-        <ParticleField />
-      </Suspense>
-      <div className="noise" aria-hidden />
-      <Cursor />
-      <Navbar />
+      <PillNav />
       <AnimatePresence
         mode="wait"
         onExitComplete={() => {
