@@ -12,16 +12,23 @@ import { SupplyChainStory } from '../components/motion-graphics/SupplyChainStory
 import { TiltCard } from '../components/TiltCard';
 import { MagneticButton } from '../components/MagneticButton';
 import { Reveal, RevealGroup, RevealItem } from '../components/Reveal';
+import { StackedCards, type StackItem } from '../components/StackedCards';
 
 const CarbonGlobe = lazy(() => import('../three/CarbonGlobe'));
 
-const FEATURES = [
-  { icon: '⚡', title: 'Instant Estimates', desc: 'Sub-100ms predictions from a locally served XGBoost model — no API latency.' },
-  { icon: '📊', title: 'SHAP Explanations', desc: 'Per-prediction TreeSHAP values show exactly which factors drive your carbon number.' },
-  { icon: '🔗', title: 'RAG Advisor', desc: 'LangChain + ChromaDB retrieval with streaming answers, grounded in real documents.' },
-  { icon: '📦', title: 'BoM Decomposer', desc: 'Describe a product in plain language — the AI splits it into a Bill of Materials and estimates each part.' },
-  { icon: '⚖️', title: 'Side-by-Side Compare', desc: 'Pit two products against each other with the real model and see where the difference comes from.' },
-  { icon: '🎯', title: 'Uncertainty Bands', desc: 'Conformal prediction gives every estimate a calibrated 90% interval — no overconfident point numbers.' },
+const FEATURES: StackItem[] = [
+  { meta: 'Engine 01 · XGBoost', title: 'Instant estimates', tag: 'predict', art: 'liquid', to: '#calculator',
+    body: 'Sub-100 ms predictions from a locally served XGBoost model. Material, weight, origin, freight and end-of-life in; a calibrated CO₂ figure out.' },
+  { meta: 'Engine 01 · TreeSHAP', title: 'Explanations that add up', tag: 'explain', art: 'blades', to: '/insights/',
+    body: 'Every prediction is decomposed into per-feature contributions, so you see exactly which choice pushed the number up and which pulled it down.' },
+  { meta: 'Engine 02 · RAG', title: 'A grounded sustainability advisor', tag: 'advise', art: 'pigment', to: '/advisor/',
+    body: 'MiniLM retrieval over LCA and IPCC sources, cross-encoder reranking and streamed answers that cite where every claim came from.' },
+  { meta: 'Engine 03 · Agentic', title: 'Bill-of-materials decomposer', tag: 'decompose', art: 'bloom', to: '/decompose/',
+    body: 'Describe a product in plain language; the LLM breaks it into components and the model estimates each one, totalled into a full footprint.' },
+  { meta: 'Engine 01 · Ranking', title: 'Side-by-side compare', tag: 'compare', art: 'ribbons', to: '/compare/',
+    body: 'Run two products through the real model and see which is lower-impact, by how much, and exactly where the difference comes from.' },
+  { meta: 'Engine 01 · Conformal', title: 'Honest uncertainty', tag: 'calibrate', art: 'marble', to: '/insights/',
+    body: 'Conformalized quantile regression wraps each estimate in a 90% interval that holds up on unseen products: 91.2% held-out coverage.' },
 ];
 const TECH = ['XGBoost', 'Conformal Prediction', 'SHAP', 'LangChain', 'ChromaDB', 'Django 5', 'React', 'Three.js', 'GSAP', 'Motion'];
 
@@ -222,28 +229,15 @@ export default function Home() {
 
       <SupplyChainStory />
 
-      <section className="section">
-        <div className="container">
-          <div className="text-center" style={{ marginBottom: '3.5rem' }}>
-            <span className="eyebrow">Capabilities</span>
-            <KineticHeading className="heading">
-              Everything you need to <span className="gradient-text">measure &amp; reduce</span>
-            </KineticHeading>
-          </div>
-          <RevealGroup className="grid-3">
-            {FEATURES.map((f) => (
-              <RevealItem key={f.title}>
-                <TiltCard style={{ height: '100%' }}>
-                  <div className="depth-2 feature-icon">{f.icon}</div>
-                  <div className="depth-1">
-                    <div className="feature-title">{f.title}</div>
-                    <p className="feature-desc">{f.desc}</p>
-                  </div>
-                </TiltCard>
-              </RevealItem>
-            ))}
-          </RevealGroup>
+      <section className="paper">
+        <div className="container text-center">
+          <span className="eyebrow">Capabilities</span>
+          <KineticHeading className="heading">
+            Everything you need to <span className="gradient-text">measure &amp; reduce</span>
+          </KineticHeading>
+          <p className="lead" style={{ margin: '1rem auto 0' }}>Three engines, six tools. Scroll through the deck.</p>
         </div>
+        <StackedCards items={FEATURES} />
       </section>
 
       <Marquee items={TECH} speed={-1.8} outline />
