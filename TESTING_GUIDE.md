@@ -1,199 +1,132 @@
-# 🎬 Animation Testing Guide
+# Animation Testing Guide
 
-## Quick Test Steps
+A manual pass over the frontend's motion components. What each one is and how
+it is wired is in [ANIMATION_SUMMARY.md](ANIMATION_SUMMARY.md) and
+[SCROLL_ANIMATIONS.md](SCROLL_ANIMATIONS.md).
 
-### 1. Home Page (http://127.0.0.1:8000/)
+## Setup
 
-**What to Look For:**
+Either build the app and let Django serve it:
 
-- ✨ **On Load**: Title and description fade in immediately
-- ✨ **On Load**: Form card slides up with a slight delay
-- ✨ **On Load**: Stats cards at bottom fade in with stagger
-
-**Scroll Test:**
-
-1. Scroll down slowly
-2. Watch the form card scale up as it enters view
-3. Watch stats cards slide in from left and right
-4. Scroll back up - elements should fade out
-5. Scroll down again - elements should re-animate
-
----
-
-### 2. Results Page (http://127.0.0.1:8000/results/)
-
-**Note:** You need to calculate a footprint first to see results
-
-**What to Look For:**
-
-- ✨ **On Load**: CO2 value animates with glow effect
-- ✨ **On Load**: Stats cards (trees, vegan days, car km) slide up
-- ✨ **On Load**: Charts section fades in
-
-**Scroll Test:**
-
-1. Scroll down to see breakdown items slide in from left
-2. Scroll to compensation section - items slide in from right
-3. Scroll back up and down to see re-animation
-
----
-
-### 3. Insights Page (http://127.0.0.1:8000/insights/)
-
-**What to Look For:**
-
-- ✨ **On Load**: Header fades in
-- ✨ **On Load**: Performance metrics card scales up
-- ✨ **On Load**: Methodology card fades in
-
-**Scroll Test:**
-
-1. Scroll down to Training Data section - slides in from left
-2. Scroll to Limitations section - slides in from right
-3. All sections re-animate when scrolling back up and down
-
----
-
-## 🎯 Animation Checklist
-
-### Visual Effects to Observe:
-
-#### Fade In Animations
-
-- [ ] Elements start invisible (opacity: 0)
-- [ ] Smooth fade to visible (opacity: 1)
-- [ ] Slight upward movement (translateY)
-- [ ] Takes ~0.8 seconds
-
-#### Slide Animations
-
-- [ ] Elements slide from left/right/bottom
-- [ ] Smooth transition with easing
-- [ ] End position is natural (no offset)
-
-#### Scale Animations
-
-- [ ] Elements start at 85% size
-- [ ] Grow to 100% while fading in
-- [ ] Smooth, professional feel
-
-#### Stagger Effects
-
-- [ ] Multiple elements don't animate simultaneously
-- [ ] Sequential appearance (100ms apart)
-- [ ] Creates wave/cascade effect
-
----
-
-## 🔍 Troubleshooting
-
-### If animations don't work:
-
-1. **Check Browser Console** (F12)
-   - Look for JavaScript errors
-   - Verify Intersection Observer is supported
-
-2. **Hard Refresh** (Ctrl + Shift + R)
-   - Clears cache
-   - Reloads CSS and JS files
-
-3. **Check Network Tab**
-   - Ensure `main.css` loaded
-   - Ensure `app.js` loaded
-
-4. **Test in Different Browser**
-   - Try Chrome, Firefox, or Edge
-   - Ensure modern browser version
-
----
-
-## 🎨 Expected Behavior
-
-### First Visit
-
-```
-Page Load → Elements animate in sequence → User scrolls →
-New elements animate → User scrolls up → Elements fade out →
-User scrolls down → Elements re-animate
+```bash
+npm --prefix frontend ci
+npm --prefix frontend run build
+python manage.py runserver        # http://127.0.0.1:8000/
 ```
 
-### Timing
+or run Django on :8000 and `npm --prefix frontend run dev` alongside it, then
+open http://127.0.0.1:5173/ (Vite proxies `/api` to Django).
 
-- **Page Load**: 0-1 second for initial animations
-- **Scroll Trigger**: Instant when 10% of element visible
-- **Animation Duration**: 0.8 seconds per element
-- **Stagger Delay**: 0.1 seconds between elements
+Test at a desktop width of 1280px or more first; several components change
+behaviour below 1100px, 820px and 761px (see "Small screens").
 
----
+## 1. Home (`/`)
 
-## 📱 Mobile Testing
+**Hero**
 
-If testing on mobile:
+- [ ] The pill nav drops in from the top; the headline lines rise out of their
+      masks one after another.
+- [ ] The dotted globe fades and scales in, spins slowly, and its orange
+      electrons travel the three orbits and disappear behind the sphere.
+- [ ] Dragging the globe sideways spins it faster; after release it eases back
+      to its idle speed.
+- [ ] Scrolling out of the hero shrinks, lifts and tilts the globe.
 
-1. Open http://YOUR_LOCAL_IP:8000/
-2. Scroll slowly to see animations
-3. Animations should be smooth (60fps)
-4. Touch scrolling should trigger animations
+**Dial nav (right edge)**
 
----
+- [ ] The readout shows `01/06` and changes as each section crosses the middle
+      of the screen.
+- [ ] Labels turn on a drum; the active one lines up with the needle and the
+      others tilt away and fade.
+- [ ] Clicking a label glides to that section.
 
-## 🎥 What Makes It Special
+**Why**
 
-### Traditional Websites
+- [ ] Words brighten one by one as the paragraph scrolls up; scrolling back
+      dims them again.
 
-- Elements appear instantly
-- No visual feedback
-- Static, boring
+**Model (scroll-zoom)**
 
-### Your Website Now
+- [ ] The section holds in place while a small framed plate opens to fill the
+      screen, and "The hidden" / "number" slide apart.
+- [ ] The stat numbers roll up from zero once the frame is open.
 
-- ✨ Smooth entrance animations
-- ✨ Repeating scroll effects
-- ✨ Professional, engaging
-- ✨ Modern web standards
-- ✨ Performance optimized
+**Tools (image scroller)**
 
----
+- [ ] The section pins and vertical scrolling moves the card strip sideways.
+- [ ] Images drift slightly inside their frames; the hairline under the strip
+      fills as you go.
+- [ ] Unpinning happens exactly as the last card reaches the edge (no blank
+      gap, no cut-off card).
+- [ ] The "Predict" card glides to the calculator; the others route to their
+      pages.
 
-## 🚀 Performance Notes
+**Pill nav**
 
-- **GPU Accelerated**: Uses CSS transforms
-- **No Scroll Listeners**: Uses Intersection Observer
-- **Minimal JavaScript**: ~120 lines of efficient code
-- **60fps Animations**: Smooth on all devices
-- **Battery Friendly**: No continuous calculations
+- [ ] Scrolling down past the hero hides the nav; any upward scroll brings it
+      back.
+- [ ] Hovering "Tools" opens the dropdown; Escape or a click outside closes it.
+- [ ] The highlight slides between links when the route changes.
 
----
+## 2. Route transitions
 
-## 💡 Tips for Best Experience
+- [ ] Navigating between pages raises an ink curtain, which lifts away
+      carrying the new page's title.
+- [ ] The new page starts at the top, and pinned sections on it are not offset.
 
-1. **Scroll Slowly**: Gives you time to appreciate animations
-2. **Scroll Back Up**: See elements fade out
-3. **Scroll Down Again**: Watch re-animation
-4. **Try Different Pages**: Each has unique animation patterns
-5. **Resize Window**: Animations work at all sizes
+## 3. Results (`/results/`)
 
----
+Submit the calculator on Home first; without a stored result the page
+redirects back.
 
-## ✅ Success Criteria
+- [ ] The CO₂e figure counts up.
+- [ ] The carbon pass drops in on its strap and settles. It can be grabbed by
+      either end, thrown, and swings back; the strap text follows the ribbon.
+- [ ] The lifecycle-stage bar and the feature-contribution chart grow in once;
+      hovering a row or segment shows its exact value.
+- [ ] Everyday equivalents count up as they scroll into view.
 
-You'll know it's working when:
+## 4. Insights, Compare, Decompose
 
-- ✅ Elements fade/slide in smoothly on page load
-- ✅ New elements animate when scrolling into view
-- ✅ Elements fade out when scrolling back up
-- ✅ Elements re-animate when scrolling down again
-- ✅ Multiple elements have staggered timing
-- ✅ Animations feel smooth and professional
+- [ ] Insights: model metrics count up; each bar list grows in and shows a
+      tooltip on hover. With no stored result it shows a plate and a prompt
+      instead.
+- [ ] Compare: after running a comparison, the grouped bars grow in with a
+      legend above.
+- [ ] Decompose: the empty state shows a ridges plate; after a decomposition
+      the total counts up and the composition bar segments grow in.
+- [ ] Plates repaint sharply after a window resize (no stretching or blur).
 
----
+## 5. Reduced motion
 
-## 🎉 Enjoy Your Animated Website!
+Turn on the OS "reduce motion" setting, or in Chrome DevTools use Rendering →
+"Emulate CSS media feature prefers-reduced-motion: reduce", then reload.
 
-Your Carbon Footprint Generator now has **professional-grade animations** that rival modern web applications. The scroll-triggered, repeating animations create an engaging user experience that keeps visitors interested and impressed.
+- [ ] No route curtain; pages swap instantly.
+- [ ] Scrolling is native (no Lenis smoothing).
+- [ ] The globe is a still image; the carbon pass hangs at rest.
+- [ ] Headings and paragraphs are fully visible without animating.
+- [ ] The scroll-zoom section shows the open media with its copy, no pin and no
+      split headline.
+- [ ] The tools strip is a native horizontal swipe with snap points.
+- [ ] Numbers show their final values immediately.
 
-**Next Steps:**
+## 6. Small screens
 
-1. Open http://127.0.0.1:8000/ in your browser
-2. Scroll through each page
-3. Watch the magic happen! ✨
+- [ ] Below 1100px the dial nav is hidden.
+- [ ] Below 820px the pill nav shows a menu button; it expands the pill into a
+      list of every page.
+- [ ] Below 761px the tools strip becomes a native swipe with snap points
+      instead of pinning.
+- [ ] The carbon pass can be dragged with touch.
+
+## If something looks wrong
+
+- **Console errors**: open DevTools; most failures show up as a React or GSAP
+  warning.
+- **Pinned sections offset**: resize the window once. If that fixes it, a
+  `ScrollTrigger.refresh()` is missing after content changed height (see
+  SCROLL_ANIMATIONS.md, "Troubleshooting").
+- **Nothing animates**: check that reduced motion is not enabled.
+- **Stale UI after pulling**: rebuild with `npm --prefix frontend run build`,
+  since Django serves `frontend/dist`.

@@ -165,11 +165,11 @@ Streams responses with citations.
 <td valign="top">
 
 ### 🎨 UX Polish
-- ✅ React + React Three Fiber 3D scenes (carbon globe, emission towers, particle field)
-- ✅ Motion-graphic design: GSAP SplitText kinetic type, scroll-drawn supply-chain route, morphing blobs, velocity marquees
-- ✅ Motion (Framer Motion) page transitions, 3D tilt cards, magnetic buttons
-- ✅ Lenis smooth scroll
-- ✅ Custom cursor + tilt cards
+- ✅ React editorial design system: stone paper, ink, one ember accent, serif display type
+- ✅ Seven motion components: pill nav, dotted atomic globe, scroll text reveals, scroll-zoom section, horizontal image scroller, rotary section dial, draggable lanyard pass
+- ✅ Generative canvas plates as imagery (no binary images) + hand-built animated bar charts
+- ✅ GSAP ScrollTrigger + SplitText, Motion page transitions, Lenis smooth scroll
+- ✅ Full `prefers-reduced-motion` fallbacks
 - ✅ A→E sustainability grade per product
 - ✅ Compare 2–10 products side-by-side
 - ✅ Real-world equivalencies (car-km, charges)
@@ -406,7 +406,7 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 │   ├── evals/                       Gold eval set + RAGAS runner
 │   └── knowledge_base/seed_facts.md
 │
-├── ⚛️  frontend/                     React + R3F + Motion + GSAP SPA (Vite, TypeScript)
+├── ⚛️  frontend/                     React + Motion + GSAP SPA (Vite, TypeScript)
 ├── 🌐 core/                         SPA view + PredictionLog model
 ├── ⚙️  carbon_project/              Django config
 ├── 📊 data/                         Real LCA sources (Agribalyse, Poore)
@@ -438,6 +438,8 @@ write access to the Space, and change `HF_SPACE` in the workflow if you deploy y
 | 🏗 [ARCHITECTURE.md](ARCHITECTURE.md) | System diagram, data flow, design decisions |
 | 📋 [MODEL_CARD.md](MODEL_CARD.md) | Transparency doc · intended use · limitations · ethics |
 | 🤖 [RAG_ADVISOR.md](RAG_ADVISOR.md) | RAG pipeline deep dive |
+| 🎬 [ANIMATION_SUMMARY.md](ANIMATION_SUMMARY.md) | Frontend motion components, reduced-motion fallbacks |
+| 🌀 [SCROLL_ANIMATIONS.md](SCROLL_ANIMATIONS.md) | Lenis + ScrollTrigger wiring, adding scroll animations |
 | 🚢 [DEPLOYMENT.md](DEPLOYMENT.md) | Render / Railway / Fly walkthrough |
 | 🤗 [FREE_DEPLOY.md](FREE_DEPLOY.md) | Free deploy on HuggingFace Spaces |
 | 🎯 [CV_HIGHLIGHTS.md](CV_HIGHLIGHTS.md) | Portfolio talking points |

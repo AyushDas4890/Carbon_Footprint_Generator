@@ -9,8 +9,13 @@ sustainability advisor, and an agentic Bill-of-Materials decomposer.
 
 ```
                          ┌────────────────────────────────────────┐
-                         │             Django (DRF) Web          │
-                         │  views/templates · CSRF · sessions     │
+                         │      React SPA (frontend/, Vite)       │
+                         │  PillNav · kit/ · Plate · ui/Charts    │
+                         └───────────────────┬────────────────────┘
+                                             │ fetch /api/* · SSE stream
+                         ┌───────────────────┴────────────────────┐
+                         │            Django (DRF) Web            │
+                         │  SPA shell · DRF API · CSRF · sessions │
                          └───┬────────┬─────────────┬─────────────┘
                              │        │             │
               POST /api/predict│   POST /api/compare│   POST /api/advisor/chat
@@ -76,12 +81,38 @@ sustainability advisor, and an agentic Bill-of-Materials decomposer.
   `ChatSession`, `ChatMessage`.
 - **ChromaDB** (vector): persisted to `advisor/chroma_store/`.
 
-### 4. Production stack
-- **Dockerfile** — multi-stage build, Gunicorn + WhiteNoise.
+### 4. Frontend (`frontend/`)
+- **Stack:** React 19 + TypeScript, built by Vite into `frontend/dist`.
+  React Router handles every page client-side; motion comes from GSAP
+  (ScrollTrigger, SplitText), Motion and Lenis. No WebGL and no chart
+  library.
+- **Serving:** `core.views.spa_view` returns `frontend/dist/index.html` for
+  `/`, `/results/`, `/insights/`, `/compare/`, `/decompose/` and
+  `/advisor/`; WhiteNoise serves the hashed assets under `/static/`. In
+  development Vite runs on :5173 and proxies `/api` and `/health` to Django.
+- **Pages** (`src/pages/`): Home (hero + calculator), Results, Insights,
+  Compare, Decompose, Advisor. All but Home are lazy-loaded.
+- **Kit components** (`src/components/kit/`): `PillNav`, `AtomicGlobe`,
+  `TextReveal` (`TextRevealOnScroll`, `SplitHeading`), `ScrollZoomReveal`,
+  `ImageScroller`, `VerticalDialNav`, `LanyardPass`.
+- **Imagery and charts:** `src/components/Plate.tsx` draws generative canvas
+  plates (no binary images in the repo); `src/components/ui/Charts.tsx`
+  provides `BarList`, `DivergingBars`, `GroupedBars` and `StackBar` as
+  plain DOM bars animated with Motion.
+- **API client:** `src/lib/api.ts` wraps the JSON endpoints and the SSE
+  advisor stream; `src/lib/result.ts` keeps the last prediction in
+  `sessionStorage` for the Results and Insights pages.
+- Details: [ANIMATION_SUMMARY.md](ANIMATION_SUMMARY.md),
+  [SCROLL_ANIMATIONS.md](SCROLL_ANIMATIONS.md).
+
+### 5. Production stack
+- **Dockerfile** — multi-stage build: a Node stage builds `frontend/dist`,
+  then Gunicorn + WhiteNoise serve it with the Django app.
 - **docker-compose.yml** — single-command stack with persistent volumes
   for SQLite and ChromaDB; Postgres scaffolded as a future swap.
-- **GitHub Actions** — CI (lint + Django checks + tests + Docker build)
-  and a manual retrain workflow that can pull an external dataset.
+- **GitHub Actions** — CI (lint + Django checks + tests, frontend
+  typecheck + build, Docker build) and a manual retrain workflow that can
+  pull an external dataset.
 
 ---
 
