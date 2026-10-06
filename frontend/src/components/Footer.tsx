@@ -1,59 +1,48 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
-import { Logo } from './Navbar';
+import { Mark, TOOLS } from './kit/PillNav';
 
 export function Footer() {
   return (
-    <footer className="footer">
+    <footer className="footer tone-ink">
       <div className="container">
-        <div className="footer-grid">
-          <div>
-            <div className="brand" style={{ marginBottom: '0.9rem' }}>
-              <Logo />
-              <span><span className="c4">C4</span>Future</span>
+        <div className="footer-top">
+          <p className="footer-pitch">
+            Know the weight of what you make <em>before</em> you make it.
+          </p>
+          <div className="footer-cols">
+            <div>
+              <h4 className="mono">Tools</h4>
+              <ul>
+                <li><Link to="/">Calculator</Link></li>
+                {TOOLS.map((t) => <li key={t.to}><Link to={t.to}>{t.label}</Link></li>)}
+                <li><Link to="/advisor/">Advisor</Link></li>
+              </ul>
             </div>
-            <p className="secondary" style={{ maxWidth: 340, fontSize: '0.9rem' }}>
-              AI-powered carbon intelligence — helping you understand and reduce the environmental impact of every product.
-            </p>
-          </div>
-          <div>
-            <h4>Tools</h4>
-            <ul>
-              <li><Link to="/">Calculator</Link></li>
-              <li><Link to="/results/">Results</Link></li>
-              <li><Link to="/compare/">Compare</Link></li>
-              <li><Link to="/decompose/">Decompose</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Insights</h4>
-            <ul>
-              <li><Link to="/insights/">Dashboard</Link></li>
-              <li><Link to="/advisor/">AI Advisor</Link></li>
-            </ul>
-          </div>
-          <div>
-            <h4>Model</h4>
-            <ul>
-              <li>XGBoost ML</li>
-              <li>SHAP Analysis</li>
-              <li>RAG Pipeline</li>
-            </ul>
+            <div>
+              <h4 className="mono">Under the hood</h4>
+              <ul className="footer-plain">
+                <li>XGBoost regressor</li>
+                <li>Conformal intervals</li>
+                <li>TreeSHAP attributions</li>
+                <li>RAG over LCA sources</li>
+              </ul>
+            </div>
           </div>
         </div>
         <motion.div
           className="footer-word"
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ y: '40%', opacity: 0 }}
+          whileInView={{ y: '0%', opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
           aria-hidden
         >
-          C4FUTURE
+          C4Future
         </motion.div>
-        <div className="footer-bottom">
-          <p>© {new Date().getFullYear()} <span style={{ color: 'var(--green)' }}>C4Future</span> — Carbon Intelligence</p>
-          <p>Built with <span style={{ color: 'var(--green)' }}>♦</span> for a sustainable future</p>
+        <div className="footer-bottom mono">
+          <span className="row-inline"><Mark size={16} /> © {new Date().getFullYear()} C4Future</span>
+          <span>Estimates, not audits — every number ships with its interval</span>
         </div>
       </div>
     </footer>

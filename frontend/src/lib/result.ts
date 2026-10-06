@@ -31,7 +31,14 @@ export function loadResult(): StoredResult | null {
 }
 
 export const BREAKDOWN_PARTS = [
-  { key: 'material_co2', label: 'Material Production', color: '#64ffb4' },
-  { key: 'manufacturing_co2', label: 'Manufacturing', color: '#00d9ff' },
-  { key: 'transport_co2', label: 'Transport', color: '#8b5cf6' },
+  { key: 'material_co2', label: 'Material production', color: 'var(--series-1)' },
+  { key: 'manufacturing_co2', label: 'Manufacturing', color: 'var(--series-2)' },
+  { key: 'transport_co2', label: 'Transport', color: 'var(--series-3)' },
 ] as const;
+
+/** Sequential ink-to-ember scale: A is the lightest footprint, F the heaviest. */
+export const GRADE_COLORS: Record<string, string> = {
+  A: '#2f6b4f', B: '#6b7f2e', C: '#a07812', D: '#c4611a', E: '#e0481d', F: '#a3240c',
+};
+
+export const prettyMaterial = (m: string) => m.replace(/_/g, ' ');

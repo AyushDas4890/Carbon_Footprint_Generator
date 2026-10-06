@@ -204,7 +204,7 @@ Streams responses with citations.
 
 **RAG / LLM** &nbsp; ![LangChain](https://img.shields.io/badge/-LangChain-1C3C3C?logo=langchain) ![ChromaDB](https://img.shields.io/badge/-ChromaDB-ff6b35) ![SentenceTransformers](https://img.shields.io/badge/-sentence--transformers-EE4C2C) ![OpenAI](https://img.shields.io/badge/-OpenAI-412991?logo=openai)
 
-**Frontend** &nbsp; ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite&logoColor=white) ![Motion](https://img.shields.io/badge/-Motion-FF0055) ![ChartJS](https://img.shields.io/badge/-Chart.js-FF6384?logo=chartdotjs) ![ThreeJS](https://img.shields.io/badge/-Three.js-000000?logo=threedotjs) ![GSAP](https://img.shields.io/badge/-GSAP-88CE02)
+**Frontend** &nbsp; ![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=black) ![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white) ![Vite](https://img.shields.io/badge/-Vite-646CFF?logo=vite&logoColor=white) ![Motion](https://img.shields.io/badge/-Motion-FF0055) ![GSAP](https://img.shields.io/badge/-GSAP-88CE02)
 
 **Infra** &nbsp; ![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker) ![HuggingFace](https://img.shields.io/badge/-🤗_Spaces-FFD21F) ![GitHub_Actions](https://img.shields.io/badge/-GitHub_Actions-2088FF?logo=github-actions) ![Sentry](https://img.shields.io/badge/-Sentry-362D59?logo=sentry)
 

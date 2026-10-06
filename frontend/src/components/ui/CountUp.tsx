@@ -28,20 +28,14 @@ export function CountUp({ value, decimals = 0, prefix = '', suffix = '', classNa
       const counter = { n: 0 };
       gsap.to(counter, {
         n: value,
-        duration: 2,
+        duration: 1.8,
         ease: 'expo.out',
-        onUpdate: () => {
-          el.textContent = format(counter.n);
-        },
-        scrollTrigger: onView ? { trigger: el, start: 'top 90%', once: true } : undefined,
+        onUpdate: () => { el.textContent = format(counter.n); },
+        scrollTrigger: onView ? { trigger: el, start: 'top 92%', once: true } : undefined,
       });
     },
     { dependencies: [value], scope: ref },
   );
 
-  return (
-    <span ref={ref} className={className}>
-      {format(0)}
-    </span>
-  );
+  return <span ref={ref} className={className}>{format(0)}</span>;
 }
