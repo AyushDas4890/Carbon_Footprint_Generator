@@ -108,18 +108,83 @@ img, svg, canvas { display: block; max-width: 100%; }
   -webkit-text-fill-color: transparent;
 }
 
-/* ── Glass surfaces ─────────────────────────────────── */
+/* ── Card surfaces ──────────────────────────────────── */
+/* Solid, crisp panels: an opaque surface, a hairline inner border, a lit top
+   edge and layered shadows read sharper than blurred translucency. */
 .glass {
   position: relative;
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.015));
-  border: 1px solid var(--glass-border);
+  background: linear-gradient(180deg, #111829 0%, #0b1120 100%);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: var(--radius-lg);
-  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 1px 2px rgba(0, 0, 0, 0.5),
+    0 12px 24px -12px rgba(0, 0, 0, 0.55),
+    0 32px 64px -32px rgba(0, 0, 0, 0.7);
   padding: 1.75rem;
+  transition: border-color 250ms, box-shadow 250ms;
 }
+.glass:hover { border-color: rgba(100, 255, 180, 0.22); }
 .glass::before {
-  content: ''; position: absolute; inset: 0 20% auto; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(100, 255, 180, 0.45), transparent);
+  content: ''; position: absolute; inset: 0 18% auto; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(100, 255, 180, 0.6), transparent);
+}
+
+/* ── Paper sheet + stacked card deck ───────────────── */
+.paper {
+  position: relative; z-index: 1;
+  background: #efedea; color: #111318;
+  border-radius: 44px;
+  margin: 2rem 0.75rem;
+  padding: 6.5rem 0 4rem;
+  box-shadow: 0 -30px 80px rgba(0, 0, 0, 0.45);
+}
+.paper .eyebrow { color: #0f9d63; }
+.paper .heading { color: #0d0f14; }
+.paper .gradient-text {
+  background: linear-gradient(135deg, #0aa86b, #0b8fd6 55%, #6b3fe0);
+  -webkit-background-clip: text; background-clip: text;
+}
+.paper .lead { color: #5b606b; }
+.stack { --base-top: 112px; --peek: 30px; position: relative; max-width: 940px; margin: 3.5rem auto 0; padding: 0 1rem 18vh; }
+.stack-card {
+  position: sticky;
+  top: calc(var(--base-top) + var(--i) * var(--peek));
+  /* Earlier cards get proportionally more bottom margin so every card hits the
+     end of the deck at the same scroll position and the stack leaves intact. */
+  margin-bottom: calc(3rem + (var(--n) - 1 - var(--i)) * var(--peek));
+}
+.stack-inner {
+  display: grid; grid-template-columns: 380px 1fr; gap: 1.75rem;
+  padding: 14px; border-radius: 26px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 1px 1px rgba(0, 0, 0, 0.04),
+    0 8px 24px -10px rgba(16, 20, 30, 0.18),
+    0 30px 60px -28px rgba(16, 20, 30, 0.28);
+  transform-origin: 50% 0%;
+  will-change: transform;
+}
+.stack-art { aspect-ratio: 1.05; border-radius: 16px; overflow: hidden; }
+.stack-art-img { width: 100%; height: 100%; object-fit: cover; display: block; will-change: transform; }
+.stack-copy { display: flex; flex-direction: column; padding: 0.7rem 0.5rem 0.25rem 0; min-width: 0; }
+.stack-meta { font-size: 0.78rem; color: #9a9ca3; margin-bottom: 0.9rem; }
+.stack-title { font-family: var(--font-display); font-size: 1.35rem; font-weight: 700; letter-spacing: -0.01em; color: #0d0f14; margin-bottom: 0.5rem; }
+.stack-body { font-size: 0.98rem; line-height: 1.6; color: #2a2d34; max-width: 46ch; }
+.stack-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 1.5rem; }
+.stack-tag { font-size: 0.72rem; font-weight: 600; color: #6b6f78; background: #f0f0f2; border: 1px solid #e6e6ea; padding: 0.3rem 0.75rem; border-radius: 999px; }
+.stack-plus {
+  width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center;
+  background: #0d0f14; color: #fff;
+  transition: transform 300ms cubic-bezier(.34, 1.56, .64, 1), background 200ms;
+}
+.stack-plus:hover { transform: rotate(90deg) scale(1.08); background: #0aa86b; }
+@media (max-width: 760px) {
+  .paper { border-radius: 28px; margin: 1rem 0.5rem; padding-top: 4.5rem; }
+  .stack-inner { grid-template-columns: 1fr; gap: 1rem; }
+  .stack-art { aspect-ratio: 16 / 9; }
+  .stack { --base-top: 80px; --peek: 14px; }
 }
 .card-title { font-size: 0.95rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 1.25rem; }
 
